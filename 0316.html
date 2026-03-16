@@ -1,0 +1,69 @@
+<html>
+<head>
+ <title>0316 CSS</title>
+
+<!--html註解-->
+<style>
+/*CSS註解*/
+/*CSS basic
+
+Selector {
+          property value ;
+          屬性:設定值
+          屬性:設定值
+
+          }
+        選擇棄三種寫法: html_tag / #id / .class
+
+*/
+div {
+     /*size*/
+     width:200px;
+     height:200px;
+     background: red;
+     background: violet;      /*background-colar寫法
+                                  1.英文單字
+                                  2.#RRGGBB #000000~#FFFFFF(標準寫法)
+                                  3.rgba(r,g,b,a可見度)
+                                */
+    }
+
+span{
+     display/*修改預設屬性*/: inline-block /*改為行內元素*/
+     /*div原為block(區塊) span原為inline(行內)*/
+    width 200px;
+
+     width:200px;
+     height:200px;
+
+     background: red;
+     background: violet;      /*同一屬性(ex:background-color)如果重疊，後會蓋前*/ 
+    }
+
+#d1/*優先序第一*/ {
+
+    }
+
+.c1/*優先序第二*/ {
+     background: rgba(23, 169, 226,50%) !important;
+     background: violet;      /*同一屬性(ex:background-color) !important會優先*/
+    }
+
+/*<html>*/tag/*優先序第三*/
+
+
+</style>
+
+</head>
+<body>
+
+
+<div> div 123 </div>   <!--div-區塊容器(自成一行) -->
+<div id="d1"> div 123 </div>
+<div class="c1"> div 123 </div>  
+<div id="d1" class="c1"> div 123 </div> 
+
+<span> span 123 </span><!--span行內元素(文字隔塊)[不得自訂義大小without display] -->
+</body>
+
+</html>
