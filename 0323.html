@@ -1,0 +1,58 @@
+<html>
+<head>
+<title>0323漸層</title>
+<style>
+div {
+    margin-bottom: 10px;
+}
+#d1 {
+ width: 200px;
+ height: 100px;
+
+ /*第一個參數放漸層方向，有兩種寫法
+ 1.to 方向:top/right/bottom/left
+ 2.0~360 deg
+ */
+   background:linear-gradient(135deg,red,yellow);  
+}
+#d2 {
+    width: 400px;
+    height: 50px;
+    background:linear-gradient(90deg,red,orange,yellow,green,blue,rgb(0, 238, 255),violet,purple)
+}
+#d3 {
+    width: 400px;
+    height: 50px;
+    background: linear-gradient(90deg,red 30%,white 30%,white 70%,blue 70%);
+}
+#d4 {
+    width: 400px;
+    height: 50px;
+    background: repeating-linear-gradient(45deg,red 30%,white 50%,red 60%);
+}
+#r1 {
+width: 400px;
+height: 400px;
+background: radial-gradient(rgb(255, 0, 0) 5%,orange 20%,rgb(255, 72, 0) 25%,yellow,rgb(255, 182, 255) 28%,blue 32%,rgb(7, 110, 228) 37%,blue 40%,rgb(0, 0, 41)60%,black)100%;
+}
+#c1 {
+width: 400px;
+height: 400px;
+background: conic-gradient(red ,yellow ,green,cyan,blue,magenta,red);
+}
+
+
+</style>
+
+</head>
+<body>
+<div id="d1"></div>
+<div id="d2"></div>
+<div id="d3"></div>
+<div id="d4"></div>
+<div id="r1"></div>
+<div id="c1"></div>
+<div id="c2"></div>
+</body>
+</body>
+</html>
