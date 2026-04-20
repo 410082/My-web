@@ -1,0 +1,70 @@
+<html>
+    <head>
+         <!--html-->
+        <style>
+            /*CSS*/
+        </style>
+        <script>
+            //script
+            /*script*/
+            
+            function say_hello(){ /*=void*/
+            alert("hello bello");
+            console.log("say_hello");
+              document.getElementById("msg").innerHTML=("hello bello!")+name;
+            }
+
+            function ask_if_user_want_or_not(){
+            ans=confirm("hello bello?");
+            if (ans==true)
+              document.getElementById("msg").innerHTML=("hello bello!")+name;
+            
+            else
+            document.getElementById("msg").innerHTML=("so sad...");
+            }
+            function ask_for_an_answer(){
+            prompt("hello bello?");
+            }
+            function calculate(){
+            n1=document.getElementById("n1")
+            
+            p="";
+            if(isNaN(n1))/*is Not a Number*/n1=0;
+            else{
+            for(n=0;i!=0;n++)
+                t[n]=n1%f;
+                n1=n1/f;
+            if(n1<f){
+             t[n+1]=n1;
+             e=n+1;
+             i=1;
+            }
+            }
+            for(n=e;n>=0;n=n-1)
+            p=p+t[n];
+            n2=document.getElementById("n2").innerHTML=(p);
+            }
+
+        </script>
+    </head>
+    <body onload="alert('loaded already');">
+        <button onclick="ask_if_user_want_or_not()">sure?</button>
+        <div id="msg"></div>
+    
+    <input type="text"><br>
+    <input type="password"><br>
+    <input type="number"><br>
+    <input type="date"><br>
+    <input type="datetime-local"><br>
+    <input type="color"><br>
+    <input type="range" value="0" min="0" max=10 oninput>
+    
+    <!--實作-->
+    <button onclick="f=2;">2進位</button> <button onclick="f=4;">4進位</button> <button onclick="f=8;">8進位</button> <button onclick="f=16;">16進位</button><br>
+
+    <input type="number" id="n1">=<div id="n2"></div>
+
+
+
+    </body>
+    </html>
