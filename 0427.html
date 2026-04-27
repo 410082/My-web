@@ -1,0 +1,85 @@
+<html>
+    <head>
+        <title>0427</title>
+        <style>
+          .dv{
+            display :inline-block;
+            width: 100px;
+             height:80px;
+             margin:5px;
+             border:1px solid black;
+             border-radius:5px;
+          }
+          .selected{
+            border-width: 5px;
+            border-color: blueviolet;
+          }
+            .select-one{
+            border-width: 5px;
+            border-color: blueviolet;
+            }
+        </style>
+        <script>
+           function toggle(elm){
+               /*elm.style.borderColor="red";*/
+
+               console.log(elm.className);//debug
+            if(elm.classList.contains("selected")){
+                elm.classList.remove("selected");
+                console.log(elm.className); 
+                console.log(elm.classList);
+
+            }
+            else{
+                elm.classList.add("selected");
+                console.log(elm.className); 
+                console.log(elm.classList);
+            }
+            }
+            function setColor(){
+                /*  document.getElementById("d1").style.backgroundColor=event.target.value;
+                  document.getElementById("d1").innerHTML=event.target.value;*/
+
+                Array.from(document.getElementsByClassName("selected")).forEach((a)=>{
+                    a.style.backgroundColor=event.target.value;
+                });
+            }
+
+             my={elm:null};
+            function choose(elm){
+             if(my.elm==null){
+           
+             elm.classList.add("select-one");
+             my.elm=elm;
+             }
+             else{
+             elm.classList.remove("select-one");
+             my.elm=null;
+             }
+            }
+            function setOneColor() {
+             my.elm.style.backgroundColor=event.target.value;
+            }
+        </script>
+    </head>
+    <body>
+        <div class="dv"  onclick="toggle(this)"></div>
+        <div class="dv"  onclick="toggle(this)"></div>
+        <div class="dv"  onclick="toggle(this)"></div>
+        <div class="dv"  onclick="toggle(this)"></div>
+    <div>
+        <input type="color" oninput="setColor()">
+    
+    
+    
+    <hr>
+    </div>
+        <div class="dv" id="d1" onclick="choose(this)"></div>
+        <div class="dv" id="d2" onclick="choose(this)"></div>
+        <div class="dv" id="d3" onclick="choose(this)"></div>
+        <div class="dv" id="d4" onclick="choose(this)"></div>
+    <div>
+        <input type="color" oninput="setOneColor()">
+    </div>
+    </body>
+</html>
