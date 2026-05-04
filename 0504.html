@@ -1,0 +1,39 @@
+<html>
+    <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playwrite+IE:wght@100..400&display=swap" rel="stylesheet">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bitcount+Grid+Double:wght@100..900&display=swap" rel="stylesheet">
+       <style>
+        #lottery
+        {
+            font-size: 300pt;
+            font-family: 'Bitcount Grid Double',Verdana;
+        }
+
+       </style>
+       <script>
+    function getRand(min,max)
+    {
+        return Math.floor(Math.random()*(max-min+1)+min);
+    }
+    function getlottery(){
+        setTimeout(clearInterval,2500,setInterval(()=>{document.getElementById("lottery").innerHTML=getRand(1,99);},100/*毫秒*/));
+    }
+    function throwDise()
+    {
+       setTimeout(clearInterval,2500,setInterval((img)=>{img.src=`dise/圖片/${getRand(1,6)}.png`;},50,event.target));
+    }
+       </script>
+    </head>
+    <body>
+     <div id="lottery">99</div>
+     <button onclick="getlottery()">take out</button>
+     <br>
+     <img src="dise/圖片6.png">
+     <button onclick="throwDise()">roll</button>
+    </body>
+</html>
