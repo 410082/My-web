@@ -1,0 +1,65 @@
+<html>
+    <head>
+        <style>
+          #timebar{
+            width: 600px;
+            height: 10px;
+            background-color: green;
+            margin: 2px;
+          }
+          #board{
+            width: 600px;
+            height:600px;
+            border:1px solid black;
+            position: relative ;
+          }
+          .target{
+            width:50px;
+            height:50px;
+            border:1px solid red;
+            border-radius:50%;
+            position:absolute;
+          }
+        </style>
+        <script>
+            
+
+            var start=false;
+            var game_scend=30;
+            function clickBoard(){
+                if(start==false){
+                    start=true;
+               setTimeout(clearInterval,30000, setInterval(() => {
+                    createTarget();
+                    game_scend--;
+                      document.getElementById("timebar").style.width=(game_scend*20)+"px";
+                },1000));
+              }
+            }
+            function createTarget(){
+                console.log("c"); 
+                var a=document.createElement("div");
+                a.className="target";
+                a.style.top=getRand(0,600-50)+"px";
+                a.style.left=getRand(0,600-50)+"px";
+                a.style.backgroundColor=`rgb(${getRand(0,255)},${getRand(0,255)},${getRand(0,255)})`;
+                addEventListener("click",function point(){
+                    this.remove();
+                });
+                document.getElementById("board").appendChild(a);
+                
+            }
+            
+            function getRand(min,max)
+                   {
+                     return Math.floor(Math.random()*(max-min+1)+min);
+                   }
+        </script>
+    </head>
+    <body>
+        <div id="board" onclick="clickBoard();"></div>
+        <div id="timebar"></div>
+        <div id="status">scord:<span id="score">0</span></div>
+
+    </body>
+</html>
