@@ -810,3 +810,58 @@ function renderList() {
       </div>
     </div>`;
   }).join('');
+}
+
+function toggleDetail(idx) {
+  const detail = document.getElementById('detail-' + idx);
+  const toggle = document.getElementById('toggle-' + idx);
+  
+  if (detail.classList.contains('open')) {
+    detail.classList.remove('open');
+    toggle.classList.remove('open');
+  } else {
+    detail.classList.add('open');
+    toggle.classList.add('open');
+  }
+}
+
+function filterList() {
+  const query = document.getElementById('list-search').value.toLowerCase().trim();
+  const clearBtn = document.getElementById('list-clear-btn');
+  const items = document.querySelectorAll('.wl-item');
+  let visibleCount = 0;
+
+  clearBtn.style.display = query ? 'inline' : 'none';
+
+  WORDS.forEach((w, idx) => {
+    const matchEn = w.en.toLowerCase().includes(query);
+    const matchZh = w.zh.includes(query);
+    const matchDef = w.defs.some(d => (d.zh.includes(query) || (d.en && d.en.toLowerCase().includes(query))));
+    
+    if (matchEn || matchZh || matchDef) {
+      items[idx].style.display = 'block';
+      visibleCount++;
+    } else {
+      items[idx].style.display = 'none';
+    }
+  });
+
+  const countEl = document.getElementById('list-count');
+  if (query) {
+    countEl.textContent = `找到 ${visibleCount} 個符合的單字`;
+    countEl.style.display = 'block';
+  } else {
+    countEl.style.display = 'none';
+  }
+}
+
+function clearSearch() {
+  document.getElementById('list-search').value = '';
+  filterList();
+}
+
+// ── 初始化頁面 ──
+renderCard();
+</script>
+</body>
+</html>
