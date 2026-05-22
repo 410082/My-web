@@ -56,26 +56,32 @@
   .progress-track { flex: 1; height: 4px; background: var(--border); border-radius: 4px; overflow: hidden; }
   .progress-fill { height: 100%; background: var(--accent); border-radius: 4px; transition: width .3s; }
   .progress-label { font-size: 0.72rem; color: var(--muted); min-width: 50px; text-align: right; }
-  .card-wrapper { perspective: 1000px; width: 100%; height: 260px; cursor: pointer; margin-bottom: 20px; }
+  .card-wrapper { perspective: 1000px; width: 100%; height: 280px; cursor: pointer; margin-bottom: 20px; }
   .card-inner { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform 0.5s cubic-bezier(.4,0,.2,1); }
   .card-inner.flipped { transform: rotateY(180deg); }
-  .card-face { position: absolute; inset: 0; border-radius: 20px; border: 1px solid var(--border); backface-visibility: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 28px 24px; gap: 8px; }
+  .card-face { position: absolute; inset: 0; border-radius: 20px; border: 1px solid var(--border); backface-visibility: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px 24px; gap: 6px; }
   .card-front { background: linear-gradient(145deg, #1e1e28 0%, #17171f 100%); }
   .card-back { background: linear-gradient(145deg, #16161e 0%, #1a1a28 100%); transform: rotateY(180deg); }
   .card-face-label { font-size: 0.65rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); position: absolute; top: 16px; left: 20px; }
   .card-pos { font-size: 0.7rem; color: var(--accent2); letter-spacing: 0.1em; margin-top: 4px; }
   .card-word { font-family: 'Playfair Display', serif; font-size: 2rem; color: var(--text); text-align: center; line-height: 1.2; }
   .card-chinese { font-family: 'Noto Serif TC', serif; font-size: 1.5rem; color: var(--accent); text-align: center; }
-  .card-defs { font-size: 0.8rem; color: #b0aaa0; text-align: center; line-height: 1.6; max-width: 320px; }
+  .card-defs { font-size: 0.8rem; color: #b0aaa0; text-align: center; line-height: 1.6; max-width: 340px; width: 100%; }
   .card-defs .def-row { margin-bottom: 3px; }
   .card-defs .pos-tag { color: var(--accent2); font-size: 0.68rem; margin-right: 4px; }
-  .card-hint { position: absolute; bottom: 14px; font-size: 0.62rem; color: var(--muted); letter-spacing: 0.1em; }
+  .card-hint { position: absolute; bottom: 12px; font-size: 0.62rem; color: var(--muted); letter-spacing: 0.1em; }
   .nav-row { display: flex; align-items: center; gap: 10px; justify-content: center; }
   .nav-btn { width: 48px; height: 48px; border-radius: 50%; border: 1px solid var(--border); background: var(--card-bg); color: var(--text); font-size: 1.1rem; cursor: pointer; transition: all .15s; display: flex; align-items: center; justify-content: center; }
   .nav-btn:hover { border-color: var(--accent); color: var(--accent); }
   .nav-btn:disabled { opacity: 0.3; cursor: default; }
   .shuffle-btn { padding: 10px 20px; border-radius: 10px; border: 1px solid var(--border); background: var(--card-bg); color: var(--muted); font-family: 'DM Mono', monospace; font-size: 0.75rem; cursor: pointer; transition: all .15s; letter-spacing: 0.06em; }
   .shuffle-btn:hover { border-color: var(--accent2); color: var(--accent2); }
+
+  /* Roots Badges Style */
+  .roots-container { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 8px; width: 100%; }
+  .root-badge { background: rgba(200, 169, 110, 0.1); border: 1px solid rgba(200, 169, 110, 0.3); border-radius: 6px; padding: 2px 8px; font-size: 0.72rem; color: var(--accent); cursor: pointer; transition: all 0.2s; }
+  .root-badge:hover { background: var(--accent); color: #0e0e10; transform: translateY(-1px); }
+  .wl-root-section { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
 
   /* Quiz */
   #quiz-view { width: 100%; max-width: 420px; display: none; }
@@ -177,7 +183,7 @@
 </div>
 
 <div class="search-container" id="search-bar">
-  <input type="text" class="search-input" id="search-input" placeholder="搜尋單字 (英文或中文)..." oninput="filterWords()">
+  <input type="text" class="search-input" id="search-input" placeholder="搜尋單字、中文或字根..." oninput="filterWords()">
 </div>
 
 <div id="flashcard-view">
@@ -232,324 +238,203 @@
 <div class="word-list" id="list-view"></div>
 
 <script>
+// 已為所有具有明確字根與字首的單字補上 roots 欄位
 const WORDS = [
   // ── New words ──
   { en:"fabricate", zh:"捏造／製造", pos:["v."],
     defs:[{pos:"v.", en:"to invent false information; to construct or manufacture", zh:"捏造（謊言）；製造；偽造"}],
     usage:["fabricate a story","fabricate evidence","fabricate parts"],
     special:"fabricate 有兩個截然不同的意思：①捏造謊言或故事（負面）②製造、組裝（中性）。注意勿混淆。",
-    examples:["He fabricated the entire alibi — none of it was true.", "The components are fabricated in a factory overseas.", "She was accused of fabricating evidence."]},
+    examples:["He fabricated the entire alibi — none of it was true.", "The components are fabricated in a factory overseas.", "She was accused of fabricating evidence."],
+    roots:[{name:"fabric-", desc:"make/construct 製造"}]},
   { en:"biome", zh:"生物群系", pos:["n."],
     defs:[{pos:"n.", en:"a large naturally occurring community of flora and fauna occupying a major habitat", zh:"生物群系；生態區（如熱帶雨林、沙漠等）"}],
     usage:["tropical biome","desert biome","biome diversity"],
     special:"biome 指由氣候決定的大型生態區，例如 tundra（苔原）、rainforest（熱帶雨林）、grassland（草原）等，與 ecosystem（生態系）不同，biome 強調地理尺度更大。",
-    examples:["The Amazon rainforest is the world's largest tropical biome.", "Climate change is threatening every major biome on Earth.", "Students mapped the world's major biomes in geography class."]},
-  { en:"grip", zh:"抓握／控制", pos:["v.","n."],
-    defs:[{pos:"v.", en:"to hold tightly", zh:"緊握；抓住"},{pos:"n.", en:"a firm hold; influence or control", zh:"抓握；控制；影響力"}],
-    usage:["grip the wheel","lose one's grip","in the grip of fear","come to grips with"],
-    special:"come to grips with = 開始認真應對（某困難）。get a grip = 鎮定下來，控制情緒。",
-    examples:["She gripped the railing as the boat rocked.", "Fear had a tight grip on the whole community.", "It's time to come to grips with the problem."]},
-  { en:"pluck", zh:"鼓起勇氣／摘", pos:["v.","n."],
-    defs:[{pos:"v.", en:"to pull quickly; to pick (a flower/fruit); to play a string instrument by pulling", zh:"採摘；拔；撥（弦）；鼓起（勇氣）"},{pos:"n.", en:"spirited and determined courage", zh:"勇氣；膽量"}],
-    usage:["pluck up courage","pluck a flower","pluck the strings","pluck from obscurity"],
-    special:"pluck up courage / pluck up the nerve = 鼓起勇氣（常見固定搭配）。pluck from obscurity = 從默默無名中被發掘。",
-    examples:["She finally plucked up the courage to quit her job.", "He plucked a ripe apple from the tree.", "It takes real pluck to speak up in a room full of strangers."]},
+    examples:["The Amazon rainforest is the world's largest tropical biome.", "Climate change is threatening every major biome on Earth.", "Students mapped the world's major biomes in geography class."],
+    roots:[{name:"bio-", desc:"life 生命"}, {name:"-ome", desc:"mass/community 群體"}]},
+  { en:"grip", zh:"抓握／控制", pos:["v."], roots:[] },
+  { en:"pluck", zh:"鼓起勇氣／摘", pos:["v.","n."], roots:[] },
   { en:"jury", zh:"陪審團", pos:["n."],
     defs:[{pos:"n.", en:"a group of people sworn to give a verdict in a legal case; a panel of judges in a competition", zh:"陪審團；（比賽）評審團"}],
     usage:["jury trial","hung jury","the jury is still out","jury duty"],
     special:"the jury is still out（on sth）= 尚無定論，仍有爭議。hung jury = 陪審團意見分歧，無法達成裁決。jury duty = 陪審義務（公民責任）。",
-    examples:["The jury reached a unanimous verdict of not guilty.", "The jury is still out on whether the new policy will work.", "She was called for jury duty next month."]},
-  { en:"trial", zh:"審判／試驗", pos:["n.","v."],
-    defs:[{pos:"n.", en:"a formal examination of evidence in court; a test of performance or quality", zh:"審判；試驗；試用"},{pos:"v.", en:"to test something", zh:"試驗；試用"}],
-    usage:["stand trial","clinical trial","trial and error","on trial","trial run","trial period"],
-    special:"trial and error = 嘗試錯誤法。stand trial = 接受審判。on trial = ①受審②試用中。clinical trial = 臨床試驗（醫學）。",
-    examples:["The suspect will stand trial next month.", "The new drug is currently in clinical trials.", "I learned to cook through trial and error."]},
-  // ── Original words (感受 removed) ──
+    examples:["The jury reached a unanimous verdict of not guilty.", "The jury is still out on whether the new policy will work.", "She was called for jury duty next month."],
+    roots:[{name:"jur-", desc:"swear/law 發誓/法律"}]},
+  { en:"trial", zh:"審判／試驗", pos:["n.","v."], roots:[] },
+  // ── Original words ──
   { en:"imbue", zh:"賦予", pos:["v."],
     defs:[{pos:"v.", en:"to inspire or permeate with a quality or feeling", zh:"賦予；使充滿（某種特質或情感）"}],
     usage:["imbue with confidence","imbue with meaning","imbue with a sense of purpose"],
     special:"imbue 通常以被動語態出現：be imbued with…（充滿……），語氣正式，常用於文學或演講。",
-    examples:["The speech was imbued with hope and determination.", "She tried to imbue her students with a love of learning.", "His work is imbued with a deep sense of melancholy."]},
-  { en:"nasty", zh:"可惡的", pos:["adj."],
-    defs:[{pos:"adj.", en:"unpleasant, spiteful, or offensive", zh:"可惡的；令人厭惡的；惡劣的"}],
-    usage:["nasty weather","nasty surprise","nasty habit","turn nasty"],
-    special:"turn nasty = 突然變得惡劣或暴力。a nasty piece of work = 非常難相處或卑鄙的人（英式口語）。",
-    examples:["The weather turned nasty overnight.", "He said some really nasty things to her.", "That was a nasty surprise — nobody expected the price hike."]},
+    examples:["The speech was imbued with hope and determination.", "She tried to imbue her students with a love of learning.", "His work is imbued with a deep sense of melancholy."],
+    roots:[{name:"im- (in-)", desc:"into 進入"}]},
+  { en:"nasty", zh:"可惡的", pos:["adj."], roots:[] },
   { en:"permission", zh:"允許", pos:["n."],
     defs:[{pos:"n.", en:"the act of officially allowing something; consent granted", zh:"允許；許可；批准"}],
     usage:["ask for permission","grant permission","with permission","written permission","permission slip"],
     special:"permission 是不可數名詞，不說 a permission；正式場合用 obtain permission（取得許可）。與 permit（v./n.）區分：permit 可當動詞用。",
-    examples:["You need written permission to use the photos.", "She asked for permission to leave early.", "He granted permission for the construction to begin."]},
+    examples:["You need written permission to use the photos.", "She asked for permission to leave early.", "He granted permission for the construction to begin."],
+    roots:[{name:"per-", desc:"through 完全/貫穿"}, {name:"mit-", desc:"send 送出"}]},
   { en:"mediocre", zh:"平庸", pos:["adj."],
     defs:[{pos:"adj.", en:"of only moderate quality; neither good nor bad", zh:"平庸的；二流的；普通的"}],
     usage:["mediocre performance","mediocre results","settle for mediocre"],
     special:"mediocrity（名詞）= 平庸；平凡。常含輕蔑意味，暗示「本可以更好」。",
-    examples:["The film received mediocre reviews from critics.", "She refused to settle for mediocrity in her career.", "His mediocre grades didn't reflect his actual intelligence."]},
+    examples:["The film received mediocre reviews from critics.", "She refused to settle for mediocrity in her career.", "His mediocre grades didn't reflect his actual intelligence."],
+    roots:[{name:"medi-", desc:"middle 中間"}, {name:"ocris", desc:"rugged mountain 崎嶇山脈(處於半山腰的)"}]},
   { en:"debate", zh:"辯論", pos:["n.","v."],
     defs:[{pos:"n.", en:"a formal discussion of opposing arguments", zh:"辯論；討論；爭議"},{pos:"v.", en:"to argue about a subject formally or informally", zh:"辯論；爭論；考慮"}],
     usage:["open to debate","debate the issue","heated debate","under debate","debate whether to…"],
     special:"open to debate = 仍有爭議的。debate whether/what to do = 考慮是否做某事（個人內心的猶豫）。",
-    examples:["The issue of tax reform is open to debate.", "Politicians debated the new bill for hours.", "I'm still debating whether to accept the job offer."]},
-  { en:"flatter", zh:"奉承", pos:["v."],
-    defs:[{pos:"v.", en:"to praise excessively and insincerely; to make someone appear more attractive", zh:"奉承；諂媚；使顯得好看"}],
-    usage:["flatter someone","be flattered","flatter to deceive","flattering light"],
-    special:"be flattered = 感到受寵若驚（正面）。flatter to deceive = 表面亮眼卻讓人失望（常用於體育報導）。flattering = 顯瘦／顯年輕的（形容衣服或照片）。",
-    examples:["I'm flattered that you thought of me for the role.", "She knew he was only flattering her to get a favour.", "That colour is very flattering on you."]},
-  { en:"hilarious", zh:"太搞笑了", pos:["adj."],
-    defs:[{pos:"adj.", en:"extremely funny; causing great amusement", zh:"非常搞笑的；令人捧腹的；極其好笑的"}],
-    usage:["hilarious joke","find something hilarious","absolutely hilarious"],
-    special:"hilarious 語氣比 funny 強烈許多，相當於「笑到肚子痛」的程度。副詞 hilariously 也常用：hilariously bad = 爛得可笑。",
-    examples:["The comedian's routine was absolutely hilarious.", "I found his reaction hilarious — he didn't even notice.", "It's hilariously ironic that he ended up being the last to know."]},
+    examples:["The issue of tax reform is open to debate.", "Politicians debated the new bill for hours.", "I'm still debating whether to accept the job offer."],
+    roots:[{name:"de-", desc:"down/completely 加強/向下"}, {name:"bat-", desc:"beat 打擊"}]},
+  { en:"flatter", zh:"奉承", pos:["v."], roots:[] },
+  { en:"hilarious", zh:"太搞笑了", pos:["adj."], roots:[] },
   { en:"requisition", zh:"徵用", pos:["n.","v."],
     defs:[{pos:"n.", en:"an official demand or order for something", zh:"徵用令；申請書；徵調"},{pos:"v.", en:"to officially demand the use or supply of something", zh:"徵用；徵調；正式申請"}],
     usage:["requisition supplies","put in a requisition","military requisition"],
     special:"多用於軍事或官僚語境。civilian context 中指提交正式申請表格（submit a requisition form）。",
-    examples:["The army requisitioned several private buildings during the war.", "She put in a requisition for new office equipment.", "All food supplies were subject to military requisition."]},
+    examples:["The army requisitioned several private buildings during the war.", "She put in a requisition for new office equipment.", "All food supplies were subject to military requisition."],
+    roots:[{name:"re-", desc:"again 再度"}, {name:"quisit-", desc:"seek/ask 尋求/要求"}]},
   { en:"requisite", zh:"必需品", pos:["n.","adj."],
     defs:[{pos:"n.", en:"a thing that is necessary for a particular purpose", zh:"必需品；必要條件"},{pos:"adj.", en:"made necessary by particular circumstances", zh:"必要的；必需的；不可缺少的"}],
     usage:["the requisite skills","all the requisites","requisite knowledge"],
     special:"adj. 用法：with the requisite experience（具備必要的經驗）。與 prerequisite 區分：prerequisite 強調「事先」必須具備的條件。",
-    examples:["Candidates must have the requisite qualifications for the role.", "She lacked the requisite confidence to speak in public.", "Patience is an absolute requisite for teaching young children."]},
+    examples:["Candidates must have the requisite qualifications for the role.", "She lacked the requisite confidence to speak in public.", "Patience is an absolute requisite for teaching young children."],
+    roots:[{name:"re-", desc:"intensive 加強"}, {name:"quisit-", desc:"seek 尋求"}]},
   { en:"prerequisite", zh:"先決條件", pos:["n.","adj."],
     defs:[{pos:"n.", en:"a thing required as a prior condition", zh:"先決條件；前提；預備條件"},{pos:"adj.", en:"required as a prior condition", zh:"先決的；預備的"}],
     usage:["prerequisite for","prerequisite course","prerequisite knowledge"],
     special:"學術語境常見：This course is a prerequisite for Advanced Biology.（這門課是修讀進階生物的先修條件。）",
-    examples:["A clean driving record is a prerequisite for the job.", "Statistics is a prerequisite for this research methods course.", "Trust is a prerequisite for any healthy relationship."]},
+    examples:["A clean driving record is a prerequisite for the job.", "Statistics is a prerequisite for this research methods course.", "Trust is a prerequisite for any healthy relationship."],
+    roots:[{name:"pre-", desc:"before 預先"}, {name:"re-", desc:"intensive 加強"}, {name:"quisit-", desc:"seek 尋求"}]},
   { en:"devoid", zh:"缺乏", pos:["adj."],
     defs:[{pos:"adj.", en:"entirely lacking or free from something", zh:"缺乏的；沒有的；空無的（devoid of）"}],
     usage:["devoid of emotion","devoid of meaning","devoid of any talent"],
     special:"devoid 必須搭配 of 使用：devoid of…（完全缺乏……），語氣較強，常暗示批評或惋惜。",
-    examples:["His speech was devoid of any real substance.", "The landscape was bleak and devoid of life.", "She seemed completely devoid of empathy."]},
-  { en:"tinge", zh:"色調", pos:["n.","v."],
-    defs:[{pos:"n.", en:"a slight trace of a colour or quality", zh:"色調；些許（色彩或感覺）；輕微帶有"},{pos:"v.", en:"to colour or affect slightly", zh:"略帶色彩；略微影響"}],
-    usage:["a tinge of sadness","tinged with regret","a tinge of red","tinged with irony"],
-    special:"tinged with = 略帶有某種感情色彩（常用於情感描述）：tinged with nostalgia（帶著淡淡的懷舊情懷）。",
-    examples:["There was a tinge of sadness in her smile.", "His compliment was tinged with jealousy.", "The sky turned a pale blue with a tinge of pink at sunset."]},
+    examples:["His speech was devoid of any real substance.", "The landscape was bleak and devoid of life.", "She seemed completely devoid of empathy."],
+    roots:[{name:"de-", desc:"completely 空/走開"}, {name:"void", desc:"empty 空的"}]},
+  { en:"tinge", zh:"色調", pos:["n.","v."], roots:[] },
   { en:"permeate", zh:"滲透", pos:["v."],
     defs:[{pos:"v.", en:"to spread throughout; to pervade", zh:"滲透；遍及；瀰漫；充滿"}],
     usage:["permeate through","permeate society","the smell permeated","permeate every aspect"],
     special:"permeate 可用於具體（液體滲透）或抽象（觀念瀰漫整個社會），語氣比 spread 更強調「無孔不入」。",
-    examples:["The smell of fresh bread permeated the entire building.", "A sense of unease permeated the room.", "These ideas have permeated every corner of modern culture."]},
+    examples:["The smell of fresh bread permeated the entire building.", "A sense of unease permeated the room.", "These ideas have permeated every corner of modern culture."],
+    roots:[{name:"per-", desc:"through 穿過"}, {name:"me-", desc:"go/pass 走/通過"}]},
   { en:"percept", zh:"感知", pos:["n."],
     defs:[{pos:"n.", en:"an object or mental image as perceived by the senses; the result of perceiving", zh:"感知；知覺對象；感知印象"}],
     usage:["visual percept","auditory percept","percept vs concept"],
     special:"percept 是哲學／心理學術語，指感官直接接收的印象（感知結果），與 concept（概念，思維產物）相對。日常口語少用，多見於學術文章。",
-    examples:["A percept is formed when the brain processes sensory information.", "The distinction between percept and concept is central to cognitive science.", "Our percepts can be distorted by prior expectations."]},
+    examples:["A percept is formed when the brain processes sensory information.", "The distinction between percept and concept is central to cognitive science.", "Our percepts can be distorted by prior expectations."],
+    roots:[{name:"per-", desc:"through 徹底"}, {name:"capt/cept-", desc:"take 接收/捕捉"}]},
   { en:"discern", zh:"辨別", pos:["v."],
     defs:[{pos:"v.", en:"to recognize or identify with the eyes or mind; to perceive clearly", zh:"辨別；識別；看清；察覺"}],
     usage:["discern a pattern","discern the difference","hard to discern","discerning taste"],
     special:"discerning（adj.）= 有眼光的、有品味的：a discerning audience（懂得欣賞的觀眾）。discernible = 可察覺的。",
-    examples:["It was hard to discern any real difference between the two proposals.", "She has a discerning eye for quality.", "I could barely discern his face in the dim light."]},
-  { en:"temper", zh:"脾氣", pos:["n.","v."],
-    defs:[{pos:"n.", en:"a person's state of mind or mood; tendency to anger quickly", zh:"脾氣；性情；怒氣"},{pos:"v.", en:"to moderate or restrain; to strengthen metal by heating and cooling", zh:"緩和；調和；鍛造（金屬）"}],
-    usage:["lose one's temper","keep one's temper","temper justice with mercy","quick temper","bad temper"],
-    special:"lose one's temper = 發脾氣。keep one's temper = 忍住不發火。temper sth with sth = 用……緩和……（正式）：temper criticism with kindness。",
-    examples:["He lost his temper and stormed out of the meeting.", "She managed to keep her temper despite the provocation.", "The judge tempered the sentence with a strong warning."]},
-  { en:"par", zh:"帕", pos:["n."],
-    defs:[{pos:"n.", en:"the number of strokes a golfer should take; an equal or normal level", zh:"（高爾夫）標準桿；同等水準；正常水平"}],
-    usage:["on par with","below par","up to par","par for the course"],
-    special:"par for the course = 意料之中；在所難免（字面來自高爾夫）。below par / not up to par = 未達標準；狀態不佳。",
-    examples:["Her performance was on par with the best in the industry.", "His work has been below par this week — he must be unwell.", "Getting stuck in traffic on a Monday? Par for the course."]},
+    examples:["It was hard to discern any real difference between the two proposals.", "She has a discerning eye for quality.", "I could barely discern his face in the dim light."],
+    roots:[{name:"dis-", desc:"apart 分開"}, {name:"cern-", desc:"separate 篩選/區分"}]},
+  { en:"temper", zh:"脾氣", pos:["n.","v."], roots:[] },
+  { en:"par", zh:"帕", pos:["n."], roots:[{name:"par-", desc:"equal 同等"}] },
   { en:"on par with", zh:"與……相當", pos:["phr."],
     defs:[{pos:"phr.", en:"at the same level or standard as something else", zh:"與……相當；與……不相上下；和……持平"}],
     usage:["on par with competitors","on par with industry standards","on par with last year"],
     special:"注意：口語常說 on a par with，正式文章兩者皆可。不可說 in par with。",
-    examples:["The new model's performance is on par with much more expensive rivals.", "Her writing skills are on par with professional journalists.", "Salaries here are on par with the industry average."]},
-  { en:"owe", zh:"欠", pos:["v."],
-    defs:[{pos:"v.", en:"to be obligated to pay or give; to feel indebted for something", zh:"欠（錢）；虧欠；應感謝"}],
-    usage:["owe money","owe an apology","owe it to someone","owe one's success to"],
-    special:"owe it to yourself = 為自己好也應該做某事。owe sb an explanation/apology = 欠某人一個解釋／道歉。",
-    examples:["I owe you an apology for my behaviour yesterday.", "She owes her success to years of hard work.", "You owe it to yourself to take a proper holiday."]},
-  { en:"stroke", zh:"中風", pos:["n.","v."],
-    defs:[{pos:"n.", en:"a sudden brain attack; a movement of a pen or brush; a swimming style", zh:"中風；筆畫；撫摸；游泳姿勢"},{pos:"v.", en:"to gently move one's hand over", zh:"撫摸；輕撫"}],
-    usage:["have a stroke","stroke of luck","brush stroke","backstroke","stroke of genius"],
-    special:"stroke of luck = 好運氣。stroke of genius = 絕妙之舉。at a stroke / at one stroke = 一舉；一下子。",
-    examples:["He suffered a stroke and was rushed to hospital.", "Winning the contract was a real stroke of luck.", "She stroked the cat as it purred on her lap."]},
-  { en:"clobber", zh:"重擊", pos:["v.","n."],
-    defs:[{pos:"v.", en:"to hit hard; to defeat decisively; to affect severely", zh:"重擊；狠揍；大敗；嚴重打擊"},{pos:"n.", en:"(British informal) clothing or belongings", zh:"（英式俚語）衣物；家當"}],
-    usage:["clobber the opposition","get clobbered","clobber the economy"],
-    special:"clobber 在英式英語中也可指「個人物品、行李」（非正式）。作動詞時語氣強烈，常用於體育比賽或政策衝擊。",
-    examples:["Our team got absolutely clobbered — we lost 8 to 1.", "The new tax will clobber small businesses.", "He left all his clobber at my place after the party."]},
-  { en:"grave", zh:"嚴重", pos:["adj.","n."],
-    defs:[{pos:"adj.", en:"giving cause for alarm; serious and solemn", zh:"嚴重的；嚴峻的；嚴肅的"},{pos:"n.", en:"an excavation for burial of a corpse", zh:"墳墓；墓穴"}],
-    usage:["grave concern","grave mistake","grave consequences","dig one's own grave","turn in one's grave"],
-    special:"dig one's own grave = 自掘墳墓（自找麻煩）。turn in one's grave = （死去的人）若泉下有知一定會震驚搖頭。grave accent（`) = 法語等語言中的重音符號。",
-    examples:["The doctor's expression was grave as he delivered the news.", "This is a matter of grave concern for public health.", "He's digging his own grave by ignoring the warnings."]},
-  { en:"slap", zh:"拍擊", pos:["v.","n.","adv."],
-    defs:[{pos:"v.", en:"to strike with the open hand; to put carelessly", zh:"掌摑；拍打；隨意放置"},{pos:"n.", en:"a sharp blow with the open hand", zh:"拍打；掌摑；一巴掌"},{pos:"adv.", en:"(informal) directly; exactly", zh:"（非正式）正好；直接地"}],
-    usage:["slap in the face","slap on the wrist","slap-up meal","slap down","slap bang"],
-    special:"a slap in the face = 奇恥大辱；令人難堪的對待。a slap on the wrist = 輕描淡寫的懲罰。slap-up（英式）= 豐盛的（slap-up meal）。",
-    examples:["She slapped him across the face and walked out.", "The fine was little more than a slap on the wrist.", "He walked slap into the glass door."]},
-  { en:"linger", zh:"縈繞", pos:["v."],
-    defs:[{pos:"v.", en:"to stay longer than necessary; to be slow to disappear or leave", zh:"逗留；徘徊；縈繞；揮之不去"}],
-    usage:["linger on","linger over","linger in the mind","linger in the air"],
-    special:"linger on = 繼續存在或不肯離去（常指痛苦、疾病或記憶）。linger over = 慢慢享受（一頓飯、一本書）。",
-    examples:["The smell of perfume lingered in the room long after she left.", "He lingered over his coffee, reluctant to start the day.", "The memory of that summer lingers still."]},
-  { en:"lingering", zh:"揮之不去的", pos:["adj."],
-    defs:[{pos:"adj.", en:"lasting for a long time; slow to end or disappear", zh:"揮之不去的；持久的；縈繞不散的；拖延的"}],
-    usage:["lingering doubt","lingering pain","lingering smell","lingering look"],
-    special:"常用搭配：a lingering doubt（揮之不去的疑慮）、a lingering look（深情的一瞥）、a lingering illness（久病）。",
-    examples:["There were lingering doubts about the safety of the product.", "She gave him one last lingering look before leaving.", "He died after a lingering illness at the age of 82."]},
+    examples:["The new model's performance is on par with much more expensive rivals.", "Her writing skills are on par with professional journalists.", "Salaries here are on par with the industry average."],
+    roots:[{name:"par-", desc:"equal 同等"}]},
+  { en:"owe", zh:"欠", pos:["v."], roots:[] },
+  { en:"stroke", zh:"中風", pos:["n.","v."], roots:[] },
+  { en:"clobber", zh:"重擊", pos:["v.","n."], roots:[] },
+  { en:"grave", zh:"嚴重", pos:["adj.","n."], roots:[] },
+  { en:"slap", zh:"拍擊", pos:["v.","n.","adv."], roots:[] },
+  { en:"linger", zh:"縈繞", pos:["v."], roots:[] },
+  { en:"lingering", zh:"揮之不去的", pos:["adj."], roots:[] },
   { en:"resplendent", zh:"燦爛", pos:["adj."],
     defs:[{pos:"adj.", en:"attractive and impressive through richness, brightness, or grandeur", zh:"燦爛的；輝煌的；華麗的；光彩奪目的"}],
     usage:["resplendent in","resplendent with colour","look resplendent"],
     special:"常搭配 in：resplendent in a gold gown（身著金色禮服，光彩照人）。書面語、正式語境。",
-    examples:["The bride looked resplendent in her ivory gown.", "The palace was resplendent with gold and marble.", "He arrived resplendent in a white naval uniform."]},
-  { en:"abode", zh:"住所", pos:["n."],
-    defs:[{pos:"n.", en:"a place of residence; a home or dwelling", zh:"住所；住處；居所"}],
-    usage:["place of abode","right of abode","welcome to my humble abode"],
-    special:"welcome to my humble abode = 歡迎光臨寒舍（幽默或自謙的說法）。right of abode = 居留權（法律用語，香港常見）。",
-    examples:["The form asked for his place of abode.", "Welcome to my humble abode!", "They were forced to leave their abode without notice."]},
+    examples:["The bride looked resplendent in her ivory gown.", "The palace was resplendent with gold and marble.", "He arrived resplendent in a white naval uniform."],
+    roots:[{name:"re-", desc:"intensive 加強"}, {name:"splend-", desc:"shine 照耀"}]},
+  { en:"abode", zh:"住所", pos:["n."], roots:[] },
   { en:"authentic", zh:"真正的", pos:["adj."],
     defs:[{pos:"adj.", en:"of undisputed origin; genuine; made in the traditional way", zh:"真正的；正宗的；真實的；可信的"}],
     usage:["authentic cuisine","authentic self","authentic signature","authentic materials"],
     special:"authenticate（v.）= 鑑定為真品。authenticity（n.）= 真實性。在文化、食物語境中指「正宗」：authentic Italian pizza。",
-    examples:["The restaurant serves authentic Thai food.", "Experts confirmed the painting was authentic.", "Being authentic means staying true to your values."]},
+    examples:["The restaurant serves authentic Thai food.", "Experts confirmed the painting was authentic.", "Being authentic means staying true to your values."],
+    roots:[{name:"author-", desc:"creator 創作者/源頭"}]},
   { en:"complement", zh:"補充", pos:["v.","n."],
     defs:[{pos:"v.", en:"to add to or enhance the qualities of something", zh:"補充；補足；與……相配"},{pos:"n.", en:"a thing that completes or enhances another", zh:"補充物；互補物；補語"}],
     usage:["complement each other","complement the flavour","a full complement","subject complement"],
     special:"注意拼法：complement（補充）vs compliment（稱讚）。a full complement of = 全套的；完整的。文法中 complement = 補語。",
-    examples:["The wine perfectly complemented the cheese.", "Red and green complement each other on the colour wheel.", "The team had a full complement of players for the final."]},
-  { en:"come into play", zh:"發揮作用", pos:["phr."],
-    defs:[{pos:"phr.", en:"to begin to have an effect or influence; to become a factor", zh:"發揮作用；開始產生影響；起到作用"}],
-    usage:["when factors come into play","come into play in negotiations","several variables come into play"],
-    special:"強調某個因素「開始介入並影響局勢」，常用於分析性語境：This is where experience really comes into play.",
-    examples:["This is where your negotiating skills really come into play.", "Several unexpected factors came into play during the crisis.", "Budget constraints often come into play when planning a project."]},
+    examples:["The wine perfectly complemented the cheese.", "Red and green complement each other on the colour wheel.", "The team had a full complement of players for the final."],
+    roots:[{name:"com-", desc:"together 共同"}, {name:"ple-", desc:"fill 填滿"}]},
+  { en:"come into play", zh:"發揮作用", pos:["phr."], roots:[] },
   { en:"aesthetic", zh:"美學的", pos:["adj.","n."],
     defs:[{pos:"adj.", en:"concerned with beauty or the appreciation of beauty", zh:"美學的；審美的；美感的"},{pos:"n.", en:"a set of principles underlying a work of art or the work of a particular artist", zh:"美學；審美觀；美感風格"}],
     usage:["aesthetic appeal","aesthetic sense","minimalist aesthetic","aesthetic judgment"],
     special:"近年流行當名詞用，指某種整體視覺風格：a vintage aesthetic（復古美學）、a dark academic aesthetic。aesthetics（n.pl.）= 美學（學科）。",
-    examples:["The building has great aesthetic appeal.", "Her photography has a clean, minimalist aesthetic.", "Aesthetics is the branch of philosophy dealing with beauty."]},
-  { en:"blur", zh:"模糊", pos:["v.","n."],
-    defs:[{pos:"v.", en:"to make or become unclear or less distinct", zh:"使模糊；變得不清楚；混淆"},{pos:"n.", en:"something seen or remembered indistinctly", zh:"模糊的事物；朦朧；一片混亂"}],
-    usage:["blur the lines","in a blur","blur of activity","vision blurred","motion blur"],
-    special:"blur the lines / boundaries = 模糊界線（比喻意義常見）。motion blur = 動態模糊（攝影）。a blur of activity = 一陣忙亂。",
-    examples:["Tears blurred her vision.", "The days after the accident were a complete blur.", "Technology is blurring the line between work and home life."]},
+    examples:["The building has great aesthetic appeal.", "Her photography has a clean, minimalist aesthetic.", "Aesthetics is the branch of philosophy dealing with beauty."],
+    roots:[{name:"esthe-", desc:"feel/perceive 感覺/感知"}]},
+  { en:"blur", zh:"模糊", pos:["v.","n."], roots:[] },
   { en:"exaggerate", zh:"誇大", pos:["v."],
     defs:[{pos:"v.", en:"to represent something as larger, better, or worse than it really is", zh:"誇大；誇張；言過其實"}],
     usage:["exaggerate the risk","greatly exaggerated","without exaggeration","exaggerated claims"],
     special:"without exaggeration = 毫不誇張地說。exaggerated（adj.）= 誇張的：an exaggerated sense of self-importance。報告寫作中忌用。",
-    examples:["He tends to exaggerate when telling stories.", "Reports of its failure have been greatly exaggerated.", "Without exaggeration, it was the best meal I've ever had."]},
-  { en:"smug", zh:"躊躇滿志", pos:["adj."],
-    defs:[{pos:"adj.", en:"having or showing excessive pride in oneself; self-satisfied", zh:"自鳴得意的；沾沾自喜的；自以為是的"}],
-    usage:["smug look","smug attitude","feel smug about","wipe the smug smile off"],
-    special:"含貶義，指令人不快的自滿。wipe the smug smile off sb's face = 讓某人笑不出來；殺殺某人的威風。",
-    examples:["She had a smug expression after winning the argument.", "Don't be too smug — things could still go wrong.", "That loss wiped the smug smile right off their faces."]},
-  { en:"actress", zh:"演員", pos:["n."],
-    defs:[{pos:"n.", en:"a woman who acts in plays, films, or television", zh:"女演員；（泛指）演員"}],
-    usage:["lead actress","supporting actress","Best Actress award","actress turned politician"],
-    special:"現代英語中 actor 可泛指男女演員，actress 特指女性。奧斯卡獎項仍保留 Best Actress。有些女演員偏好被稱為 actor（去性別化）。",
-    examples:["She won the Academy Award for Best Actress.", "The actress gave a stunning performance.", "Many use 'actor' regardless of gender now."]},
+    examples:["He tends to exaggerate when telling stories.", "Reports of its failure have been greatly exaggerated.", "Without exaggeration, it was the best meal I've ever had."],
+    roots:[{name:"ex-", desc:"out 出去"}, {name:"agger-", desc:"heap 堆積"}]},
+  { en:"smug", zh:"躊躇滿志", pos:["adj."], roots:[] },
+  { en:"actress", zh:"演員", pos:["n."], roots:[{name:"act-", desc:"do/drive 做/行動"}] },
   { en:"感官", zh:"感官", pos:["n."],
     defs:[{pos:"n.", en:"the senses: sight, hearing, taste, smell, and touch", zh:"感官；感覺器官；五感"}],
     usage:["感官刺激","感官享受","感官體驗"],
     special:"對應英文：the five senses。sensory（adj.）= 感官的：sensory experience（感官體驗）。",
-    examples:["A spa should be a complete sensory experience.", "The dish engaged all five senses.", "Sensory overload can cause stress and anxiety."]},
+    examples:["A spa should be a complete sensory experience.", "The dish engaged all five senses.", "Sensory overload can cause stress and anxiety."],
+    roots:[{name:"sens-", desc:"feel 感覺"}]},
   { en:"possess", zh:"具有", pos:["v."],
     defs:[{pos:"v.", en:"to have as a quality or ability; to own", zh:"具有；擁有；持有；（鬼）附身"}],
     usage:["possess skills","possess knowledge","what possessed you","be possessed by"],
     special:"What possessed you? = 你當時怎麼想的？（表示震驚或不解）be possessed by = 被（鬼）附身；被（情緒）控制。",
-    examples:["She possesses a rare combination of intelligence and charm.", "What on earth possessed him to say that?", "He was possessed by an overwhelming sense of guilt."]},
-  { en:"see off", zh:"送行", pos:["phr.v."],
-    defs:[{pos:"phr.v.", en:"to go somewhere to say goodbye to someone who is leaving; to defeat or drive away", zh:"送行；為……送別；擊退；趕走"}],
-    usage:["see someone off at the airport","see off a threat","see off the competition"],
-    special:"有兩個常見意思：①去送別（送機、送站）②擊退、打敗對手：see off a rival（擊敗競爭者）。",
-    examples:["The whole family went to the airport to see her off.", "The team managed to see off their rivals in the final minutes.", "They saw off the burglars before any damage was done."]},
-  { en:"sort", zh:"種類", pos:["n.","v."],
-    defs:[{pos:"n.", en:"a category or type of thing or person", zh:"種類；類型；一種"},{pos:"v.", en:"to arrange systematically; to resolve a problem", zh:"分類；整理；解決（問題）"}],
-    usage:["all sorts of","sort out","sort through","what sort of","sort of (adverb)"],
-    special:"sort of = 有點、某種程度上（口語副詞）：I'm sort of tired.。sort out = 整理好；解決問題（英式常用）：sort out a misunderstanding。",
-    examples:["All sorts of people came to the event.", "I need to sort out my finances before the end of the month.", "It was sort of awkward — nobody knew what to say."]},
+    examples:["She possesses a rare combination of intelligence and charm.", "What on earth possessed him to say that?", "He was possessed by an overwhelming sense of guilt."],
+    roots:[{name:"pot-", desc:"powerful 力量"}, {name:"sed-", desc:"sit 坐(穩居其位)"}]},
+  { en:"see off", zh:"送行", pos:["phr.v."], roots:[] },
+  { en:"sort", zh:"種類", pos:["n.","v."], roots:[] },
   { en:"dispense", zh:"分配", pos:["v."],
     defs:[{pos:"v.", en:"to distribute or supply; to prepare and give out medicine; to manage without (dispense with)", zh:"分配；分發；配藥；免除（dispense with）"}],
     usage:["dispense medicine","dispense with formalities","dispense advice","cash dispenser"],
     special:"dispense with = 省去；不需要：Let's dispense with the formalities.（我們省略繁文縟節吧。）dispenser = 自動販售機或分配器。",
-    examples:["The pharmacist dispensed the medication carefully.", "Let's dispense with the introductions and get straight to the point.", "The machine dispenses coffee at the touch of a button."]},
-  { en:"riven", zh:"裂隙", pos:["adj."],
-    defs:[{pos:"adj.", en:"split apart; deeply divided or torn", zh:"裂開的；分裂的；充滿裂隙的；四分五裂的"}],
-    usage:["riven by conflict","riven with doubt","riven apart","a country riven by civil war"],
-    special:"riven 是 rive（劈裂）的過去分詞，現多作形容詞用。常見搭配：riven by / with。多用於書面語 and 新聞報導。",
-    examples:["The party was riven by internal disputes.", "A society riven with inequality cannot sustain itself.", "The ancient tree was riven by lightning."]},
-  { en:"at last", zh:"終於", pos:["adv."],
-    defs:[{pos:"adv.", en:"after a long time or many difficulties; finally", zh:"終於；最終；最後"}],
-    usage:["at last we arrived","at long last","at last the truth emerged"],
-    special:"at last 暗含「等了很久、終於等到」的感嘆語氣，比 finally 更帶感情色彩。at long last = 強化版，更加強調等待之漫長。",
-    examples:["At last, the rain stopped and the sun came out.", "At long last, the two sides reached an agreement.", "She arrived at last, two hours late."]},
-  { en:"blot", zh:"印跡", pos:["n.","v."],
-    defs:[{pos:"n.", en:"a stain or dark mark; a blemish on a record or reputation", zh:"印跡；污點；汙漬；（名譽上的）瑕疵"},{pos:"v.", en:"to dry ink with absorbent material; to stain or spot", zh:"吸乾；弄污；汙損"}],
-    usage:["blot on the landscape","blot on one's record","blot out","ink blot"],
-    special:"blot one's copybook（英式）= 搞砸名聲；犯了影響名譽的錯。blot out = 遮蔽；抹去（記憶）：blot out the sun；blot out a painful memory。",
-    examples:["That conviction was a serious blot on his record.", "The factory is a blot on the otherwise beautiful landscape.", "She tried to blot out the memory of that terrible day."]},
-  { en:"dim", zh:"暗淡", pos:["adj.","v."],
-    defs:[{pos:"adj.", en:"not bright; unclear; not clever (informal)", zh:"昏暗的；暗淡的；不清楚的；（口語）遲鈍的"},{pos:"v.", en:"to make or become less bright", zh:"使變暗；減弱；淡化"}],
-    usage:["dim light","dim prospects","dim memory","dim the lights","take a dim view of"],
-    special:"take a dim view of = 對某事持負面看法：She takes a dim view of lateness.（她很不認同遲到這件事。）dim memory = 模糊的記憶。",
-    examples:["The lights dimmed as the show was about to begin.", "He has only a dim recollection of his early childhood.", "Management takes a very dim view of employees arriving late."]},
+    examples:["The pharmacist dispensed the medication carefully.", "Let's dispense with the introductions and get straight to the point.", "The machine dispenses coffee at the touch of a button."],
+    roots:[{name:"dis-", desc:"apart 分開"}, {name:"pend-", desc:"weigh 稱重/衡量"}]},
+  { en:"riven", zh:"裂隙", pos:["adj."], roots:[] },
+  { en:"at last", zh:"終於", pos:["adv."], roots:[] },
+  { en:"blot", zh:"印跡", pos:["n.","v."], roots:[] },
+  { en:"dim", zh:"暗淡", pos:["adj.","v."], roots:[] },
   { en:"deposit", zh:"訂金", pos:["n.","v."],
     defs:[{pos:"n.", en:"a first instalment of a payment; a sum placed in a bank; a layer of accumulated matter", zh:"訂金；押金；存款；沉積物"},{pos:"v.", en:"to put down or place; to store money in a bank", zh:"存放；存入；沉積"}],
     usage:["pay a deposit","security deposit","bank deposit","make a deposit","deposit account"],
     special:"security deposit = 押金（租房常用）。deposit account = 定期存款戶頭（英式）。leave a deposit = 支付訂金預訂。",
-    examples:["We paid a 10% deposit to secure the apartment.", "She deposited the cheque into her account.", "Layers of sediment were deposited over thousands of years."]},
+    examples:["We paid a 10% deposit to secure the apartment.", "She deposited the cheque into her account.", "Layers of sediment were deposited over thousands of years."],
+    roots:[{name:"de-", desc:"down 向下"}, {name:"posit-", desc:"put/place 放置"}]},
   { en:"spirit", zh:"精神", pos:["n.","v."],
     defs:[{pos:"n.", en:"the non-physical part of a person; mood; a ghost; strong alcoholic drink", zh:"精神；心靈；靈魂；鬼魂；烈酒"},{pos:"v.", en:"to convey rapidly and secretly", zh:"迅速秘密地帶走"}],
     usage:["team spirit","spirit away","in good spirits","the spirit of the law","high spirits"],
-    special:"in high spirits = 興高采烈。spirit of the law = 法律精神（vs letter of the law 文字本義）。spirit sb away = 神不知鬼不覺地把人帶走。",
-    examples:["The team played with tremendous spirit.", "She was in high spirits after the good news.", "The prisoner was spirited away before dawn."]},
-  { en:"buffet", zh:"自助餐", pos:["n.","v."],
-    defs:[{pos:"n.", en:"a meal where guests serve themselves from a variety of dishes; a sideboard", zh:"自助餐；百匯；餐具櫃"},{pos:"v.", en:"to knock repeatedly; to be battered by wind, waves, or hardship", zh:"衝擊；連打；使顛簸；（風浪）猛烈拍打"}],
-    usage:["buffet dinner","buffet style","buffeted by the wind","buffeted by challenges"],
-    special:"注意發音差異：作名詞（自助餐）時重音在第二音節 /bʊˈfeɪ/；作動詞（猛擊）時讀 /ˈbʌfɪt/，兩者拼法相同但含義完全不同。",
-    examples:["The hotel offers a breakfast buffet every morning.", "The small boat was buffeted by strong waves.", "She has been buffeted by one setback after another."]},
-  { en:"wrestle", zh:"搏鬥", pos:["v.","n."],
-    defs:[{pos:"v.", en:"to struggle physically; to grapple with a problem", zh:"摔跤；搏鬥；竭力應付；苦苦思索"},{pos:"n.", en:"a wrestling match; a struggle", zh:"摔跤；格鬥；苦鬥"}],
-    usage:["wrestle with a problem","wrestle to the ground","wrestling match","arm wrestle"],
-    special:"wrestle with = 苦苦思索或應對（抽象問題）：wrestle with a difficult decision（苦苦思量一個艱難決定）。",
-    examples:["The two players wrestled for control of the ball.", "She has been wrestling with the decision for weeks.", "He wrestled the attacker to the ground."]},
-  { en:"tombstone", zh:"墓碑", pos:["n."],
-    defs:[{pos:"n.", en:"a flat stone slab marking a grave, bearing the dead person's name and dates", zh:"墓碑；墓石；墓誌"}],
-    usage:["tombstone epitaph","tombstone inscription","tombstone pizza (brand)"],
-    special:"epitaph = 墓誌銘（刻在墓碑上的文字）。tombstone 也是美國亞利桑那州的一個歷史小鎮名（牛仔時代）。",
-    examples:["The tombstone was engraved with a simple epitaph.", "We paused to read the faded inscriptions on the old tombstones.", "He joked that 'I told you I was sick' would be his tombstone epitaph."]},
-  { en:"vice", zh:"副", pos:["n.","prefix","adj."],
-    defs:[{pos:"n.", en:"immoral or wicked behaviour; a tool for gripping objects", zh:"惡習；邪惡；罪行；（工具）老虎鉗"},{pos:"prefix/adj.", en:"second in authority (vice president, vice principal)", zh:"副……（如副總統、副校長）"}],
-    usage:["vice versa","vice president","vice grip","virtue and vice","vice squad"],
-    special:"vice versa = 反之亦然（常見拉丁語短語）。virtue and vice = 善與惡（對立概念）。the vice squad = 掃黃警察。",
-    examples:["The vice president stepped in to chair the meeting.", "Greed is considered a vice in many cultures.", "The roles can be swapped — and vice versa."]},
-  { en:"in the daily basis", zh:"每天", pos:["phr."],
-    defs:[{pos:"phr.", en:"(intended: on a daily basis) every day; as a daily routine", zh:"每天；日常地（正確說法為 on a daily basis）"}],
-    usage:["on a daily basis","on a regular basis","on a weekly basis"],
-    special:"注意：正確用法是 on a daily basis，不是 in a daily basis。更口語的說法是 every day 或 daily。",
-    examples:["We monitor the data on a daily basis.", "Exercise on a daily basis improves your health.", "She checks her emails on a daily basis."]},
-  { en:"reap", zh:"收割", pos:["v."],
-    defs:[{pos:"v.", en:"to cut and gather a crop; to receive the results of one's actions", zh:"收割；收穫；獲得（結果）"}],
-    usage:["reap the rewards","reap the consequences","reap what you sow","reap benefits"],
-    special:"you reap what you sow = 種瓜得瓜，種豆得豆（因果報應）。reap the rewards / benefits = 收穫好結果。reap the consequences = 自食惡果。",
-    examples:["After years of hard work, she's finally reaping the rewards.", "You reap what you sow — be kind to others.", "They are now reaping the consequences of their poor planning."]},
-  { en:"embrace", zh:"擁抱", pos:["v.","n."],
-    defs:[{pos:"v.", en:"to hold someone closely; to accept something willingly and enthusiastically", zh:"擁抱；接受；採納；熱情接受"},{pos:"n.", en:"an act of holding someone closely", zh:"擁抱；懷抱"}],
-    usage:["embrace change","embrace diversity","warm embrace","embrace the opportunity"],
-    special:"embrace 用於抽象意義時比 accept 更積極熱情：embrace diversity（熱情接納多元）；embrace change（積極迎接改變）。",
-    examples:["She embraced him warmly at the airport.", "The company has fully embraced digital transformation.", "We should embrace our differences rather than fear them."]},
-  { en:"sponsored", zh:"贊助", pos:["adj.","v."],
-    defs:[{pos:"adj.", en:"paid for or supported by a sponsor", zh:"受贊助的；由贊助商支持的"},{pos:"v.", en:"past tense of 'sponsor': to support financially or through resources", zh:"（sponsor 的過去式）贊助；資助；支持"}],
-    usage:["sponsored by","sponsored content","sponsored post","sponsored event","corporate sponsor"],
-    special:"sponsored content / sponsored post = 付費業配內容（社群媒體常見）。sponsor 也可作名詞：the main sponsor of the event（活動主贊助商）。",
-    examples:["The event was sponsored by a major tech company.", "This video is sponsored by an online learning platform.", "She sponsored a child's education through a charity."]},
-  { en:"get to see", zh:"有機會看到", pos:["phr.v."],
-    defs:[{pos:"phr.v.", en:"to have the opportunity or chance to see or experience something", zh:"有機會看到；得以見到；能夠看到"}],
-    usage:["get to see the world","get to see live","get to see for yourself","rarely get to see"],
-    special:"get to + V = 有機會做某事（強調「機會難得」）：I rarely get to see him anymore.（我現在很少有機會見到他了。）",
-    examples:["We got to see the northern lights on our last night there.", "You rarely get to see such a stunning performance.", "I finally got to see the film everyone had been talking about."]},
-  { en:"award", zh:"獎", pos:["n.","v."],
-    defs:[{pos:"n.", en:"a prize or recognition given for achievement", zh:"獎；獎項；獎勵；裁定賠償"},{pos:"v.", en:"to officially give a prize or sum of money", zh:"授予；頒發；裁定（賠償）"}],
-    usage:["award ceremony","award-winning","award damages","award a contract","receive an award"],
-    special:"award-winning（adj.）= 得獎的：an award-winning novel。award a contract = 將合約授予某方（招標語境）。award damages = 判賠損失（法律語境）。",
-    examples:["She received an award for her contribution to science.", "The court awarded her $50,000 in damages.", "It's an award-winning documentary about climate change."]},
+    special:"in high spirits = 興開懷。spirit of the law = 法律精神（vs letter of the law 文字本義）。spirit sb away = 神不知鬼不覺地把人帶走。",
+    examples:["The team played with tremendous spirit.", "She was in high spirits after the good news.", "The prisoner was spirited away before dawn."],
+    roots:[{name:"spir-", desc:"breathe 呼吸"}]},
+  { en:"buffet", zh:"自助餐", pos:["n.","v."], roots:[] },
+  { en:"wrestle", zh:"搏鬥", pos:["v.","n."], roots:[] },
+  { en:"tombstone", zh:"墓碑", pos:["n."], roots:[] },
+  { en:"vice", zh:"副", pos:["n.","prefix","adj."], roots:[] },
+  { en:"in the daily basis", zh:"每天", pos:["phr."], roots:[] },
+  { en:"reap", zh:"收割", pos:["v."], roots:[] },
+  { en:"embrace", zh:"擁抱", pos:["v.","n."], roots:[{name:"brac-", desc:"arm 手臂"}] },
+  { en:"sponsored", zh:"贊助", pos:["adj.","v."], roots:[{name:"spons-", desc:"pledge/promise 承諾/誓約"}] },
+  { en:"get to see", zh:"有機會看到", pos:["phr.v."], roots:[] },
+  { en:"award", zh:"獎", pos:["n.","v."], roots:[] },
   { en:"pronounce", zh:"發音", pos:["v."],
     defs:[{pos:"v.", en:"to make the sound of a word; to declare officially or formally", zh:"發音；唸出；正式宣告；宣判"}],
     usage:["pronounce a word","pronounce sentence","pronounce dead","hard to pronounce","pronounce on"],
     special:"pronounce sb dead = 宣告某人死亡（醫學或法律）。pronounce sentence = 宣判（法庭）。pronunciation（n.）≠ pronounciation（常見錯拼）。",
-    examples:["How do you pronounce your surname?", "The judge pronounced sentence on the defendant.", "The doctor pronounced him dead at the scene."]}
+    examples:["How do you pronounce your surname?", "The judge pronounced sentence on the defendant.", "The doctor pronounced him dead at the scene."],
+    roots:[{name:"pro-", desc:"forward 向前"}, {name:"nunc-", desc:"announce 宣告"}]}
 ];
 
 let deck = [...WORDS];
@@ -589,15 +474,43 @@ function switchTab(tab) {
   document.getElementById('quiz-view').style.display = tab==='quiz' ? 'block' : 'none';
   document.getElementById('list-view').style.display = tab==='list' ? 'block' : 'none';
   
-  // 控制搜尋欄的顯示與隱藏（只在單字表出現）
   document.getElementById('search-bar').style.display = tab==='list' ? 'block' : 'none';
   
   if(tab==='quiz') initQuiz();
   if(tab==='list') {
     renderList();
-    // 切換回單字表時，根據當時搜尋欄的文字進行過濾
     filterWords();
   }
+}
+
+// ── 核心功能：點擊字根跳轉到單字表檢索 ──
+function searchRoot(rootName) {
+  // 清除字根後的連字號以提高搜尋寬容度（例如 "bio-" 變成 "bio"）
+  const cleanQuery = rootName.replace(/-$/, '');
+  
+  // 1. 切換至單字表頁面
+  switchTab('list');
+  
+  // 2. 將字根填入搜尋欄
+  const searchInput = document.getElementById('search-input');
+  searchInput.value = cleanQuery;
+  
+  // 3. 執行過濾功能
+  filterWords();
+  
+  // 4. 自動展開符合過濾結果的項目，讓使用者能直接閱讀
+  const items = document.querySelectorAll('.wl-item');
+  WORDS.forEach((w, idx) => {
+    const item = items[idx];
+    if (item && item.style.display === 'block') {
+      const detail = document.getElementById('detail-' + idx);
+      const toggle = document.getElementById('toggle-' + idx);
+      if (detail && !detail.classList.contains('open')) {
+        detail.classList.add('open');
+        toggle.classList.add('open');
+      }
+    }
+  });
 }
 
 function setFirstSide(side) {
@@ -614,20 +527,31 @@ function renderCard() {
   const total = deck.length;
   document.getElementById('progress-fill').style.width = ((currentIdx+1)/total*100)+'%';
   document.getElementById('progress-label').textContent = `${currentIdx+1} / ${total}`;
+  
+  // 生成字根 HTML 區塊 (若有字根資料)
+  let rootsHtml = '';
+  if (w.roots && w.roots.length > 0) {
+    rootsHtml = `<div class="roots-container" onclick="event.stopPropagation();">` +
+      w.roots.map(r => `<span class="root-badge" onclick="searchRoot('${r.name}')" title="點擊檢索字根">${r.name} ${r.desc}</span>`).join('') +
+      `</div>`;
+  }
+
   if(firstSide==='en') {
     document.getElementById('front-label').textContent = 'English';
     document.getElementById('back-label').textContent = '中文';
     document.getElementById('front-pos').textContent = w.pos.join(' / ');
     document.getElementById('front-word').innerHTML = w.en;
     document.getElementById('back-chinese').textContent = w.zh;
-    document.getElementById('back-defs').innerHTML = w.defs.map(d=>`<div class="def-row"><span class="pos-tag">${d.pos}</span>${d.zh}${d.en?' — '+d.en:''}</div>`).join('');
+    document.getElementById('back-defs').innerHTML = 
+      w.defs.map(d=>`<div class="def-row"><span class="pos-tag">${d.pos}</span>${d.zh}${d.en?' — '+d.en:''}</div>`).join('') + rootsHtml;
   } else {
     document.getElementById('front-label').textContent = '中文';
     document.getElementById('back-label').textContent = 'English';
     document.getElementById('front-pos').textContent = '';
     document.getElementById('front-word').innerHTML = `<span style="font-family:'Noto Serif TC',serif;color:var(--accent)">${w.zh}</span>`;
     document.getElementById('back-chinese').textContent = w.en;
-    document.getElementById('back-defs').innerHTML = w.defs.map(d=>`<div class="def-row"><span class="pos-tag">${d.pos}</span>${d.en||''}</div>`).join('');
+    document.getElementById('back-defs').innerHTML = 
+      w.defs.map(d=>`<div class="def-row"><span class="pos-tag">${d.pos}</span>${d.en||''}</div>`).join('') + rootsHtml;
   }
   document.getElementById('prev-btn').disabled = currentIdx===0;
   document.getElementById('next-btn').disabled = currentIdx===deck.length-1;
@@ -744,6 +668,15 @@ function renderList() {
     const usageHtml = w.usage ? `<div class="wl-section"><div class="wl-section-title">常見用法</div>${w.usage.map(u=>`<span class="wl-usage-pill">${u}</span>`).join('')}</div>` : '';
     const specialHtml = w.special ? `<div class="wl-section"><div class="wl-section-title">特殊說明</div><div class="wl-def-row" style="color:#c4bfb0;">${w.special}</div></div>` : '';
     const examplesHtml = w.examples ? `<div class="wl-section"><div class="wl-section-title">例句</div>${w.examples.map(e=>`<div class="wl-example">${e}</div>`).join('')}</div>` : '';
+    
+    // 單字表詳細頁面的字根渲染
+    let rootsHtml = '';
+    if (w.roots && w.roots.length > 0) {
+      rootsHtml = `<div class="wl-section"><div class="wl-section-title">字根拆解 (點擊可檢索)</div><div class="wl-root-section">` +
+        w.roots.map(r => `<span class="root-badge" onclick="event.stopPropagation();searchRoot('${r.name}')">${r.name} ${r.desc}</span>`).join('') +
+        `</div></div>`;
+    }
+
     return `<div class="wl-item">
       <div class="wl-header" onclick="toggleDetail(${idx})">
         <div class="wl-left">
@@ -760,7 +693,7 @@ function renderList() {
       </div>
       <div class="wl-detail" id="detail-${idx}">
         <div class="wl-section"><div class="wl-section-title">定義</div>${defsHtml}</div>
-        ${usageHtml}${specialHtml}${examplesHtml}
+        ${rootsHtml}${usageHtml}${specialHtml}${examplesHtml}
       </div>
     </div>`;
   }).join('');
@@ -779,7 +712,6 @@ function toggleDetail(idx) {
   }
 }
 
-// ── 中英雙向檢索過濾功能 ──
 function filterWords() {
   const query = document.getElementById('search-input').value.trim().toLowerCase();
   const items = document.querySelectorAll('.wl-item');
@@ -788,19 +720,20 @@ function filterWords() {
     const item = items[idx];
     if (!item) return;
     
-    // 檢查英文單字是否包含關鍵字
     const matchEn = w.en.toLowerCase().includes(query);
-    // 檢查主要中文標題是否包含關鍵字
     const matchZh = w.zh.toLowerCase().includes(query);
-    
-    // 檢查詳細定義（包含英文解釋和詳細中文說明）
     const matchDefs = w.defs.some(d => 
       (d.zh && d.zh.toLowerCase().includes(query)) || 
       (d.en && d.en.toLowerCase().includes(query))
     );
+    
+    // 新增：支援直接搜尋字根名稱與字根釋義
+    const matchRoots = w.roots && w.roots.some(r => 
+      r.name.toLowerCase().includes(query) || 
+      r.desc.toLowerCase().includes(query)
+    );
 
-    // 如果任何一項符合，就顯示該項目，否則隱藏
-    if (matchEn || matchZh || matchDefs) {
+    if (matchEn || matchZh || matchDefs || matchRoots) {
       item.style.display = 'block';
     } else {
       item.style.display = 'none';
@@ -808,7 +741,6 @@ function filterWords() {
   });
 }
 
-// 預設初始化
 renderCard();
 </script>
 </body>
