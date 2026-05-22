@@ -84,7 +84,7 @@
   .root-badge:hover { background: var(--accent); color: #0e0e10; transform: translateY(-1px); }
   .wl-root-section { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
 
-  /* 新增：線上字根查詢按鈕樣式 */
+  /* 線上字根查詢按鈕樣式 */
   .online-root-btn { background: rgba(74, 144, 226, 0.1); border: 1px solid rgba(74, 144, 226, 0.4); border-radius: 6px; padding: 2px 8px; font-size: 0.72rem; color: var(--online-btn); cursor: pointer; transition: all 0.2s; }
   .online-root-btn:hover { background: var(--online-btn); color: #fff; transform: translateY(-1px); }
 
@@ -244,6 +244,62 @@
 
 <script>
 const WORDS = [
+  // ── 圖片中新增的 9 個單字 ──
+  { en:"interfere", zh:"介入／干涉／干擾", pos:["v."],
+    defs:[{pos:"v.", en:"to get involved in a situation where you are not wanted; to obstruct or hinder", zh:"介入；干涉；干擾；阻礙"}],
+    usage:["interfere with studies","interfere in private life"],
+    special:"interfere with 通常接「事物」（指阻礙或干擾工作/學習）；interfere in 通常接「事情/私事」（指好管閒事、強行插手）。",
+    examples:["Don't let social media interfere with your studies.", "I wish they wouldn't interfere in my private life."],
+    roots:[{name:"inter-", desc:"between 在...之間"}, {name:"fere-", desc:"strike 打擊/衝撞"}]},
+  { en:"moan", zh:"呻吟／抱怨", pos:["v.","n."],
+    defs:[{pos:"v.", en:"to make a long low sound of pain or suffering; to complain chronically", zh:"發出呻吟聲；不滿地抱怨"}, {pos:"n.", en:"a low groan of pain or a complaint", zh:"呻吟聲；抱怨"}],
+    usage:["moan about salary","with a weary moan"],
+    special:"源自古英語 mænan（抱怨、哀悼），屬於獨立字源。在口語中常用來形容某人沒完沒了地碎碎念或抱怨。",
+    examples:["He's always moaning about his low salary.", "She sat down on the sofa with a weary moan."],
+    roots:[]},
+  { en:"evacuate", zh:"撤離／疏散", pos:["v."],
+    defs:[{pos:"v.", en:"to remove people from a place of danger to a safer place; to empty the bowels", zh:"（將人從險境）撤離、疏散；排泄、使排空"}],
+    usage:["evacuate residents","evacuate from burning building"],
+    special:"字根組合代表「往外清空」。常用於天災、火災或戰爭時期的紧急群眾撤離。",
+    examples:["The police evacuated residents from the burning building.", "During the war, thousands of children were evacuated to the countryside."],
+    roots:[{name:"ex- (e-)", desc:"out 向外"}, {name:"vac-", desc:"empty 空"}]},
+  { en:"deliberate", zh:"故意的／深思熟慮的", pos:["adj.","v."],
+    defs:[{pos:"adj.", en:"done consciously and intentionally; careful and unhurried", zh:"故意的；蓄意的；謹慎沉穩的"}, {pos:"v.", en:"to engage in long and careful consideration", zh:"深思熟慮；仔細商討"}],
+    usage:["deliberate decision","deliberate on the verdict","deliberate choice"],
+    special:"形容詞發音為 /dɪˈlɪbərət/ 意為故意的；動詞發音為 /dɪˈlɪbəˌreɪt/ 意為商榷、仔細衡量。名詞為 deliberation。",
+    examples:["It was a deliberate attempt to sabotage the plan.", "The jury deliberated on the verdict for over six hours."],
+    roots:[{name:"de-", desc:"completely 完全"}, {name:"liber-", desc:"weigh/balance 磅秤/衡量"}]},
+  { en:"unleash", zh:"釋放／發揮", pos:["v."],
+    defs:[{pos:"v.", en:"to release a dog from a leash; to turn loose a powerful force or emotion", zh:"解開皮帶（釋放狗）；釋放（強大的力量、情感或潛能）"}],
+    usage:["unleash potential","unleash a storm of protest","unleash creativity"],
+    special:"原本指放開拴狗的皮帶，現在極常抽象隱喻為發揮隱藏的實力、引發一連串激烈的風暴或迴響。",
+    examples:["The new marketing strategy unleashed a storm of protest.", "The software tool allows developers to unleash their full creativity."],
+    roots:[{name:"un-", desc:"reverse action 相反動作/解開"}, {name:"leash-", desc:"leash 皮帶"}]},
+  { en:"circumstance", zh:"情況／環境／處境", pos:["n."],
+    defs:[{pos:"n.", en:"a fact or condition connected with or relevant to an event or action", zh:"情況；形勢；周遭環境；處境"}],
+    usage:["under no circumstances","due to circumstances","in financial circumstances"],
+    special:"重要片語 under no circumstances（絕不／在任何情況下都不），若置於句首，後面的主詞與動詞必須進行「倒裝」。",
+    examples:["Under no circumstances should you open that back door.", "The match was cancelled due to circumstances beyond our control."],
+    roots:[{name:"circum-", desc:"around 環繞/周圍"}, {name:"sta-", desc:"stand 站立"}]},
+  { en:"sanctuary", zh:"避難所／聖所／庇護", pos:["n."],
+    defs:[{pos:"n.", en:"a place of safety or holiness; a nature reserve for wildlife", zh:"聖所；神殿；避難所；庇護處；野生動物保護區"}],
+    usage:["seek sanctuary","wildlife sanctuary","find sanctuary in"],
+    special:"古時候犯人逃入教堂等「神聖場所」即不可被逮捕，因而衍生出避難所與動物保護區之意。",
+    examples:["The refugees sought sanctuary in the old town church.", "This island serves as a beautiful wildlife sanctuary for birds."],
+    roots:[{name:"sanct-", desc:"holy 神聖"}, {name:"-uary", desc:"place 場所"}]},
+  { en:"chronicle", zh:"編年史／歷史紀錄", pos:["n.","v."],
+    defs:[{pos:"n.", en:"a factual written account of important or historical events in the order of their occurrence", zh:"編年史；歷史紀錄"}, {pos:"v.", en:"to record a series of historical events in a factual way", zh:"記錄、將...載入編年史"}],
+    usage:["chronicle the history","a chronicle of events"],
+    special:"強調「照時間先後順序」進行的精確記載。同字根衍生詞包括 chronic（慢性的、長期的）、synchronize（同步）。",
+    examples:["The historian's book chronicles the bloody history of the civil rights movement.", "This diary provides a fascinating chronicle of wartime life."],
+    roots:[{name:"chron-", desc:"time 時間"}, {name:"-icle", desc:"record/article 紀錄/小物件"}]},
+  { en:"token", zh:"代幣／標記／象徵", pos:["n.","adj."],
+    defs:[{pos:"n.", en:"a voucher or coin-like disk used as currency; a voucher or sign of something", zh:"代幣；禮券；標記；象徵"}, {pos:"adj.", en:"done for the sake of appearances or as a symbolic gesture", zh:"象徵性的；裝模作樣的"}],
+    usage:["as a token of gratitude","by the same token","token effort"],
+    special:"常規片語 as a token of… 表示「作為...的謝意或紀念」。by the same token 意為「同理、同樣地」。",
+    examples:["Please accept this small gift as a token of our appreciation.", "By the same token, hard work doesn't always guarantee success."],
+    roots:[]},
+
   // ── New words ──
   { en:"fabricate", zh:"捏造／製造", pos:["v."],
     defs:[{pos:"v.", en:"to invent false information; to construct or manufacture", zh:"捏造（謊言）；製造；偽造"}],
@@ -404,7 +460,7 @@ const WORDS = [
   { en:"dispense", zh:"分配", pos:["v."],
     defs:[{pos:"v.", en:"to distribute or supply; to prepare and give out medicine; to manage without (dispense with)", zh:"分配；分發；配藥；免除（dispense with）"}],
     usage:["dispense medicine","dispense with formalities","dispense advice","cash dispenser"],
-    special:"dispense with = 省去；不需要：Let's dispense with the formalities.（我們省略繁文縟節吧。）dispenser = 自動販售機或分配器。",
+    special:"dispense with = 一般省略不需要：Let's dispense with the formalities.（我們省略繁文縟節吧。）dispenser = 自動販售機或分配器。",
     examples:["The pharmacist dispensed the medication carefully.", "Let's dispense with the introductions and get straight to the point.", "The machine dispenses coffee at the touch of a button."],
     roots:[{name:"dis-", desc:"apart 分開"}, {name:"pend-", desc:"weigh 稱重/衡量"}]},
   { en:"riven", zh:"裂隙", pos:["adj."], roots:[] },
@@ -420,7 +476,7 @@ const WORDS = [
   { en:"spirit", zh:"精神", pos:["n.","v."],
     defs:[{pos:"n.", en:"the non-physical part of a person; mood; a ghost; strong alcoholic drink", zh:"精神；心靈；靈魂；鬼魂；烈酒"},{pos:"v.", en:"to convey rapidly and secretly", zh:"迅速秘密地帶走"}],
     usage:["team spirit","spirit away","in good spirits","the spirit of the law","high spirits"],
-    special:"in high spirits = 興開懷。spirit of the law = 法律精神（vs letter of the law 文字本義）。spirit sb away = 神不知鬼不覺地把人帶走。",
+    special:"in high spirits = 高興開懷。spirit of the law = 法律精神（vs letter of the law 文字本義）。spirit sb away = 神不知鬼不覺地把人帶走。",
     examples:["The team played with tremendous spirit.", "She was in high spirits after the good news.", "The prisoner was spirited away before dawn."],
     roots:[{name:"spir-", desc:"breathe 呼吸"}]},
   { en:"buffet", zh:"自助餐", pos:["n.","v."], roots:[] },
@@ -453,6 +509,12 @@ let quizTyped = [];
 let quizAnswered = false;
 let usedKeys = {};
 let currentUtterance = null;
+
+// 更新頁首進度總數
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById('progress-label').textContent = `1 / ${deck.length}`;
+  document.getElementById('q-progress').textContent = `0/${deck.length}`;
+});
 
 function speak(text, btn) {
   window.speechSynthesis.cancel();
@@ -509,9 +571,8 @@ function searchRoot(rootName) {
   });
 }
 
-// 新增功能：點擊後自動查詢該字卡的線上字源字典 (Etymonline)
+// 點擊後自動查詢該字卡的線上字源字典 (Etymonline)
 function lookupOnlineEtymology(word) {
-  // 過濾掉中文字（如果單字表有中文字開頭的話）
   const cleanWord = word.replace(/[\u4e00-\u9fff]/g, '').trim();
   if(cleanWord) {
     const url = `https://www.etymonline.com/word/${cleanWord.toLowerCase()}`;
@@ -534,7 +595,6 @@ function renderCard() {
   document.getElementById('progress-fill').style.width = ((currentIdx+1)/total*100)+'%';
   document.getElementById('progress-label').textContent = `${currentIdx+1} / ${total}`;
   
-  // 生成內部字根切換按鈕，並在最後面加上「🌐 線上字典」按鈕
   let rootsHtml = '';
   if (w.roots && w.roots.length > 0) {
     rootsHtml = `<div class="roots-container" onclick="event.stopPropagation();">` +
@@ -542,13 +602,11 @@ function renderCard() {
       `<span class="online-root-btn" onclick="lookupOnlineEtymology('${w.en}')">🌐 線上字根字典</span>` +
       `</div>`;
   } else {
-    // 即使這個字在資料庫中沒有寫死的 roots 資料，依然提供直接去線上查該字字源的按鈕
     rootsHtml = `<div class="roots-container" onclick="event.stopPropagation();">
       <span class="online-root-btn" onclick="lookupOnlineEtymology('${w.en}')">🌐 線上字根字典</span>
     </div>`;
   }
 
-  // 同步在字卡正面下方也加上點擊查詢按鈕（用絕對定位/或不干擾外觀的方式呈現在正面）
   const frontOnlineBtn = `<div class="roots-container" style="margin-top:20px;" onclick="event.stopPropagation();">
     <span class="online-root-btn" onclick="lookupOnlineEtymology('${w.en}')">🌐 點我查詢字根</span>
   </div>`;
@@ -615,154 +673,4 @@ function renderBoxes(answer,typed){
     const box=document.createElement('div');
     if(ch===' '){box.className='letter-box space-box';}
     else{
-      box.className='letter-box';
-      const typedCh=typed[i]||'';
-      box.textContent=typedCh;
-      if(typedCh){box.classList.add(quizAnswered?(typedCh===ch?'correct-letter':'wrong-letter'):'filled');}
-    }
-    boxes.appendChild(box);
-  });
-}
-function buildKeyboard(answer){
-  const rows=[['q','w','e','r','t','y','u','i','o','p'],['a','s','d','f','g','h','j','k','l'],['⌫','z','x','c','v','b','n','m',' ']];
-  const kb=document.getElementById('q-keyboard');kb.innerHTML='';
-  rows.forEach(row=>{
-    const rowEl=document.createElement('div');rowEl.className='key-row';
-    row.forEach(k=>{
-      const btn=document.createElement('button');
-      btn.className='key'+(k==='⌫'||k===' '?' key-wide':'');
-      btn.textContent=k===' '?'空格':k;
-      if(quizAnswered&&usedKeys[k]==='correct')btn.classList.add('used-correct');
-      if(quizAnswered&&usedKeys[k]==='wrong')btn.classList.add('used-wrong');
-      btn.onclick=()=>quizType(k,answer);
-      rowEl.appendChild(btn);
-    });
-    kb.appendChild(rowEl);
-  });
-}
-function quizType(k,answer){
-  if(quizAnswered)return;
-  const ans=answer.toLowerCase();const chars=ans.split('');
-  let slot=quizTyped.length;
-  while(slot<chars.length&&chars[slot]===' '){quizTyped.push(' ');slot++;}
-  if(k==='⌫'){if(quizTyped.length>0){while(quizTyped.length>0&&quizTyped[quizTyped.length-1]===' ')quizTyped.pop();quizTyped.pop();}}
-  else if(slot<chars.length){quizTyped.push(k===' '?' ':k.toLowerCase());}
-  while(quizTyped.length<chars.length&&chars[quizTyped.length]===' ')quizTyped.push(' ');
-  renderBoxes(answer,quizTyped);
-  if(quizTyped.filter(c=>c!==' ').length===chars.filter(c=>c!==' ').length)checkQuizAnswer(answer);
-}
-function checkQuizAnswer(answer){
-  const ans=answer.toLowerCase();const typed=quizTyped.join('');
-  quizAnswered=true;const correct=typed===ans;
-  if(correct){quizCorrect++;}else{quizWrong++;}
-  ans.split('').forEach(ch=>{if(ch===' ')return;const ti=quizTyped[ans.indexOf(ch)];usedKeys[ch]=ti===ch?'correct':'wrong';});
-  renderBoxes(answer,quizTyped);
-  const resultEl=document.getElementById('q-result');resultEl.style.display='block';
-  if(correct){resultEl.className='quiz-result correct';resultEl.textContent='✓ 正確！';}
-  else{resultEl.className='quiz-result wrong';resultEl.innerHTML=`✗ 答案是：<strong>${answer}</strong>`;}
-  document.getElementById('q-next-btn').style.display='inline-block';
-  updateQuizScore();
-}
-function quizNext(){quizIdx++;renderQuizQuestion();}
-function quizSkip(){if(quizAnswered)return quizNext();quizWrong++;quizIdx++;renderQuizQuestion();}
-function quizHint(){
-  if(quizAnswered)return;
-  const w=quizDeck[quizIdx];const ans=w.en.toLowerCase();const chars=ans.split('');
-  for(let i=0;i<chars.length;i++){
-    if(chars[i]===' '){quizTyped[i]=' ';continue;}
-    if(!quizTyped[i]||quizTyped[i]!==chars[i]){quizTyped[i]=chars[i];break;}
-  }
-  renderBoxes(w.en,quizTyped);
-  if(quizTyped.filter(c=>c!==' ').length===chars.filter(c=>c!==' ').length)checkQuizAnswer(w.en);
-}
-
-function renderList() {
-  const el=document.getElementById('list-view');
-  el.innerHTML=WORDS.map((w,idx)=>{
-    const isEn = !/^[\u4e00-\u9fff]/.test(w.en);
-    const speakWord = isEn ? w.en : w.defs[0].en||w.en;
-    const defsHtml = w.defs.map(d=>`<div class="wl-def-row"><span class="pos-tag">${d.pos}</span>${d.zh}${d.en?' <span style="color:var(--muted);font-size:0.72rem;">— '+d.en+'</span>':''}</div>`).join('');
-    const usageHtml = w.usage ? `<div class="wl-section"><div class="wl-section-title">常見用法</div>${w.usage.map(u=>`<span class="wl-usage-pill">${u}</span>`).join('')}</div>` : '';
-    const specialHtml = w.special ? `<div class="wl-section"><div class="wl-section-title">特殊說明</div><div class="wl-def-row" style="color:#c4bfb0;">${w.special}</div></div>` : '';
-    const examplesHtml = w.examples ? `<div class="wl-section"><div class="wl-section-title">例句</div>${w.examples.map(e=>`<div class="wl-example">${e}</div>`).join('')}</div>` : '';
-    
-    // 單字表詳細頁面的字根渲染（同步整合線上字根查詢按鈕）
-    let rootsHtml = '';
-    if (w.roots && w.roots.length > 0) {
-      rootsHtml = `<div class="wl-section"><div class="wl-section-title">字根拆解 (點擊可檢索)</div><div class="wl-root-section">` +
-        w.roots.map(r => `<span class="root-badge" onclick="event.stopPropagation();searchRoot('${r.name}')">${r.name} ${r.desc}</span>`).join('') +
-        `<span class="online-root-btn" onclick="event.stopPropagation();lookupOnlineEtymology('${w.en}')">🌐 線上字根字典</span>` +
-        `</div></div>`;
-    } else {
-      rootsHtml = `<div class="wl-section"><div class="wl-section-title">字根拆解</div><div class="wl-root-section">
-        <span class="online-root-btn" onclick="event.stopPropagation();lookupOnlineEtymology('${w.en}')">🌐 線上字根字典</span>
-      </div></div>`;
-    }
-
-    return `<div class="wl-item">
-      <div class="wl-header" onclick="toggleDetail(${idx})">
-        <div class="wl-left">
-          <div class="wl-en-row">
-            <span class="wl-en">${w.en}</span>
-            ${isEn?`<button class="wl-speak-btn" id="speak-${idx}" onclick="event.stopPropagation();speak('${speakWord.replace(/'/g,"\\'")}',this)">▶ 發音</button>`:''}
-          </div>
-          <div class="wl-pos">${w.pos.join(' / ')}</div>
-        </div>
-        <div class="wl-right">
-          <div class="wl-zh">${w.zh}</div>
-        </div>
-        <span class="wl-toggle" id="toggle-${idx}">›</span>
-      </div>
-      <div class="wl-detail" id="detail-${idx}">
-        <div class="wl-section"><div class="wl-section-title">定義</div>${defsHtml}</div>
-        ${rootsHtml}${usageHtml}${specialHtml}${examplesHtml}
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function toggleDetail(idx) {
-  const detail=document.getElementById('detail-'+idx);
-  const toggle=document.getElementById('toggle-'+idx);
-  const open=detail.classList.contains('open');
-  if(open) {
-    detail.classList.remove('open');
-    toggle.classList.remove('open');
-  } else {
-    detail.classList.add('open');
-    toggle.classList.add('open');
-  }
-}
-
-function filterWords() {
-  const query = document.getElementById('search-input').value.trim().toLowerCase();
-  const items = document.querySelectorAll('.wl-item');
-  
-  WORDS.forEach((w, idx) => {
-    const item = items[idx];
-    if (!item) return;
-    
-    const matchEn = w.en.toLowerCase().includes(query);
-    const matchZh = w.zh.toLowerCase().includes(query);
-    const matchDefs = w.defs.some(d => 
-      (d.zh && d.zh.toLowerCase().includes(query)) || 
-      (d.en && d.en.toLowerCase().includes(query))
-    );
-    
-    const matchRoots = w.roots && w.roots.some(r => 
-      r.name.toLowerCase().includes(query) || 
-      r.desc.toLowerCase().includes(query)
-    );
-
-    if (matchEn || matchZh || matchDefs || matchRoots) {
-      item.style.display = 'block';
-    } else {
-      item.style.display = 'none';
-    }
-  });
-}
-
-renderCard();
-</script>
-</body>
-</html>
+      box.className='letter-
