@@ -174,7 +174,7 @@
 <div id="flashcard-view">
   <div class="progress-bar">
     <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
-    <div class="progress-label" id="progress-label">1 / 65</div>
+    <div class="progress-label" id="progress-label">1 / 74</div>
   </div>
   <div class="card-wrapper" onclick="flipCard()">
     <div class="card-inner" id="card-inner">
@@ -203,7 +203,7 @@
   <div class="quiz-score">
     <div class="score-correct">✓ <span class="score-val" id="q-correct">0</span></div>
     <div class="score-wrong">✗ <span class="score-val" id="q-wrong">0</span></div>
-    <div>進度 <span class="score-val" id="q-progress">0/65</span></div>
+    <div>進度 <span class="score-val" id="q-progress">0/74</span></div>
   </div>
   <div class="quiz-card">
     <div class="quiz-prompt-label">請拼出這個詞</div>
@@ -224,7 +224,54 @@
 
 <script>
 const WORDS = [
-  // ── New words ──
+  // ── 新加入單字 (來自圖片) ──
+  { en:"interfere", zh:"干擾／介入", pos:["v."],
+    defs:[{pos:"v.", en:"to prevent a process or activity from being carried out properly; to get involved in others' affairs", zh:"干擾；妨礙；介入；管閒事"}],
+    usage:["interfere with","interfere in","interfere with a signal"],
+    special:"interfere with 後接「事物」（干擾、破壞進度）；interfere in 後接「別人的事」（插手、涉入）。名詞形式為 interference。",
+    examples:["Don't interfere with my economic plans.", "I wish my mother-in-law would stop interfering in our marriage.", "Emotional stress can interfere with your sleep cycle."]},
+  { en:"moan", zh:"呻吟／抱怨", pos:["v.","n."],
+    defs:[{pos:"v.", en:"to make a long, low sound expressing pain or suffering; to complain chronically", zh:"發出呻吟聲；悲嘆；（口語）抱怨"},{pos:"n.", en:"a low, sustained sound of pain or grief; a complaint", zh:"呻吟聲；抱怨"}],
+    usage:["moan in pain","moan about everything","stop moaning"],
+    special:"除了身體疼痛的呻吟，口語中極常用於形容「老是抱怨碎念某事」（相當於 complain）。",
+    examples:["The injured soldier began to moan in pain.", "She's always moaning about how much tax she has to pay.", "He let out a low moan when he heard the bad news."]},
+  { en:"vacuate", zh:"撤離／疏散", pos:["v."],
+    defs:[{pos:"v.", en:"to remove people from a place of danger to a safer place; to leave a place", zh:"撤離；疏散；撤退；搬空"}],
+    usage:["evacuate the building","be evacuated to safety","order to evacuate"],
+    special:"注意受詞通常是「地方」或「被疏散的人」，而不是危險源本身。例如不說 evacuate the fire，而說 evacuate the residents。",
+    examples:["Police ordered residents to evacuate the building immediately.", "Hundreds of families were evacuated from the flooded area.", "The building was quickly evacuated during the earthquake drill."]},
+  { en:"deliberate", zh:"商榷／故意的", pos:["adj.","v."],
+    defs:[{pos:"adj.", en:"done consciously and intentionally; careful and unhurried", zh:"故意的；蓄意的；深思熟慮的；不慌不忙的"},{pos:"v.", en:"to engage in long and careful consideration", zh:"商榷；仔細考慮；審議"}],
+    usage:["deliberate lie","deliberate choice","deliberate on a decision","jury deliberated"],
+    special:"作形容詞時讀 /ˈdɪˈlɪbərət/（故意的）；作動詞時讀 /ˈdɪˈlɪbəreɪt/（商榷、審議）。陪審團討論案情就常用這個動詞。",
+    examples:["It was a deliberate attempt to ruin my reputation.", "The jury deliberated for five hours before reaching a verdict.", "He spoke in a calm, deliberate manner."]},
+  { en:"unleash", zh:"發揮／釋放", pos:["v."],
+    defs:[{pos:"v.", en:"to release a thing or an emotion from a leash or restraint", zh:"發揮（潛能）；釋放（情感／威力）；解開皮鍊"}],
+    usage:["unleash potential","unleash a storm","unleash one's anger","unleash creativity"],
+    special:"字面意思是解開狗的皮鍊（leash），引申為將原本被壓抑或控制的力量、潛能、憤怒「猛烈釋放出來」。",
+    examples:["The new training program is designed to unleash your full potential.", "The director's comments unleashed a storm of protest on social media.", "AI technologies have unleashed unprecedented creative possibilities."]},
+  { en:"circumstance", zh:"環境／情況", pos:["n."],
+    defs:[{pos:"n.", en:"a fact or condition connected with or relevant to an event or action", zh:"環境；情況；情勢；境遇"}],
+    usage:["under no circumstances","due to unforeseen circumstances","in reduced circumstances","depending on circumstances"],
+    special:"under no circumstances 意為「絕不／無論如何都不」，放句首時後面句子要倒裝。複數型 circumstances 常用來指個人的「經濟境況」。",
+    examples:["Under no circumstances should you open that door.", "The event was cancelled due to unforeseen circumstances.", "We had to adapt our strategy to changing circumstances."]},
+  { en:"sanctuary", zh:"避難所", pos:["n."],
+    defs:[{pos:"n.", en:"a place of safety or refuge; a nature reserve; a holy place", zh:"避難所；庇護所；鳥獸保護區；（教堂）聖殿"}],
+    usage:["seek sanctuary","wildlife sanctuary","find sanctuary","sanctuary city"],
+    special:"除了具體的避難所，在自然科學中 wildlife sanctuary 指「野生動物保護區」；在政治中 sanctuary city 指保護非法移民的「庇護城市」。",
+    examples:["The refugees sought sanctuary in the church.", "This island is a designated sanctuary for rare sea birds.", "Her garden became a peaceful sanctuary from the chaotic world."]},
+  { en:"chronicle", zh:"編年史／記錄", pos:["n.","v."],
+    defs:[{pos:"n.", en:"a factual written account of important or historical events in the order of their occurrence", zh:"編年史；歷史記錄；記事"},{pos:"v.", en:"to record a series of events in a factual and detailed way", zh:"記錄（歷史事件）；載入編年史"}],
+    usage:["chronicle of events","historical chronicle","chronicle the war","family chronicle"],
+    special:"常出現在書名、報紙名中（如 The Chronicle）。作動詞時，強調「依時間順序忠實記錄一件大事的始末」。",
+    examples:["The book is a fascinating chronicle of the early days of space exploration.", "Her latest documentary chronicles the daily struggles of factory workers.", "These ancient letters chronicle the collapse of the empire."]},
+  { en:"token", zh:"令牌／標記", pos:["n.","adj."],
+    defs:[{pos:"n.", en:"a voucher that can be exchanged for goods; a thing serving as a visible representation of a feeling or fact", zh:"令牌；代幣；代金券；標記；紀念品"},{pos:"adj.", en:"done for the sake of appearances or as a symbolic gesture", zh:"象徵性的；裝樣子的"}],
+    usage:["as a token of appreciation","book token","token gesture","token resistance","security token"],
+    special:"as a token of appreciation/gratitude = 作為（感謝的）一點心意。token gesture/effort 指「敷衍了事、裝點門面」的象徵性舉動。",
+    examples:["Please accept this gift as a token of our appreciation.", "You can exchange this token for a free drink at the counter.", "They made a token effort to solve the problem, but nothing really changed."]},
+
+  // ── 原始單字庫 ──
   { en:"fabricate", zh:"捏造／製造", pos:["v."],
     defs:[{pos:"v.", en:"to invent false information; to construct or manufacture", zh:"捏造（謊言）；製造；偽造"}],
     usage:["fabricate a story","fabricate evidence","fabricate parts"],
@@ -255,7 +302,6 @@ const WORDS = [
     usage:["stand trial","clinical trial","trial and error","on trial","trial run","trial period"],
     special:"trial and error = 嘗試錯誤法。stand trial = 接受審判。on trial = ①受審②試用中。clinical trial = 臨床試驗（醫學）。",
     examples:["The suspect will stand trial next month.", "The new drug is currently in clinical trials.", "I learned to cook through trial and error."]},
-  // ── Original words (感受 removed) ──
   { en:"imbue", zh:"賦予", pos:["v."],
     defs:[{pos:"v.", en:"to inspire or permeate with a quality or feeling", zh:"賦予；使充滿（某種特質或情感）"}],
     usage:["imbue with confidence","imbue with meaning","imbue with a sense of purpose"],
@@ -431,11 +477,6 @@ const WORDS = [
     usage:["lead actress","supporting actress","Best Actress award","actress turned politician"],
     special:"現代英語中 actor 可泛指男女演員，actress 特指女性。奧斯卡獎項仍保留 Best Actress。有些女演員偏好被稱為 actor（去性別化）。",
     examples:["She won the Academy Award for Best Actress.", "The actress gave a stunning performance.", "Many use 'actor' regardless of gender now."]},
-  { en:"感官", zh:"感官", pos:["n."],
-    defs:[{pos:"n.", en:"the senses: sight, hearing, taste, smell, and touch", zh:"感官；感覺器官；五感"}],
-    usage:["感官刺激","感官享受","感官體驗"],
-    special:"對應英文：the five senses。sensory（adj.）= 感官的：sensory experience（感官體驗）。",
-    examples:["A spa should be a complete sensory experience.", "The dish engaged all five senses.", "Sensory overload can cause stress and anxiety."]},
   { en:"possess", zh:"具有", pos:["v."],
     defs:[{pos:"v.", en:"to have as a quality or ability; to own", zh:"具有；擁有；持有；（鬼）附身"}],
     usage:["possess skills","possess knowledge","what possessed you","be possessed by"],
@@ -503,7 +544,7 @@ const WORDS = [
     examples:["The tombstone was engraved with a simple epitaph.", "We paused to read the faded inscriptions on the old tombstones.", "He joked that 'I told you I was sick' would be his tombstone epitaph."]},
   { en:"vice", zh:"副", pos:["n.","prefix","adj."],
     defs:[{pos:"n.", en:"immoral or wicked behaviour; a tool for gripping objects", zh:"惡習；邪惡；罪行；（工具）老虎鉗"},{pos:"prefix/adj.", en:"second in authority (vice president, vice principal)", zh:"副……（如副總統、副校長）"}],
-    usage:["vice versa","vice president","vice grip","virtue and vice","vice squad"],
+    usage:["vice vice","vice president","vice grip","virtue and vice","vice squad"],
     special:"vice versa = 反之亦然（常見拉丁語短語）。virtue and vice = 善與惡（對立概念）。the vice squad = 掃黃警察。",
     examples:["The vice president stepped in to chair the meeting.", "Greed is considered a vice in many cultures.", "The roles can be swapped — and vice versa."]},
   { en:"in the daily basis", zh:"每天", pos:["phr."],
@@ -532,7 +573,7 @@ const WORDS = [
     special:"get to + V = 有機會做某事（強調「機會難得」）：I rarely get to see him anymore.（我現在很少有機會見到他了。）",
     examples:["We got to see the northern lights on our last night there.", "You rarely get to see such a stunning performance.", "I finally got to see the film everyone had been talking about."]},
   { en:"award", zh:"獎", pos:["n.","v."],
-    defs:[{pos:"n.", en:"a prize or recognition given for achievement", zh:"獎；獎項；獎勵；裁定賠償"},{pos:"v.", en:"to officially give a prize or sum of money", zh:"授予；頒發；裁定（賠償）"}],
+    defs:[{pos:"n.", en:"a prize or recognition given for achievement", zh:"獎；獎項；獎列；裁定賠償"},{pos:"v.", en:"to officially give a prize or sum of money", zh:"授予；頒發；裁定（賠償）"}],
     usage:["award ceremony","award-winning","award damages","award a contract","receive an award"],
     special:"award-winning（adj.）= 得獎的：an award-winning novel。award a contract = 將合約授予某方（招標語境）。award damages = 判賠損失（法律語境）。",
     examples:["She received an award for her contribution to science.", "The court awarded her $50,000 in damages.", "It's an award-winning documentary about climate change."]},
@@ -555,7 +596,6 @@ let quizTyped = [];
 let quizAnswered = false;
 let usedKeys = {};
 let currentUtterance = null;
-let activeTab = 'cards';
 
 function speak(text, btn) {
   window.speechSynthesis.cancel();
@@ -573,7 +613,6 @@ function speak(text, btn) {
 }
 
 function switchTab(tab) {
-  activeTab = tab;
   document.querySelectorAll('.tab').forEach((t,i)=>{
     t.classList.toggle('active', ['cards','quiz','list'][i]===tab);
   });
@@ -752,45 +791,16 @@ function renderList() {
 }
 
 function toggleDetail(idx) {
-  const detail=document.getElementById('detail-'+idx);
-  const toggle=document.getElementById('toggle-'+idx);
-  const isOpen=detail.classList.contains('open');
+  const detail = document.getElementById('detail-' + idx);
+  const toggle = document.getElementById('toggle-' + idx);
+  const isOpen = detail.classList.contains('open');
   
-  if(isOpen) {
-    detail.style.maxHeight = '0px';
-    detail.classList.remove('open');
-    toggle.classList.remove('open');
-  } else {
-    detail.classList.add('open');
-    detail.style.maxHeight = detail.scrollHeight + 'px';
-    toggle.classList.add('open');
-  }
+  // 關閉所有其他展開的單字（可選，若想要手風琴效果可加，此處保持自由開關）
+  detail.classList.toggle('open', !isOpen);
+  toggle.classList.toggle('open', !isOpen);
 }
 
-// 監聽鍵盤事件以支援實體鍵盤作答
-document.addEventListener('keydown', (e) => {
-  if (activeTab !== 'quiz' || quizIdx >= quizDeck.length) return;
-  const currentAnswer = quizDeck[quizIdx].en;
-
-  if (quizAnswered) {
-    if (e.key === 'Enter') {
-      quizNext();
-    }
-    return;
-  }
-
-  if (e.key === 'Backspace') {
-    quizType('⌫', currentAnswer);
-    e.preventDefault();
-  } else if (e.key === ' ') {
-    quizType(' ', currentAnswer);
-    e.preventDefault();
-  } else if (e.key.length === 1 && /[a-zA-Z]/.test(e.key)) {
-    quizType(e.key.toLowerCase(), currentAnswer);
-  }
-});
-
-// 初始化頁面
+// 啟動初始化
 renderCard();
 </script>
 </body>
