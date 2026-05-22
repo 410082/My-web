@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>優化版 · 英中字卡</title>
+<title>終極修正版 · 英中字卡</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Noto+Serif+TC:wght@400;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -240,7 +240,6 @@
 </div>
 
 <script>
-// 精簡核心單字陣列，防止內嵌環境卡死
 const WORDS = [
   { en:"fabricate", zh:"捏造／製造", pos:["v."],
     defs:[{pos:"v.", en:"to invent false information; to construct or manufacture", zh:"捏造（謊言）；製造；偽造"}],
@@ -486,22 +485,30 @@ function toggleDetail(idx) {
   }
 }
 
+// 這裡已經整合好即時篩選與刪除回復的完美邏輯！
 function filterList() {
   const query = document.getElementById('list-search').value.toLowerCase().trim();
   const clearBtn = document.getElementById('list-clear-btn');
   const items = document.querySelectorAll('.wl-item');
   let visibleCount = 0;
+
   clearBtn.style.display = query ? 'inline' : 'none';
+
   WORDS.forEach((w, idx) => {
     const matchEn = w.en.toLowerCase().includes(query);
     const matchZh = w.zh.includes(query);
-    if (matchEn || matchZh) {
+    const matchDefs = w.defs.some(d => 
+      d.zh.includes(query) || (d.en && d.en.toLowerCase().includes(query))
+    );
+
+    if (query === '' || matchEn || matchZh || matchDefs) {
       items[idx].style.display = 'block';
       visibleCount++;
     } else {
       items[idx].style.display = 'none';
     }
   });
+
   const countEl = document.getElementById('list-count');
   if (query) {
     countEl.textContent = `找到 ${visibleCount} 個符合的單字`;
