@@ -45,14 +45,10 @@
   .seg-ctrl button { padding: 5px 13px; background: transparent; border: none; color: var(--muted); font-family: 'DM Mono', monospace; font-size: 0.75rem; cursor: pointer; transition: all .15s; }
   .seg-ctrl button.active { background: var(--accent2); color: #fff; }
 
-  /* Search Bar Container */
-  .search-container { width: 100%; max-width: 480px; margin-bottom: 16px; display: none; }
-  .search-input {
-    width: 100%; padding: 10px 16px; border-radius: 10px; border: 1px solid var(--border);
-    background: var(--card-bg); color: var(--text); font-family: 'DM Mono', monospace; font-size: 0.85rem;
-    outline: none; transition: all 0.2s;
-  }
-  .search-input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(200, 169, 110, 0.15); }
+  /* Search Bar */
+  .search-container { width: 100%; max-width: 480px; margin-bottom: 18px; display: none; }
+  .search-input { width: 100%; padding: 11px 16px; border-radius: 10px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text); font-family: 'DM Mono', monospace; font-size: 0.85rem; transition: all 0.2s; }
+  .search-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px rgba(200, 169, 110, 0.15); }
 
   /* Flashcard */
   #flashcard-view { width: 100%; max-width: 420px; }
@@ -180,14 +176,14 @@
   </div>
 </div>
 
-<div class="search-container" id="search-bar-container">
-  <input type="text" class="search-input" id="search-input" placeholder="搜尋英文、中文或字根拆解說明..." oninput="filterList()">
+<div class="search-container" id="search-bar">
+  <input type="text" class="search-input" id="search-input" placeholder="搜尋單字 (英文或中文)..." oninput="filterWords()">
 </div>
 
 <div id="flashcard-view">
   <div class="progress-bar">
     <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
-    <div class="progress-label" id="progress-label">1 / 64</div>
+    <div class="progress-label" id="progress-label">1 / 65</div>
   </div>
   <div class="card-wrapper" onclick="flipCard()">
     <div class="card-inner" id="card-inner">
@@ -216,7 +212,7 @@
   <div class="quiz-score">
     <div class="score-correct">✓ <span class="score-val" id="q-correct">0</span></div>
     <div class="score-wrong">✗ <span class="score-val" id="q-wrong">0</span></div>
-    <div>進度 <span class="score-val" id="q-progress">0/64</span></div>
+    <div>進度 <span class="score-val" id="q-progress">0/65</span></div>
   </div>
   <div class="quiz-card">
     <div class="quiz-prompt-label">請拼出這個詞</div>
@@ -268,6 +264,7 @@ const WORDS = [
     usage:["stand trial","clinical trial","trial and error","on trial","trial run","trial period"],
     special:"trial and error = 嘗試錯誤法。stand trial = 接受審判。on trial = ①受審②試用中。clinical trial = 臨床試驗（醫學）。",
     examples:["The suspect will stand trial next month.", "The new drug is currently in clinical trials.", "I learned to cook through trial and error."]},
+  // ── Original words (感受 removed) ──
   { en:"imbue", zh:"賦予", pos:["v."],
     defs:[{pos:"v.", en:"to inspire or permeate with a quality or feeling", zh:"賦予；使充滿（某種特質或情感）"}],
     usage:["imbue with confidence","imbue with meaning","imbue with a sense of purpose"],
@@ -378,7 +375,7 @@ const WORDS = [
     usage:["grave concern","grave mistake","grave consequences","dig one's own grave","turn in one's grave"],
     special:"dig one's own grave = 自掘墳墓（自找麻煩）。turn in one's grave = （死去的人）若泉下有知一定會震驚搖頭。grave accent（`) = 法語等語言中的重音符號。",
     examples:["The doctor's expression was grave as he delivered the news.", "This is a matter of grave concern for public health.", "He's digging his own grave by ignoring the warnings."]},
-  { en:"slap", zh:"拍擊", pos:["v.","n."],
+  { en:"slap", zh:"拍擊", pos:["v.","n.","adv."],
     defs:[{pos:"v.", en:"to strike with the open hand; to put carelessly", zh:"掌摑；拍打；隨意放置"},{pos:"n.", en:"a sharp blow with the open hand", zh:"拍打；掌摑；一巴掌"},{pos:"adv.", en:"(informal) directly; exactly", zh:"（非正式）正好；直接地"}],
     usage:["slap in the face","slap on the wrist","slap-up meal","slap down","slap bang"],
     special:"a slap in the face = 奇恥大辱；令人難堪的對待。a slap on the wrist = 輕描淡寫的懲罰。slap-up（英式）= 豐盛的（slap-up meal）。",
@@ -443,6 +440,11 @@ const WORDS = [
     usage:["lead actress","supporting actress","Best Actress award","actress turned politician"],
     special:"現代英語中 actor 可泛指男女演員，actress 特指女性。奧斯卡獎項仍保留 Best Actress。有些女演員偏好被稱為 actor（去性別化）。",
     examples:["She won the Academy Award for Best Actress.", "The actress gave a stunning performance.", "Many use 'actor' regardless of gender now."]},
+  { en:"感官", zh:"感官", pos:["n."],
+    defs:[{pos:"n.", en:"the senses: sight, hearing, taste, smell, and touch", zh:"感官；感覺器官；五感"}],
+    usage:["感官刺激","感官享受","感官體驗"],
+    special:"對應英文：the five senses。sensory（adj.）= 感官的：sensory experience（感官體驗）。",
+    examples:["A spa should be a complete sensory experience.", "The dish engaged all five senses.", "Sensory overload can cause stress and anxiety."]},
   { en:"possess", zh:"具有", pos:["v."],
     defs:[{pos:"v.", en:"to have as a quality or ability; to own", zh:"具有；擁有；持有；（鬼）附身"}],
     usage:["possess skills","possess knowledge","what possessed you","be possessed by"],
@@ -466,7 +468,7 @@ const WORDS = [
   { en:"riven", zh:"裂隙", pos:["adj."],
     defs:[{pos:"adj.", en:"split apart; deeply divided or torn", zh:"裂開的；分裂的；充滿裂隙的；四分五裂的"}],
     usage:["riven by conflict","riven with doubt","riven apart","a country riven by civil war"],
-    special:"riven 是 rive（劈裂）的過去分詞，現多作形容詞用。常見搭配：riven by / with。多用於書面語和新聞報導。",
+    special:"riven 是 rive（劈裂）的過去分詞，現多作形容詞用。常見搭配：riven by / with。多用於書面語 and 新聞報導。",
     examples:["The party was riven by internal disputes.", "A society riven with inequality cannot sustain itself.", "The ancient tree was riven by lightning."]},
   { en:"at last", zh:"終於", pos:["adv."],
     defs:[{pos:"adv.", en:"after a long time or many difficulties; finally", zh:"終於；最終；最後"}],
@@ -539,12 +541,12 @@ const WORDS = [
     special:"get to + V = 有機會做某事（強調「機會難得」）：I rarely get to see him anymore.（我現在很少有機會見到他了。）",
     examples:["We got to see the northern lights on our last night there.", "You rarely get to see such a stunning performance.", "I finally got to see the film everyone had been talking about."]},
   { en:"award", zh:"獎", pos:["n.","v."],
-    defs:[{pos:"n.", en:"a prize or recognition given for achievement", zh:"獎；獎項；獎奖励；裁定賠償"},{pos:"v.", en:"to officially give a prize or sum of money", zh:"授予；頒發；裁定（賠償）"}],
+    defs:[{pos:"n.", en:"a prize or recognition given for achievement", zh:"獎；獎項；獎勵；裁定賠償"},{pos:"v.", en:"to officially give a prize or sum of money", zh:"授予；頒發；裁定（賠償）"}],
     usage:["award ceremony","award-winning","award damages","award a contract","receive an award"],
     special:"award-winning（adj.）= 得獎的：an award-winning novel。award a contract = 將合約授予某方（招標語境）。award damages = 判賠損失（法律語境）。",
     examples:["She received an award for her contribution to science.", "The court awarded her $50,000 in damages.", "It's an award-winning documentary about climate change."]},
   { en:"pronounce", zh:"發音", pos:["v."],
-    defs:[{pos:"v.", en:"to make the sound of a word; to declare officially or formally", zh:"發音；辨出；正式宣告；宣判"}],
+    defs:[{pos:"v.", en:"to make the sound of a word; to declare officially or formally", zh:"發音；唸出；正式宣告；宣判"}],
     usage:["pronounce a word","pronounce sentence","pronounce dead","hard to pronounce","pronounce on"],
     special:"pronounce sb dead = 宣告某人死亡（醫學或法律）。pronounce sentence = 宣判（法庭）。pronunciation（n.）≠ pronounciation（常見錯拼）。",
     examples:["How do you pronounce your surname?", "The judge pronounced sentence on the defendant.", "The doctor pronounced him dead at the scene."]}
@@ -586,12 +588,15 @@ function switchTab(tab) {
   document.getElementById('card-settings').style.display = tab==='cards' ? 'flex' : 'none';
   document.getElementById('quiz-view').style.display = tab==='quiz' ? 'block' : 'none';
   document.getElementById('list-view').style.display = tab==='list' ? 'block' : 'none';
-  document.getElementById('search-bar-container').style.display = tab==='list' ? 'block' : 'none';
+  
+  // 控制搜尋欄的顯示與隱藏（只在單字表出現）
+  document.getElementById('search-bar').style.display = tab==='list' ? 'block' : 'none';
   
   if(tab==='quiz') initQuiz();
   if(tab==='list') {
-    document.getElementById('search-input').value = ''; // 清空搜尋欄
-    renderList(WORDS);
+    renderList();
+    // 切換回單字表時，根據當時搜尋欄的文字進行過濾
+    filterWords();
   }
 }
 
@@ -687,7 +692,7 @@ function buildKeyboard(answer){
       btn.className='key'+(k==='⌫'||k===' '?' key-wide':'');
       btn.textContent=k===' '?'空格':k;
       if(quizAnswered&&usedKeys[k]==='correct')btn.classList.add('used-correct');
-      if(quizAnswered&&usedKeys[k==='wrong'])btn.classList.add('used-wrong');
+      if(quizAnswered&&usedKeys[k]==='wrong')btn.classList.add('used-wrong');
       btn.onclick=()=>quizType(k,answer);
       rowEl.appendChild(btn);
     });
@@ -730,13 +735,9 @@ function quizHint(){
   if(quizTyped.filter(c=>c!==' ').length===chars.filter(c=>c!==' ').length)checkQuizAnswer(w.en);
 }
 
-function renderList(wordsArray) {
+function renderList() {
   const el=document.getElementById('list-view');
-  if(wordsArray.length === 0) {
-    el.innerHTML = `<div style="text-align:center; padding:30px; color:var(--muted); font-size:0.85rem;">找不到相符的單字。</div>`;
-    return;
-  }
-  el.innerHTML=wordsArray.map((w,idx)=>{
+  el.innerHTML=WORDS.map((w,idx)=>{
     const isEn = !/^[\u4e00-\u9fff]/.test(w.en);
     const speakWord = isEn ? w.en : w.defs[0].en||w.en;
     const defsHtml = w.defs.map(d=>`<div class="wl-def-row"><span class="pos-tag">${d.pos}</span>${d.zh}${d.en?' <span style="color:var(--muted);font-size:0.72rem;">— '+d.en+'</span>':''}</div>`).join('');
@@ -765,35 +766,11 @@ function renderList(wordsArray) {
   }).join('');
 }
 
-function filterList() {
-  const query = document.getElementById('search-input').value.toLowerCase().trim();
-  if (!query) {
-    renderList(WORDS);
-    return;
-  }
-  
-  const filtered = WORDS.filter(w => {
-    // 檢查英文、中文
-    if (w.en.toLowerCase().includes(query) || w.zh.toLowerCase().includes(query)) return true;
-    // 檢查特殊說明/字根
-    if (w.special && w.special.toLowerCase().includes(query)) return true;
-    // 檢查常見用法
-    if (w.usage && w.usage.some(u => u.toLowerCase().includes(query))) return true;
-    // 檢查詞性
-    if (w.pos && w.pos.some(p => p.toLowerCase().includes(query))) return true;
-    return false;
-  });
-  
-  renderList(filtered);
-}
-
 function toggleDetail(idx) {
   const detail=document.getElementById('detail-'+idx);
   const toggle=document.getElementById('toggle-'+idx);
-  if (!detail || !toggle) return;
   const open=detail.classList.contains('open');
-  
-  if (open) {
+  if(open) {
     detail.classList.remove('open');
     toggle.classList.remove('open');
   } else {
@@ -802,7 +779,36 @@ function toggleDetail(idx) {
   }
 }
 
-// 初始化首頁字卡
+// ── 中英雙向檢索過濾功能 ──
+function filterWords() {
+  const query = document.getElementById('search-input').value.trim().toLowerCase();
+  const items = document.querySelectorAll('.wl-item');
+  
+  WORDS.forEach((w, idx) => {
+    const item = items[idx];
+    if (!item) return;
+    
+    // 檢查英文單字是否包含關鍵字
+    const matchEn = w.en.toLowerCase().includes(query);
+    // 檢查主要中文標題是否包含關鍵字
+    const matchZh = w.zh.toLowerCase().includes(query);
+    
+    // 檢查詳細定義（包含英文解釋和詳細中文說明）
+    const matchDefs = w.defs.some(d => 
+      (d.zh && d.zh.toLowerCase().includes(query)) || 
+      (d.en && d.en.toLowerCase().includes(query))
+    );
+
+    // 如果任何一項符合，就顯示該項目，否則隱藏
+    if (matchEn || matchZh || matchDefs) {
+      item.style.display = 'block';
+    } else {
+      item.style.display = 'none';
+    }
+  });
+}
+
+// 預設初始化
 renderCard();
 </script>
 </body>
