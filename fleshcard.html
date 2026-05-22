@@ -103,7 +103,7 @@
   .score-correct .score-val { color: var(--correct); }
   .score-wrong .score-val { color: var(--wrong); }
 
-  /* Word List & Search Bar Styling */
+  /* Word List */
   .word-list { width: 100%; max-width: 480px; display: none; }
   .list-search-bar { position: relative; width: 100%; margin-bottom: 12px; display: flex; align-items: center; }
   .list-search-icon { position: absolute; left: 12px; color: var(--muted); font-size: 1.1rem; pointer-events: none; }
@@ -505,7 +505,7 @@ const WORDS = [
   { en:"buffet", zh:"自助餐", pos:["n.","v."],
     defs:[{pos:"n.", en:"a meal where guests serve themselves from a variety of dishes; a sideboard", zh:"自助餐；百匯；餐具櫃"},{pos:"v.", en:"to knock repeatedly; to be battered by wind, waves, or hardship", zh:"衝擊；連打；使顛簸；（風浪）猛烈拍打"}],
     usage:["buffet dinner","buffet style","buffeted by the wind","buffeted by challenges"],
-    special:"注意發音差異：作名詞（自助餐）時重音在第二音節 /bʊˈfeɪ/；作動詞（猛擊）時讀 /ˈbʌfɪt/，兩者拼法相同但含義完全不同。",
+    special:"注意發音差異：作名詞（自助餐）時重音在第二音節 /bʊˈfeɪ/；作動詞（猛擊）時讀 /ˈbʌfɪt/，兩者拼法相同但在含義完全不同。",
     examples:["The hotel offers a breakfast buffet every morning.", "The small boat was buffeted by strong waves.", "She has been buffeted by one setback after another."]},
   { en:"wrestle", zh:"搏鬥", pos:["v.","n."],
     defs:[{pos:"v.", en:"to struggle physically; to grapple with a problem", zh:"摔跤；搏鬥；竭力應付；苦苦思索"},{pos:"n.", en:"a wrestling match; a struggle", zh:"摔跤；格鬥；苦鬥"}],
@@ -581,7 +581,7 @@ const WORDS = [
   { en:"unleash", zh:"發揮", pos:["v."],
     defs:[{pos:"v.", en:"to release a strong force or feeling; to allow to act without restraint", zh:"釋放；發揮；unleash 潛力；unleash 憤怒"}],
     usage:["unleash potential","unleash fury","unleash creativity","unleash chaos","unleash a force"],
-    special:"帶有「原本被壓制、現在爆發」的意象：unleash one's full potential（充分發揮潛能）。也可指釋放負面力量：unleash chaos（引發混亂）。",
+    special:"帶有「原本被壓制、現在爆發」的意象：unleash one's full potential（充分發揮潛能）。也可指釋放負面力量：unleash chaos（引發混難）。",
     examples:["The new policy unleashed a wave of protests.", "Education can unleash a child's full potential.", "She finally unleashed her frustration in a long email to the manager."]},
   { en:"circumstance", zh:"環境", pos:["n."],
     defs:[{pos:"n.", en:"a fact or condition connected with an event; conditions affecting one's life", zh:"環境；情況；情形；境遇；（pl.）經濟狀況"}],
@@ -783,7 +783,7 @@ function quizHint(){
   if(quizTyped.filter(c=>c!==' ').length===chars.filter(c=>c!==' ').length)checkQuizAnswer(w.en);
 }
 
-// 渲染單字列表（支援搜尋篩選）
+// 渲染單字列表
 function renderList(filteredWords = WORDS) {
   const el=document.getElementById('list-view');
   document.getElementById('list-count').textContent = `共找到 ${filteredWords.length} 個單字`;
@@ -794,7 +794,7 @@ function renderList(filteredWords = WORDS) {
   }
 
   el.innerHTML=filteredWords.map((w)=>{
-    // 尋找原始陣列的索引，以維持 toggle 功能正常
+    // 依據英文名稱在原始 WORDS 中的位置作為 ID，確保展開折疊與發音功能不會因為篩選而錯位
     const origIdx = WORDS.findIndex(orig => orig.en === w.en);
     const isEn = !/^[\u4e00-\u9fff]/.test(w.en);
     const speakWord = isEn ? w.en : w.defs[0].en||w.en;
@@ -824,7 +824,7 @@ function renderList(filteredWords = WORDS) {
   }).join('');
 }
 
-// 實時搜尋邏輯（每打一個字就觸發篩選）
+// 實時關鍵字搜尋邏輯 (每打一個字就觸發)
 function filterList() {
   const query = document.getElementById('list-search').value.toLowerCase().trim();
   const clearBtn = document.getElementById('list-clear-btn');
@@ -842,7 +842,7 @@ function filterList() {
   }
 }
 
-// 清除搜尋內容
+// 清除搜尋
 function clearSearch() {
   document.getElementById('list-search').value = '';
   filterList();
