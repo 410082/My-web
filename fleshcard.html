@@ -45,11 +45,6 @@
   .seg-ctrl button { padding: 5px 13px; background: transparent; border: none; color: var(--muted); font-family: 'DM Mono', monospace; font-size: 0.75rem; cursor: pointer; transition: all .15s; }
   .seg-ctrl button.active { background: var(--accent2); color: #fff; }
 
-  /* Search Bar */
-  .search-container { width: 100%; max-width: 480px; margin-bottom: 18px; display: none; }
-  .search-input { width: 100%; padding: 11px 16px; border-radius: 10px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text); font-family: 'DM Mono', monospace; font-size: 0.85rem; transition: all 0.2s; }
-  .search-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px rgba(200, 169, 110, 0.15); }
-
   /* Flashcard */
   #flashcard-view { width: 100%; max-width: 420px; }
   .progress-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
@@ -107,6 +102,15 @@
   .score-val { color: var(--text); font-size: 1rem; }
   .score-correct .score-val { color: var(--correct); }
   .score-wrong .score-val { color: var(--wrong); }
+
+  /* Word List Search */
+  .list-search-bar { width: 100%; display: flex; align-items: center; background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 8px 14px; margin-bottom: 12px; gap: 8px; }
+  .list-search-icon { color: var(--muted); font-size: 1.1rem; line-height: 1; }
+  #list-search { flex: 1; background: transparent; border: none; color: var(--text); font-family: 'DM Mono', monospace; font-size: 0.85rem; outline: none; }
+  #list-search::placeholder { color: var(--muted); }
+  .list-search-clear { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 0.8rem; padding: 2px 6px; }
+  .list-search-clear:hover { color: var(--wrong); }
+  .list-count { font-size: 0.75rem; color: var(--accent2); margin-bottom: 14px; padding-left: 4px; display: none; }
 
   /* Word List */
   .word-list { width: 100%; max-width: 480px; display: none; }
@@ -176,10 +180,6 @@
   </div>
 </div>
 
-<div class="search-container" id="search-bar">
-  <input type="text" class="search-input" id="search-input" placeholder="搜尋單字 (英文或中文)..." oninput="filterWords()">
-</div>
-
 <div id="flashcard-view">
   <div class="progress-bar">
     <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
@@ -229,7 +229,15 @@
   </div>
 </div>
 
-<div class="word-list" id="list-view"></div>
+<div class="word-list" id="list-view-wrap" style="display:none;">
+  <div class="list-search-bar">
+    <span class="list-search-icon">⌕</span>
+    <input type="text" id="list-search" placeholder="搜尋單字或中文…" oninput="filterList()" autocomplete="off" spellcheck="false">
+    <button class="list-search-clear" id="list-clear-btn" onclick="clearSearch()" style="display:none">✕</button>
+  </div>
+  <div class="list-count" id="list-count"></div>
+  <div id="list-view"></div>
+</div>
 
 <script>
 const WORDS = [
@@ -244,7 +252,7 @@ const WORDS = [
     usage:["tropical biome","desert biome","biome diversity"],
     special:"biome 指由氣候決定的大型生態區，例如 tundra（苔原）、rainforest（熱帶雨林）、grassland（草原）等，與 ecosystem（生態系）不同，biome 強調地理尺度更大。",
     examples:["The Amazon rainforest is the world's largest tropical biome.", "Climate change is threatening every major biome on Earth.", "Students mapped the world's major biomes in geography class."]},
-  { en:"grip", zh:"抓握／控制", pos:["v.","n."],
+  { en:"grip", zh:"抓握／控制", pos:["v."],
     defs:[{pos:"v.", en:"to hold tightly", zh:"緊握；抓住"},{pos:"n.", en:"a firm hold; influence or control", zh:"抓握；控制；影響力"}],
     usage:["grip the wheel","lose one's grip","in the grip of fear","come to grips with"],
     special:"come to grips with = 開始認真應對（某困難）。get a grip = 鎮定下來，控制情緒。",
@@ -264,7 +272,7 @@ const WORDS = [
     usage:["stand trial","clinical trial","trial and error","on trial","trial run","trial period"],
     special:"trial and error = 嘗試錯誤法。stand trial = 接受審判。on trial = ①受審②試用中。clinical trial = 臨床試驗（醫學）。",
     examples:["The suspect will stand trial next month.", "The new drug is currently in clinical trials.", "I learned to cook through trial and error."]},
-  // ── Original words (感受 removed) ──
+  // ── Original words ──
   { en:"imbue", zh:"賦予", pos:["v."],
     defs:[{pos:"v.", en:"to inspire or permeate with a quality or feeling", zh:"賦予；使充滿（某種特質或情感）"}],
     usage:["imbue with confidence","imbue with meaning","imbue with a sense of purpose"],
@@ -324,7 +332,7 @@ const WORDS = [
     defs:[{pos:"n.", en:"a slight trace of a colour or quality", zh:"色調；些許（色彩或感覺）；輕微帶有"},{pos:"v.", en:"to colour or affect slightly", zh:"略帶色彩；略微影響"}],
     usage:["a tinge of sadness","tinged with regret","a tinge of red","tinged with irony"],
     special:"tinged with = 略帶有某種感情色彩（常用於情感描述）：tinged with nostalgia（帶著淡淡的懷舊情懷）。",
-    examples:["There was a tinge of sadness in her smile.", "His compliment was vanished with jealousy.", "The sky turned a pale blue with a tinge of pink at sunset."]},
+    examples:["There was a tinge of sadness in her smile.", "His compliment was tinged with jealousy.", "The sky turned a pale blue with a tinge of pink at sunset."]},
   { en:"permeate", zh:"滲透", pos:["v."],
     defs:[{pos:"v.", en:"to spread throughout; to pervade", zh:"滲透；遍及；瀰漫；充滿"}],
     usage:["permeate through","permeate society","the smell permeated","permeate every aspect"],
@@ -376,7 +384,7 @@ const WORDS = [
     special:"dig one's own grave = 自掘墳墓（自找麻煩）。turn in one's grave = （死去的人）若泉下有知一定會震驚搖頭。grave accent（`) = 法語等語言中的重音符號。",
     examples:["The doctor's expression was grave as he delivered the news.", "This is a matter of grave concern for public health.", "He's digging his own grave by ignoring the warnings."]},
   { en:"slap", zh:"拍擊", pos:["v.","n.","adv."],
-    defs:[{pos:"v.", en:"to strike with the open hand; to put carelessly", zh:"掌摑；拍打；隨意放置"},{pos:"n.", en:"a sharp blow with the open hand", zh:"拍打；掌摑；一巴掌"},{pos:"adv.", en:"(informal) directly; exactly", zh:"（非正式）正好地；直接地"}],
+    defs:[{pos:"v.", en:"to strike with the open hand; to put carelessly", zh:"掌摑；拍打；隨意放置"},{pos:"n.", en:"a sharp blow with the open hand", zh:"拍打；掌摑；一巴掌"},{pos:"adv.", en:"(informal) directly; exactly", zh:"（非正式）正好；直接地"}],
     usage:["slap in the face","slap on the wrist","slap-up meal","slap down","slap bang"],
     special:"a slap in the face = 奇恥大辱；令人難堪的對待。a slap on the wrist = 輕描淡寫的懲罰。slap-up（英式）= 豐盛的（slap-up meal）。",
     examples:["She slapped him across the face and walked out.", "The fine was little more than a slap on the wrist.", "He walked slap into the glass door."]},
@@ -405,7 +413,7 @@ const WORDS = [
     usage:["authentic cuisine","authentic self","authentic signature","authentic materials"],
     special:"authenticate（v.）= 鑑定為真品。authenticity（n.）= 真實性。在文化、食物語境中指「正宗」：authentic Italian pizza。",
     examples:["The restaurant serves authentic Thai food.", "Experts confirmed the painting was authentic.", "Being authentic means staying true to your values."]},
-  { en:"complement", zh:"補充", pos:["v."],
+  { en:"complement", zh:"補充", pos:["v.","n."],
     defs:[{pos:"v.", en:"to add to or enhance the qualities of something", zh:"補充；補足；與……相配"},{pos:"n.", en:"a thing that completes or enhances another", zh:"補充物；互補物；補語"}],
     usage:["complement each other","complement the flavour","a full complement","subject complement"],
     special:"注意拼法：complement（補充）vs compliment（稱讚）。a full complement of = 全套的；完整的。文法中 complement = 補語。",
@@ -440,10 +448,10 @@ const WORDS = [
     usage:["lead actress","supporting actress","Best Actress award","actress turned politician"],
     special:"現代英語中 actor 可泛指男女演員，actress 特指女性。奧斯卡獎項仍保留 Best Actress。有些女演員偏好被稱為 actor（去性別化）。",
     examples:["She won the Academy Award for Best Actress.", "The actress gave a stunning performance.", "Many use 'actor' regardless of gender now."]},
-  { en:"sensory", zh:"感官的", pos:["adj."],
-    defs:[{pos:"adj.", en:"relating to sensation or the physical senses", zh:"感官的；感覺的；五感的"}],
-    usage:["sensory overload","sensory experience","sensory deprivation"],
-    special:"對應中文：感官。常用搭配：sensory overload（感官過載）、sensory experience（感官體驗）。",
+  { en:"感官", zh:"感官", pos:["n."],
+    defs:[{pos:"n.", en:"the senses: sight, hearing, taste, smell, and touch", zh:"感官；感覺器官；五感"}],
+    usage:["感官刺激","感官享受","感官體驗"],
+    special:"對應英文：the five senses。sensory（adj.）= 感官的：sensory experience（感官體驗）。",
     examples:["A spa should be a complete sensory experience.", "The dish engaged all five senses.", "Sensory overload can cause stress and anxiety."]},
   { en:"possess", zh:"具有", pos:["v."],
     defs:[{pos:"v.", en:"to have as a quality or ability; to own", zh:"具有；擁有；持有；（鬼）附身"}],
@@ -468,7 +476,7 @@ const WORDS = [
   { en:"riven", zh:"裂隙", pos:["adj."],
     defs:[{pos:"adj.", en:"split apart; deeply divided or torn", zh:"裂開的；分裂的；充滿裂隙的；四分五裂的"}],
     usage:["riven by conflict","riven with doubt","riven apart","a country riven by civil war"],
-    special:"riven 是 rive（劈裂）的過去分詞，現多作形容詞用。常見搭配：riven by / with。多用於書面語 and 新聞報導。",
+    special:"riven 是 rive（劈裂）的過去分詞，現多作形容詞用。常見搭配：riven by / with。多用於書面語和新聞報導。",
     examples:["The party was riven by internal disputes.", "A society riven with inequality cannot sustain itself.", "The ancient tree was riven by lightning."]},
   { en:"at last", zh:"終於", pos:["adv."],
     defs:[{pos:"adv.", en:"after a long time or many difficulties; finally", zh:"終於；最終；最後"}],
@@ -515,8 +523,8 @@ const WORDS = [
     usage:["vice vice","vice president","vice grip","virtue and vice","vice squad"],
     special:"vice vice = 反之亦然（常見拉丁語短語）。virtue and vice = 善與惡（對立概念）。the vice squad = 掃黃警察。",
     examples:["The vice president stepped in to chair the meeting.", "Greed is considered a vice in many cultures.", "The roles can be swapped — and vice versa."]},
-  { en:"on a daily basis", zh:"每天", pos:["phr."],
-    defs:[{pos:"phr.", en:"every day; as a daily routine", zh:"每天；日常地"}],
+  { en:"in the daily basis", zh:"每天", pos:["phr."],
+    defs:[{pos:"phr.", en:"(intended: on a daily basis) every day; as a daily routine", zh:"每天；日常地（正確說法為 on a daily basis）"}],
     usage:["on a daily basis","on a regular basis","on a weekly basis"],
     special:"注意：正確用法是 on a daily basis，不是 in a daily basis。更口語的說法是 every day 或 daily。",
     examples:["We monitor the data on a daily basis.", "Exercise on a daily basis improves your health.", "She checks her emails on a daily basis."]},
@@ -549,7 +557,53 @@ const WORDS = [
     defs:[{pos:"v.", en:"to make the sound of a word; to declare officially or formally", zh:"發音；唸出；正式宣告；宣判"}],
     usage:["pronounce a word","pronounce sentence","pronounce dead","hard to pronounce","pronounce on"],
     special:"pronounce sb dead = 宣告某人死亡（醫學或法律）。pronounce sentence = 宣判（法庭）。pronunciation（n.）≠ pronounciation（常見錯拼）。",
-    examples:["How do you pronounce your surname?", "The judge pronounced sentence on the defendant.", "The doctor pronounced him dead at the scene."]}
+    examples:["How do you pronounce your surname?", "The judge pronounced sentence on the defendant.", "The doctor pronounced him dead at the scene."]},
+  // ── Batch 3 (IMG_2800) ──
+  { en:"interfere", zh:"干擾", pos:["v."],
+    defs:[{pos:"v.", en:"to intervene or meddle; to obstruct or hinder", zh:"干擾；干涉；妨礙；阻擾"}],
+    usage:["interfere with","interfere in","don't interfere","interfere in someone's affairs"],
+    special:"interfere with = 妨礙某事進行。interfere in = 干涉他人事務（多帶貶義）。interference（n.）= 干擾；干涉。",
+    examples:["Please don't interfere with the experiment.", "The noise was interfering with my concentration.", "It's not your place to interfere in their relationship."]},
+  { en:"moan", zh:"呻吟", pos:["v.","n."],
+    defs:[{pos:"v.", en:"to make a long low sound of pain; to complain persistently", zh:"呻吟；哀嘆；持續抱怨"},{pos:"n.", en:"a long low sound of pain or unhappiness", zh:"呻吟聲；哀嘆；牢騷"}],
+    usage:["moan in pain","moan about something","moan and groan","have a moan"],
+    special:"moan about = 針對某事發牢騷（英式口語常用）：She's always moaning about the weather.。moan and groan = 一直怨天尤人。",
+    examples:["He let out a moan of pain as he tried to stand up.", "She's always moaning about how much work she has.", "There was a collective moan from the crowd when the goal was disallowed."]},
+  { en:"evacuate", zh:"撤離", pos:["v."],
+    defs:[{pos:"v.", en:"to remove people from a dangerous place; to leave a place because of danger", zh:"撤離；疏散；撤走"}],
+    usage:["evacuate a building","evacuate civilians","evacuation order","emergency evacuation"],
+    special:"evacuation（n.）= 撤離；疏散。evacuee（n.）= 被撤離者。醫學上也指清空（排泄）：evacuate the bowels。",
+    examples:["The entire building was evacuated after the fire alarm went off.", "Thousands of residents were evacuated due to the approaching hurricane.", "An emergency evacuation plan must be in place at all times."]},
+  { en:"deliberate", zh:"商榷", pos:["adj.","v."],
+    defs:[{pos:"adj.", en:"done on purpose; fully considered; not accidental", zh:"故意的；蓄意的；深思熟慮的"},{pos:"v.", en:"to think carefully before deciding; to discuss formally", zh:"仔細考慮；商議；審議"}],
+    usage:["a deliberate act","deliberate over","deliberate choice","jury deliberates","deliberately"],
+    special:"adj. 和 v. 重音不同：adj. /dɪˈlɪbərət/（故意的），v. /dɪˈlɪbəreɪt/（商議）。deliberately（adv.）= 故意地；蓄意地。",
+    examples:["It was a deliberate attempt to mislead the public.", "The jury deliberated for three days before reaching a verdict.", "She spoke slowly and deliberately to make sure everyone understood."]},
+  { en:"unleash", zh:"發揮", pos:["v."],
+    defs:[{pos:"v.", en:"to release a strong force or feeling; to allow to act without restraint", zh:"釋放；發揮；unleash 潛力；unleash 憤怒"}],
+    usage:["unleash potential","unleash fury","unleash creativity","unleash chaos","unleash a force"],
+    special:"帶有「原本被壓制、現在爆發」的意象：unleash one's full potential（充分發揮潛能）。也可指釋放負面力量：unleash chaos（引發混亂）。",
+    examples:["The new policy unleashed a wave of protests.", "Education can unleash a child's full potential.", "She finally unleashed her frustration in a long email to the manager."]},
+  { en:"circumstance", zh:"環境", pos:["n."],
+    defs:[{pos:"n.", en:"a fact or condition connected with an event; conditions affecting one's life", zh:"環境；情況；情形；境遇；（pl.）經濟狀況"}],
+    usage:["under the circumstances","circumstances beyond control","in difficult circumstances","under no circumstances"],
+    special:"under the circumstances = 在這種情況下。under no circumstances = 絕對不（強調禁止）。複數 circumstances 指「財務狀況」：in reduced circumstances（家道中落）。",
+    examples:["Under the circumstances, I think we made the best decision.", "Under no circumstances should you leave the door unlocked.", "The outcome will depend on the circumstances at the time."]},
+  { en:"sanctuary", zh:"避難所", pos:["n."],
+    defs:[{pos:"n.", en:"a place of refuge or safety; a nature reserve; the sacred part of a church", zh:"避難所；庇護所；自然保護區；聖殿"}],
+    usage:["seek sanctuary","wildlife sanctuary","sanctuary city","offer sanctuary","a sanctuary from"],
+    special:"sanctuary city = 庇護城市（不移交無證移民給聯邦的城市，美國政治術語）。wildlife sanctuary = 野生動物保護區。原意指教堂聖壇，後延伸為「神聖的避難之地」。",
+    examples:["The refugees sought sanctuary in the neighbouring country.", "The island has been designated a wildlife sanctuary.", "Her garden was her sanctuary from the stresses of daily life."]},
+  { en:"chronicle", zh:"編年史", pos:["n.","v."],
+    defs:[{pos:"n.", en:"a factual written account of events in time order", zh:"編年史；年代記；歷史記錄"},{pos:"v.", en:"to record events in detail in the order they happened", zh:"記錄；詳述（依時間順序）"}],
+    usage:["chronicle of events","chronicle history","a detailed chronicle","as chronicled in"],
+    special:"Chronicles 是《舊約聖經》中的歷代志。chronicle 也常作動詞：His memoir chronicles three decades of political life.（他的回憶錄記錄了三十年政治生涯。）",
+    examples:["The book chronicles the rise and fall of a powerful dynasty.", "The documentary chronicles her journey from poverty to success.", "He kept a detailed chronicle of the expedition."]},
+  { en:"token", zh:"令牌", pos:["n.","adj."],
+    defs:[{pos:"n.", en:"a symbol or sign; a voucher or coin-like object", zh:"象徵；代幣；令牌；禮券；憑證"},{pos:"adj.", en:"done as a symbolic gesture only; not genuine", zh:"象徵性的；表面應付的；裝門面的"}],
+    usage:["token gesture","by the same token","token of appreciation","gift token","token resistance"],
+    special:"by the same token = 同樣地；基於同樣的道理（轉折或補充論點用）。token（adj.）常帶批評意味：a token apology（敷衍的道歉）。token resistance = 象徵性抵抗。",
+    examples:["Please accept this as a small token of my appreciation.", "He put up only token resistance — he clearly didn't mind.", "By the same token, if you expect respect, you must show it too."]}
 ];
 
 let deck = [...WORDS];
@@ -564,7 +618,6 @@ let quizTyped = [];
 let quizAnswered = false;
 let usedKeys = {};
 let currentUtterance = null;
-let activeTab = 'cards'; // 追蹤目前的分頁
 
 function speak(text, btn) {
   window.speechSynthesis.cancel();
@@ -582,22 +635,15 @@ function speak(text, btn) {
 }
 
 function switchTab(tab) {
-  activeTab = tab;
   document.querySelectorAll('.tab').forEach((t,i)=>{
     t.classList.toggle('active', ['cards','quiz','list'][i]===tab);
   });
   document.getElementById('flashcard-view').style.display = tab==='cards' ? 'block' : 'none';
   document.getElementById('card-settings').style.display = tab==='cards' ? 'flex' : 'none';
   document.getElementById('quiz-view').style.display = tab==='quiz' ? 'block' : 'none';
-  document.getElementById('list-view').style.display = tab==='list' ? 'block' : 'none';
-  
-  document.getElementById('search-bar').style.display = tab==='list' ? 'block' : 'none';
-  
+  document.getElementById('list-view-wrap').style.display = tab==='list' ? 'block' : 'none';
   if(tab==='quiz') initQuiz();
-  if(tab==='list') {
-    renderList();
-    filterWords();
-  }
+  if(tab==='list') renderList();
 }
 
 function setFirstSide(side) {
@@ -714,14 +760,13 @@ function checkQuizAnswer(answer){
   const ans=answer.toLowerCase();const typed=quizTyped.join('');
   quizAnswered=true;const correct=typed===ans;
   if(correct){quizCorrect++;}else{quizWrong++;}
-  ans.split('').forEach((ch, idx)=>{if(ch===' ')return; usedKeys[ch]=quizTyped[idx]===ch?'correct':'wrong';});
+  ans.split('').forEach(ch=>{if(ch===' ')return;const ti=quizTyped[ans.indexOf(ch)];usedKeys[ch]=ti===ch?'correct':'wrong';});
   renderBoxes(answer,quizTyped);
   const resultEl=document.getElementById('q-result');resultEl.style.display='block';
   if(correct){resultEl.className='quiz-result correct';resultEl.textContent='✓ 正確！';}
   else{resultEl.className='quiz-result wrong';resultEl.innerHTML=`✗ 答案是：<strong>${answer}</strong>`;}
   document.getElementById('q-next-btn').style.display='inline-block';
   updateQuizScore();
-  buildKeyboard(answer);
 }
 function quizNext(){quizIdx++;renderQuizQuestion();}
 function quizSkip(){if(quizAnswered)return quizNext();quizWrong++;quizIdx++;renderQuizQuestion();}
@@ -735,27 +780,6 @@ function quizHint(){
   renderBoxes(w.en,quizTyped);
   if(quizTyped.filter(c=>c!==' ').length===chars.filter(c=>c!==' ').length)checkQuizAnswer(w.en);
 }
-
-// 監聽真實鍵盤事件
-document.addEventListener('keydown', (e) => {
-  if (activeTab !== 'quiz' || quizIdx >= quizDeck.length) return;
-  const currentAnswer = quizDeck[quizIdx].en;
-  
-  if (e.key === 'Backspace') {
-    quizType('⌫', currentAnswer);
-    e.preventDefault();
-  } else if (e.key === ' ') {
-    quizType(' ', currentAnswer);
-    e.preventDefault();
-  } else if (e.key === 'Enter') {
-    if (quizAnswered) {
-      quizNext();
-    }
-    e.preventDefault();
-  } else if (e.key.length === 1 && /[a-zA-Z]/.test(e.key)) {
-    quizType(e.key.toLowerCase(), currentAnswer);
-  }
-});
 
 function renderList() {
   const el=document.getElementById('list-view');
@@ -786,46 +810,3 @@ function renderList() {
       </div>
     </div>`;
   }).join('');
-}
-
-function toggleDetail(idx) {
-  const detail=document.getElementById('detail-'+idx);
-  const toggle=document.getElementById('toggle-'+idx);
-  const open=detail.classList.contains('open');
-  if(open) {
-    detail.classList.remove('open');
-    toggle.classList.remove('open');
-  } else {
-    detail.classList.add('open');
-    toggle.classList.add('open');
-  }
-}
-
-function filterWords() {
-  const query = document.getElementById('search-input').value.trim().toLowerCase();
-  const items = document.querySelectorAll('.wl-item');
-  
-  WORDS.forEach((w, idx) => {
-    const item = items[idx];
-    if (!item) return;
-    
-    const matchEn = w.en.toLowerCase().includes(query);
-    const matchZh = w.zh.toLowerCase().includes(query);
-    
-    const matchDefs = w.defs.some(d => 
-      (d.zh && d.zh.toLowerCase().includes(query)) || 
-      (d.en && d.en.toLowerCase().includes(query))
-    );
-
-    if (matchEn || matchZh || matchDefs) {
-      item.style.display = 'block';
-    } else {
-      item.style.display = 'none';
-    }
-  });
-}
-
-renderCard();
-</script>
-</body>
-</html>
