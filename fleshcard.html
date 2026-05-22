@@ -224,54 +224,7 @@
 
 <script>
 const WORDS = [
-  // ── 新加入單字 (來自圖片) ──
-  { en:"interfere", zh:"干擾／介入", pos:["v."],
-    defs:[{pos:"v.", en:"to prevent a process or activity from being carried out properly; to get involved in others' affairs", zh:"干擾；妨礙；介入；管閒事"}],
-    usage:["interfere with","interfere in","interfere with a signal"],
-    special:"interfere with 後接「事物」（干擾、破壞進度）；interfere in 後接「別人的事」（插手、涉入）。名詞形式為 interference。",
-    examples:["Don't interfere with my economic plans.", "I wish my mother-in-law would stop interfering in our marriage.", "Emotional stress can interfere with your sleep cycle."]},
-  { en:"moan", zh:"呻吟／抱怨", pos:["v.","n."],
-    defs:[{pos:"v.", en:"to make a long, low sound expressing pain or suffering; to complain chronically", zh:"發出呻吟聲；悲嘆；（口語）抱怨"},{pos:"n.", en:"a low, sustained sound of pain or grief; a complaint", zh:"呻吟聲；抱怨"}],
-    usage:["moan in pain","moan about everything","stop moaning"],
-    special:"除了身體疼痛的呻吟，口語中極常用於形容「老是抱怨碎念某事」（相當於 complain）。",
-    examples:["The injured soldier began to moan in pain.", "She's always moaning about how much tax she has to pay.", "He let out a low moan when he heard the bad news."]},
-  { en:"vacuate", zh:"撤離／疏散", pos:["v."],
-    defs:[{pos:"v.", en:"to remove people from a place of danger to a safer place; to leave a place", zh:"撤離；疏散；撤退；搬空"}],
-    usage:["evacuate the building","be evacuated to safety","order to evacuate"],
-    special:"注意受詞通常是「地方」或「被疏散的人」，而不是危險源本身。例如不說 evacuate the fire，而說 evacuate the residents。",
-    examples:["Police ordered residents to evacuate the building immediately.", "Hundreds of families were evacuated from the flooded area.", "The building was quickly evacuated during the earthquake drill."]},
-  { en:"deliberate", zh:"商榷／故意的", pos:["adj.","v."],
-    defs:[{pos:"adj.", en:"done consciously and intentionally; careful and unhurried", zh:"故意的；蓄意的；深思熟慮的；不慌不忙的"},{pos:"v.", en:"to engage in long and careful consideration", zh:"商榷；仔細考慮；審議"}],
-    usage:["deliberate lie","deliberate choice","deliberate on a decision","jury deliberated"],
-    special:"作形容詞時讀 /ˈdɪˈlɪbərət/（故意的）；作動詞時讀 /ˈdɪˈlɪbəreɪt/（商榷、審議）。陪審團討論案情就常用這個動詞。",
-    examples:["It was a deliberate attempt to ruin my reputation.", "The jury deliberated for five hours before reaching a verdict.", "He spoke in a calm, deliberate manner."]},
-  { en:"unleash", zh:"發揮／釋放", pos:["v."],
-    defs:[{pos:"v.", en:"to release a thing or an emotion from a leash or restraint", zh:"發揮（潛能）；釋放（情感／威力）；解開皮鍊"}],
-    usage:["unleash potential","unleash a storm","unleash one's anger","unleash creativity"],
-    special:"字面意思是解開狗的皮鍊（leash），引申為將原本被壓抑或控制的力量、潛能、憤怒「猛烈釋放出來」。",
-    examples:["The new training program is designed to unleash your full potential.", "The director's comments unleashed a storm of protest on social media.", "AI technologies have unleashed unprecedented creative possibilities."]},
-  { en:"circumstance", zh:"環境／情況", pos:["n."],
-    defs:[{pos:"n.", en:"a fact or condition connected with or relevant to an event or action", zh:"環境；情況；情勢；境遇"}],
-    usage:["under no circumstances","due to unforeseen circumstances","in reduced circumstances","depending on circumstances"],
-    special:"under no circumstances 意為「絕不／無論如何都不」，放句首時後面句子要倒裝。複數型 circumstances 常用來指個人的「經濟境況」。",
-    examples:["Under no circumstances should you open that door.", "The event was cancelled due to unforeseen circumstances.", "We had to adapt our strategy to changing circumstances."]},
-  { en:"sanctuary", zh:"避難所", pos:["n."],
-    defs:[{pos:"n.", en:"a place of safety or refuge; a nature reserve; a holy place", zh:"避難所；庇護所；鳥獸保護區；（教堂）聖殿"}],
-    usage:["seek sanctuary","wildlife sanctuary","find sanctuary","sanctuary city"],
-    special:"除了具體的避難所，在自然科學中 wildlife sanctuary 指「野生動物保護區」；在政治中 sanctuary city 指保護非法移民的「庇護城市」。",
-    examples:["The refugees sought sanctuary in the church.", "This island is a designated sanctuary for rare sea birds.", "Her garden became a peaceful sanctuary from the chaotic world."]},
-  { en:"chronicle", zh:"編年史／記錄", pos:["n.","v."],
-    defs:[{pos:"n.", en:"a factual written account of important or historical events in the order of their occurrence", zh:"編年史；歷史記錄；記事"},{pos:"v.", en:"to record a series of events in a factual and detailed way", zh:"記錄（歷史事件）；載入編年史"}],
-    usage:["chronicle of events","historical chronicle","chronicle the war","family chronicle"],
-    special:"常出現在書名、報紙名中（如 The Chronicle）。作動詞時，強調「依時間順序忠實記錄一件大事的始末」。",
-    examples:["The book is a fascinating chronicle of the early days of space exploration.", "Her latest documentary chronicles the daily struggles of factory workers.", "These ancient letters chronicle the collapse of the empire."]},
-  { en:"token", zh:"令牌／標記", pos:["n.","adj."],
-    defs:[{pos:"n.", en:"a voucher that can be exchanged for goods; a thing serving as a visible representation of a feeling or fact", zh:"令牌；代幣；代金券；標記；紀念品"},{pos:"adj.", en:"done for the sake of appearances or as a symbolic gesture", zh:"象徵性的；裝樣子的"}],
-    usage:["as a token of appreciation","book token","token gesture","token resistance","security token"],
-    special:"as a token of appreciation/gratitude = 作為（感謝的）一點心意。token gesture/effort 指「敷衍了事、裝點門面」的象徵性舉動。",
-    examples:["Please accept this gift as a token of our appreciation.", "You can exchange this token for a free drink at the counter.", "They made a token effort to solve the problem, but nothing really changed."]},
-
-  // ── 原始單字庫 ──
+  // ── New words ──
   { en:"fabricate", zh:"捏造／製造", pos:["v."],
     defs:[{pos:"v.", en:"to invent false information; to construct or manufacture", zh:"捏造（謊言）；製造；偽造"}],
     usage:["fabricate a story","fabricate evidence","fabricate parts"],
@@ -282,7 +235,7 @@ const WORDS = [
     usage:["tropical biome","desert biome","biome diversity"],
     special:"biome 指由氣候決定的大型生態區，例如 tundra（苔原）、rainforest（熱帶雨林）、grassland（草原）等，與 ecosystem（生態系）不同，biome 強調地理尺度更大。",
     examples:["The Amazon rainforest is the world's largest tropical biome.", "Climate change is threatening every major biome on Earth.", "Students mapped the world's major biomes in geography class."]},
-  { en:"grip", zh:"抓握／控制", pos:["v.","n."],
+  { en:"grip", zh:"抓握／控制", pos:["v."],
     defs:[{pos:"v.", en:"to hold tightly", zh:"緊握；抓住"},{pos:"n.", en:"a firm hold; influence or control", zh:"抓握；控制；影響力"}],
     usage:["grip the wheel","lose one's grip","in the grip of fear","come to grips with"],
     special:"come to grips with = 開始認真應對（某困難）。get a grip = 鎮定下來，控制情緒。",
@@ -302,6 +255,53 @@ const WORDS = [
     usage:["stand trial","clinical trial","trial and error","on trial","trial run","trial period"],
     special:"trial and error = 嘗試錯誤法。stand trial = 接受審判。on trial = ①受審②試用中。clinical trial = 臨床試驗（醫學）。",
     examples:["The suspect will stand trial next month.", "The new drug is currently in clinical trials.", "I learned to cook through trial and error."]},
+  { en:"distract", zh:"分心", pos:["v."],
+    defs:[{pos:"v.", en:"to draw someone's attention away from something", zh:"轉移（注意力）；使分心"}],
+    usage:["distract attention from","easily distracted","distract oneself from"],
+    special:"distracted（adj.）表心神不寧的；distracting（adj.）表令人分心的。常見片語如 distract someone from sth。",
+    examples:["Don't distract the driver while the car is moving.", "She tried to distract herself from the pain by reading a book.", "The noise outside distracted him from his studies."]},
+  { en:"reminisce", zh:"回憶", pos:["v."],
+    defs:[{pos:"v.", en:"to indulge in enjoyable recollection of past events", zh:"追憶；回想；敘舊"}],
+    usage:["reminisce about old times","reminisce about childhood"],
+    special:"通常與介系詞 about 連用（reminisce about...）。名詞形式為 reminiscence（回憶錄、往事）。",
+    examples:["We spent the evening reminiscing about our university days.", "My grandparents love to reminisce about the past.", "They sat by the fire, reminiscing about old times."]},
+  { en:"revel", zh:"狂歡", pos:["v.","n."],
+    defs:[{pos:"v.", en:"to enjoy oneself in a lively and noisy way; to take great pleasure in", zh:"狂歡；陶醉；沉溺（於）"},{pos:"n.", en:"lively and noisy enjoyment", zh:"狂歡；慶祝活動"}],
+    usage:["revel in success","revel in the attention","nightly revels"],
+    special:"作動詞時常搭配 in，表示「非常陶醉、沉溺於某種好狀態中」：revel in one's freedom（陶醉在自由之中）。",
+    examples:["She revoled in her newfound freedom.", "The team reveled in their glorious victory.", "He seemed to revel in the attention he was getting."]},
+  { en:"clench", zh:"緊握", pos:["v."],
+    defs:[{pos:"v.", en:"to close or hold tightly, especially in anger or determination", zh:"（因憤怒或決心而）緊咬（牙關）；緊握（拳頭）"}],
+    usage:["clench one's fists","clench one's teeth","jaw clenched"],
+    special:"多用於情緒緊繃、憤怒或忍耐的肢體動作描寫。",
+    examples:["He clenched his fists to control his anger.", "She stood with her teeth clenched, refusing to cry.", "His jaw clenched when he heard the bad news."]},
+  { en:"perjury", zh:"偽證罪", pos:["n."],
+    defs:[{pos:"n.", en:"the offence of willfully telling an untruth in a court after having taken an oath", zh:"偽證；偽證罪"}],
+    usage:["commit perjury","charge with perjury","guilty of perjury"],
+    special:"法律專用術語。固定搭配：commit perjury（犯偽證罪）。字根 jur 與法律/誓言有關（如 jury, justice）。",
+    examples:["He was sentenced to two years in prison for committing perjury.", "The witness was accused of perjury after changing her story.", "She knew that lying under oath meant committing perjury."]},
+  { en:"jeopardize", zh:"危及", pos:["v."],
+    defs:[{pos:"v.", en:"to put someone or something into a situation in which there is a danger of loss, harm, or failure", zh:"危及；損害；使面臨危險"}],
+    usage:["jeopardize one's career","jeopardize a relationship","jeopardize the mission"],
+    special:"名詞形式為 jeopardy（危險），常用片語 in jeopardy（處於危險中）。",
+    examples:["A criminal record could jeopardize your chances of getting a job.", "He didn't want to jeopardize his friendship with her.", "The bad weather threatened to jeopardize the whole project."]},
+  { en:"scurry", zh:"急促奔跑", pos:["v.","n."],
+    defs:[{pos:"v.", en:"to move hurriedly with short quick steps", zh:"（小步）急跑；疾行"},{pos:"n.", en:"a situation of hurried and confused movement", zh:"急促奔跑的聲音或狀態"}],
+    usage:["scurry away","scurry around","a scurry of footsteps"],
+    special:"常用於形容小動物（如老鼠、松鼠）或人們因躲雨、忙碌而小步快跑的樣子。",
+    examples:["The mice scurried away when the lights came on.", "People were scurrying around, looking for shelter from the rain.", "I heard a tiny animal scurry through the dry leaves."]},
+  { en:"predicament", zh:"困境", pos:["n."],
+    defs:[{pos:"n.", en:"a difficult, unpleasant, or embarrassing situation", zh:"困境；尷尬的處境"}],
+    usage:["in a difficult predicament","financial predicament","get out of a predicament"],
+    special:"通常指一種進退兩難、不容易解決且令人尷尬或痛苦的處境（plight / dilemma）。",
+    examples:["I’m in a bit of a predicament and I don't know what to do.", "The company's financial predicament was worsening.", "How did you extricate yourself from that awkward predicament?"]},
+  { en:"conspire", zh:"密謀", pos:["v."],
+    defs:[{pos:"v.", en:"to make secret plans jointly to commit an unlawful or harmful act; (of circumstances) to seem to work together for a negative outcome", zh:"密謀；共謀；（事情）共同導致（不良結果）"}],
+    usage:["conspire against","conspire to commit fraud","circumstances conspired to"],
+    special:"除了指人共同密謀，也常用於抽象事物：Circumstances conspired to ruin our plans.（各種巧合/情況湊在一起搞砸了我們的計畫）。",
+    examples:["They were accused of conspiring to overthrow the government.", "It seemed that everything conspired to make me late today.", "The rebels conspired against the king in secret."]},
+
+  // ── Original words ──
   { en:"imbue", zh:"賦予", pos:["v."],
     defs:[{pos:"v.", en:"to inspire or permeate with a quality or feeling", zh:"賦予；使充滿（某種特質或情感）"}],
     usage:["imbue with confidence","imbue with meaning","imbue with a sense of purpose"],
@@ -428,7 +428,7 @@ const WORDS = [
     special:"常用搭配：a lingering doubt（揮之不去的疑慮）、a lingering look（深情的一瞥）、a lingering illness（久病）。",
     examples:["There were lingering doubts about the safety of the product.", "She gave him one last lingering look before leaving.", "He died after a lingering illness at the age of 82."]},
   { en:"resplendent", zh:"燦爛", pos:["adj."],
-    defs:[{pos:"adj.", en:"attractive and impressive through richness, brightness, or grandeur", zh:"燦爛的；輝煌的；華麗的；光彩奪目的"}],
+    defs:[{pos:"adj.", en:"attractive and impressive through richness, brightness, or grandeur", zh:"燦爛的；輝輝的；華麗的；光彩奪目的"}],
     usage:["resplendent in","resplendent with colour","look resplendent"],
     special:"常搭配 in：resplendent in a gold gown（身著金色禮服，光彩照人）。書面語、正式語境。",
     examples:["The bride looked resplendent in her ivory gown.", "The palace was resplendent with gold and marble.", "He arrived resplendent in a white naval uniform."]},
@@ -477,6 +477,11 @@ const WORDS = [
     usage:["lead actress","supporting actress","Best Actress award","actress turned politician"],
     special:"現代英語中 actor 可泛指男女演員，actress 特指女性。奧斯卡獎項仍保留 Best Actress。有些女演員偏好被稱為 actor（去性別化）。",
     examples:["She won the Academy Award for Best Actress.", "The actress gave a stunning performance.", "Many use 'actor' regardless of gender now."]},
+  { en:"感官", zh:"感官", pos:["n."],
+    defs:[{pos:"n.", en:"the senses: sight, hearing, taste, smell, and touch", zh:"感官；感覺器官；五感"}],
+    usage:["感官刺激","感官享受","感官體驗"],
+    special:"對應英文：the five senses。sensory（adj.）= 感官的：sensory experience（感官體驗）。",
+    examples:["A spa should be a complete sensory experience.", "The dish engaged all five senses.", "Sensory overload can cause stress and anxiety."]},
   { en:"possess", zh:"具有", pos:["v."],
     defs:[{pos:"v.", en:"to have as a quality or ability; to own", zh:"具有；擁有；持有；（鬼）附身"}],
     usage:["possess skills","possess knowledge","what possessed you","be possessed by"],
@@ -545,7 +550,7 @@ const WORDS = [
   { en:"vice", zh:"副", pos:["n.","prefix","adj."],
     defs:[{pos:"n.", en:"immoral or wicked behaviour; a tool for gripping objects", zh:"惡習；邪惡；罪行；（工具）老虎鉗"},{pos:"prefix/adj.", en:"second in authority (vice president, vice principal)", zh:"副……（如副總統、副校長）"}],
     usage:["vice vice","vice president","vice grip","virtue and vice","vice squad"],
-    special:"vice versa = 反之亦然（常見拉丁語短語）。virtue and vice = 善與惡（對立概念）。the vice squad = 掃黃警察。",
+    special:"vice vice = 反之亦然（常見拉丁語短語）。virtue and vice = 善與惡（對立概念）。the vice squad = 掃黃警察。",
     examples:["The vice president stepped in to chair the meeting.", "Greed is considered a vice in many cultures.", "The roles can be swapped — and vice versa."]},
   { en:"in the daily basis", zh:"每天", pos:["phr."],
     defs:[{pos:"phr.", en:"(intended: on a daily basis) every day; as a daily routine", zh:"每天；日常地（正確說法為 on a daily basis）"}],
@@ -573,14 +578,14 @@ const WORDS = [
     special:"get to + V = 有機會做某事（強調「機會難得」）：I rarely get to see him anymore.（我現在很少有機會見到他了。）",
     examples:["We got to see the northern lights on our last night there.", "You rarely get to see such a stunning performance.", "I finally got to see the film everyone had been talking about."]},
   { en:"award", zh:"獎", pos:["n.","v."],
-    defs:[{pos:"n.", en:"a prize or recognition given for achievement", zh:"獎；獎項；獎列；裁定賠償"},{pos:"v.", en:"to officially give a prize or sum of money", zh:"授予；頒發；裁定（賠償）"}],
+    defs:[{pos:"n.", en:"a prize or recognition given for achievement", zh:"獎；獎項；獎勵；裁定賠償"},{pos:"v.", en:"to officially give a prize or sum of money", zh:"授予；頒發；裁定（賠償）"}],
     usage:["award ceremony","award-winning","award damages","award a contract","receive an award"],
     special:"award-winning（adj.）= 得獎的：an award-winning novel。award a contract = 將合約授予某方（招標語境）。award damages = 判賠損失（法律語境）。",
     examples:["She received an award for her contribution to science.", "The court awarded her $50,000 in damages.", "It's an award-winning documentary about climate change."]},
   { en:"pronounce", zh:"發音", pos:["v."],
     defs:[{pos:"v.", en:"to make the sound of a word; to declare officially or formally", zh:"發音；唸出；正式宣告；宣判"}],
     usage:["pronounce a word","pronounce sentence","pronounce dead","hard to pronounce","pronounce on"],
-    special:"pronounce sb dead = 宣告某人死亡（醫學或法律）。pronounce sentence = 宣判（法庭）。pronunciation（n.）≠ pronounciation（常見錯拼）。",
+    special:"pronounce sb dead = 宣告某人死亡（醫學或法律）。pronounce sentence =宣判（法庭）。pronunciation（n.）≠ pronounciation（常見錯拼）。",
     examples:["How do you pronounce your surname?", "The judge pronounced sentence on the defendant.", "The doctor pronounced him dead at the scene."]}
 ];
 
@@ -596,6 +601,7 @@ let quizTyped = [];
 let quizAnswered = false;
 let usedKeys = {};
 let currentUtterance = null;
+let activeTab = 'cards';
 
 function speak(text, btn) {
   window.speechSynthesis.cancel();
@@ -613,6 +619,7 @@ function speak(text, btn) {
 }
 
 function switchTab(tab) {
+  activeTab = tab;
   document.querySelectorAll('.tab').forEach((t,i)=>{
     t.classList.toggle('active', ['cards','quiz','list'][i]===tab);
   });
@@ -773,7 +780,7 @@ function renderList() {
         <div class="wl-left">
           <div class="wl-en-row">
             <span class="wl-en">${w.en}</span>
-            ${isEn?`<button class="wl-speak-btn" id="speak-${idx}" onclick="event.stopPropagation();speak('${speakWord.replace(/'/g,"\\'")}',this)">▶ 發音</button>`:''}
+            ${isEn?`<button class="wl-speak-btn" id="speak-${idx}" onclick="event.stopPropagation();speak('${speakWord.replace(/'/g,"\\\\'")}',this)">▶ 發音</button>`:''}
           </div>
           <div class="wl-pos">${w.pos.join(' / ')}</div>
         </div>
@@ -791,16 +798,45 @@ function renderList() {
 }
 
 function toggleDetail(idx) {
-  const detail = document.getElementById('detail-' + idx);
-  const toggle = document.getElementById('toggle-' + idx);
-  const isOpen = detail.classList.contains('open');
+  const detail=document.getElementById('detail-'+idx);
+  const toggle=document.getElementById('toggle-'+idx);
+  const isOpen=detail.classList.contains('open');
   
-  // 關閉所有其他展開的單字（可選，若想要手風琴效果可加，此處保持自由開關）
-  detail.classList.toggle('open', !isOpen);
-  toggle.classList.toggle('open', !isOpen);
+  if(isOpen) {
+    detail.style.maxHeight = '0px';
+    detail.classList.remove('open');
+    toggle.classList.remove('open');
+  } else {
+    detail.classList.add('open');
+    detail.style.maxHeight = detail.scrollHeight + 'px';
+    toggle.classList.add('open');
+  }
 }
 
-// 啟動初始化
+// 監聽鍵盤事件以支援實體鍵盤作答
+document.addEventListener('keydown', (e) => {
+  if (activeTab !== 'quiz' || quizIdx >= quizDeck.length) return;
+  const currentAnswer = quizDeck[quizIdx].en;
+
+  if (quizAnswered) {
+    if (e.key === 'Enter') {
+      quizNext();
+    }
+    return;
+  }
+
+  if (e.key === 'Backspace') {
+    quizType('⌫', currentAnswer);
+    e.preventDefault();
+  } else if (e.key === ' ') {
+    quizType(' ', currentAnswer);
+    e.preventDefault();
+  } else if (e.key.length === 1 && /[a-zA-Z]/.test(e.key)) {
+    quizType(e.key.toLowerCase(), currentAnswer);
+  }
+});
+
+// 初始化頁面
 renderCard();
 </script>
 </body>
