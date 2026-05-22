@@ -18,6 +18,7 @@
     --border: #2e2e38;
     --correct: #4caf7d;
     --wrong: #e05c5c;
+    --online-btn: #4a90e2;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -78,10 +79,14 @@
   .shuffle-btn:hover { border-color: var(--accent2); color: var(--accent2); }
 
   /* Roots Badges Style */
-  .roots-container { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 8px; width: 100%; }
+  .roots-container { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 10px; width: 100%; }
   .root-badge { background: rgba(200, 169, 110, 0.1); border: 1px solid rgba(200, 169, 110, 0.3); border-radius: 6px; padding: 2px 8px; font-size: 0.72rem; color: var(--accent); cursor: pointer; transition: all 0.2s; }
   .root-badge:hover { background: var(--accent); color: #0e0e10; transform: translateY(-1px); }
   .wl-root-section { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+
+  /* 新增：線上字根查詢按鈕樣式 */
+  .online-root-btn { background: rgba(74, 144, 226, 0.1); border: 1px solid rgba(74, 144, 226, 0.4); border-radius: 6px; padding: 2px 8px; font-size: 0.72rem; color: var(--online-btn); cursor: pointer; transition: all 0.2s; }
+  .online-root-btn:hover { background: var(--online-btn); color: #fff; transform: translateY(-1px); }
 
   /* Quiz */
   #quiz-view { width: 100%; max-width: 420px; display: none; }
@@ -238,7 +243,6 @@
 <div class="word-list" id="list-view"></div>
 
 <script>
-// 已為所有具有明確字根與字首的單字補上 roots 欄位
 const WORDS = [
   // ── New words ──
   { en:"fabricate", zh:"捏造／製造", pos:["v."],
@@ -430,7 +434,7 @@ const WORDS = [
   { en:"get to see", zh:"有機會看到", pos:["phr.v."], roots:[] },
   { en:"award", zh:"獎", pos:["n.","v."], roots:[] },
   { en:"pronounce", zh:"發音", pos:["v."],
-    defs:[{pos:"v.", en:"to make the sound of a word; to declare officially or formally", zh:"發音；唸出；正式宣告；宣判"}],
+    defs:[{pos:"v.", en:"to make the sound of a word; to declare officially or formally", zh:"發音；宣告；宣判"}],
     usage:["pronounce a word","pronounce sentence","pronounce dead","hard to pronounce","pronounce on"],
     special:"pronounce sb dead = 宣告某人死亡（醫學或法律）。pronounce sentence = 宣判（法庭）。pronunciation（n.）≠ pronounciation（常見錯拼）。",
     examples:["How do you pronounce your surname?", "The judge pronounced sentence on the defendant.", "The doctor pronounced him dead at the scene."],
@@ -483,22 +487,14 @@ function switchTab(tab) {
   }
 }
 
-// ── 核心功能：點擊字根跳轉到單字表檢索 ──
+// 核心功能：點擊字根跳轉到單字表檢索
 function searchRoot(rootName) {
-  // 清除字根後的連字號以提高搜尋寬容度（例如 "bio-" 變成 "bio"）
   const cleanQuery = rootName.replace(/-$/, '');
-  
-  // 1. 切換至單字表頁面
   switchTab('list');
-  
-  // 2. 將字根填入搜尋欄
   const searchInput = document.getElementById('search-input');
   searchInput.value = cleanQuery;
-  
-  // 3. 執行過濾功能
   filterWords();
   
-  // 4. 自動展開符合過濾結果的項目，讓使用者能直接閱讀
   const items = document.querySelectorAll('.wl-item');
   WORDS.forEach((w, idx) => {
     const item = items[idx];
@@ -511,6 +507,16 @@ function searchRoot(rootName) {
       }
     }
   });
+}
+
+// 新增功能：點擊後自動查詢該字卡的線上字源字典 (Etymonline)
+function lookupOnlineEtymology(word) {
+  // 過濾掉中文字（如果單字表有中文字開頭的話）
+  const cleanWord = word.replace(/[\u4e00-\u9fff]/g, '').trim();
+  if(cleanWord) {
+    const url = `https://www.etymonline.com/word/${cleanWord.toLowerCase()}`;
+    window.open(url, '_blank');
+  }
 }
 
 function setFirstSide(side) {
@@ -528,19 +534,30 @@ function renderCard() {
   document.getElementById('progress-fill').style.width = ((currentIdx+1)/total*100)+'%';
   document.getElementById('progress-label').textContent = `${currentIdx+1} / ${total}`;
   
-  // 生成字根 HTML 區塊 (若有字根資料)
+  // 生成內部字根切換按鈕，並在最後面加上「🌐 線上字典」按鈕
   let rootsHtml = '';
   if (w.roots && w.roots.length > 0) {
     rootsHtml = `<div class="roots-container" onclick="event.stopPropagation();">` +
       w.roots.map(r => `<span class="root-badge" onclick="searchRoot('${r.name}')" title="點擊檢索字根">${r.name} ${r.desc}</span>`).join('') +
+      `<span class="online-root-btn" onclick="lookupOnlineEtymology('${w.en}')">🌐 線上字根字典</span>` +
       `</div>`;
+  } else {
+    // 即使這個字在資料庫中沒有寫死的 roots 資料，依然提供直接去線上查該字字源的按鈕
+    rootsHtml = `<div class="roots-container" onclick="event.stopPropagation();">
+      <span class="online-root-btn" onclick="lookupOnlineEtymology('${w.en}')">🌐 線上字根字典</span>
+    </div>`;
   }
+
+  // 同步在字卡正面下方也加上點擊查詢按鈕（用絕對定位/或不干擾外觀的方式呈現在正面）
+  const frontOnlineBtn = `<div class="roots-container" style="margin-top:20px;" onclick="event.stopPropagation();">
+    <span class="online-root-btn" onclick="lookupOnlineEtymology('${w.en}')">🌐 點我查詢字根</span>
+  </div>`;
 
   if(firstSide==='en') {
     document.getElementById('front-label').textContent = 'English';
     document.getElementById('back-label').textContent = '中文';
     document.getElementById('front-pos').textContent = w.pos.join(' / ');
-    document.getElementById('front-word').innerHTML = w.en;
+    document.getElementById('front-word').innerHTML = w.en + frontOnlineBtn;
     document.getElementById('back-chinese').textContent = w.zh;
     document.getElementById('back-defs').innerHTML = 
       w.defs.map(d=>`<div class="def-row"><span class="pos-tag">${d.pos}</span>${d.zh}${d.en?' — '+d.en:''}</div>`).join('') + rootsHtml;
@@ -548,7 +565,7 @@ function renderCard() {
     document.getElementById('front-label').textContent = '中文';
     document.getElementById('back-label').textContent = 'English';
     document.getElementById('front-pos').textContent = '';
-    document.getElementById('front-word').innerHTML = `<span style="font-family:'Noto Serif TC',serif;color:var(--accent)">${w.zh}</span>`;
+    document.getElementById('front-word').innerHTML = `<span style="font-family:'Noto Serif TC',serif;color:var(--accent)">${w.zh}</span>` + frontOnlineBtn;
     document.getElementById('back-chinese').textContent = w.en;
     document.getElementById('back-defs').innerHTML = 
       w.defs.map(d=>`<div class="def-row"><span class="pos-tag">${d.pos}</span>${d.en||''}</div>`).join('') + rootsHtml;
@@ -669,12 +686,17 @@ function renderList() {
     const specialHtml = w.special ? `<div class="wl-section"><div class="wl-section-title">特殊說明</div><div class="wl-def-row" style="color:#c4bfb0;">${w.special}</div></div>` : '';
     const examplesHtml = w.examples ? `<div class="wl-section"><div class="wl-section-title">例句</div>${w.examples.map(e=>`<div class="wl-example">${e}</div>`).join('')}</div>` : '';
     
-    // 單字表詳細頁面的字根渲染
+    // 單字表詳細頁面的字根渲染（同步整合線上字根查詢按鈕）
     let rootsHtml = '';
     if (w.roots && w.roots.length > 0) {
       rootsHtml = `<div class="wl-section"><div class="wl-section-title">字根拆解 (點擊可檢索)</div><div class="wl-root-section">` +
         w.roots.map(r => `<span class="root-badge" onclick="event.stopPropagation();searchRoot('${r.name}')">${r.name} ${r.desc}</span>`).join('') +
+        `<span class="online-root-btn" onclick="event.stopPropagation();lookupOnlineEtymology('${w.en}')">🌐 線上字根字典</span>` +
         `</div></div>`;
+    } else {
+      rootsHtml = `<div class="wl-section"><div class="wl-section-title">字根拆解</div><div class="wl-root-section">
+        <span class="online-root-btn" onclick="event.stopPropagation();lookupOnlineEtymology('${w.en}')">🌐 線上字根字典</span>
+      </div></div>`;
     }
 
     return `<div class="wl-item">
@@ -727,7 +749,6 @@ function filterWords() {
       (d.en && d.en.toLowerCase().includes(query))
     );
     
-    // 新增：支援直接搜尋字根名稱與字根釋義
     const matchRoots = w.roots && w.roots.some(r => 
       r.name.toLowerCase().includes(query) || 
       r.desc.toLowerCase().includes(query)
