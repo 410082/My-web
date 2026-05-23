@@ -103,16 +103,14 @@
   .score-correct .score-val { color: var(--correct); }
   .score-wrong .score-val { color: var(--wrong); }
 
-  /* Word List */
+  /* Word List & Search Styles */
   .word-list { width: 100%; max-width: 480px; display: none; }
-  .list-search-bar { position: relative; width: 100%; margin-bottom: 12px; display: flex; align-items: center; }
-  .list-search-icon { position: absolute; left: 12px; color: var(--muted); font-size: 1.1rem; pointer-events: none; }
-  #list-search { width: 100%; padding: 10px 36px 10px 36px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-family: 'DM Mono', monospace; font-size: 0.85rem; outline: none; transition: border-color 0.2s; }
-  #list-search:focus { border-color: var(--accent2); }
-  .list-search-clear { position: absolute; right: 12px; background: none; border: none; color: var(--muted); cursor: pointer; font-size: 0.85rem; padding: 4px; }
-  .list-search-clear:hover { color: var(--text); }
-  .list-count { font-size: 0.75rem; color: var(--muted); margin-bottom: 14px; padding-left: 4px; letter-spacing: 0.05em; }
-
+  .list-search-bar { display: flex; align-items: center; background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 6px 12px; margin-bottom: 12px; gap: 8px; }
+  .list-search-icon { color: var(--muted); font-size: 1rem; }
+  #list-search { flex: 1; background: transparent; border: none; color: var(--text); font-family: inherit; font-size: 0.9rem; outline: none; }
+  .list-search-clear { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 0.8rem; }
+  .list-count { font-size: 0.72rem; color: var(--muted); margin-bottom: 14px; padding-left: 4px; }
+  
   .wl-item { border-bottom: 1px solid var(--border); }
   .wl-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 4px 10px; cursor: pointer; gap: 10px; }
   .wl-left { flex: 1; }
@@ -192,7 +190,7 @@
         <div class="card-word" id="front-word"></div>
         <span class="card-hint">點擊翻面</span>
       </div>
-      <div class="card-face card-face-back card-back">
+      <div class="card-face card-back">
         <span class="card-face-label" id="back-label">中文</span>
         <div class="card-chinese" id="back-chinese"></div>
         <div class="card-defs" id="back-defs"></div>
@@ -211,7 +209,7 @@
   <div class="quiz-score">
     <div class="score-correct">✓ <span class="score-val" id="q-correct">0</span></div>
     <div class="score-wrong">✗ <span class="score-val" id="q-wrong">0</span></div>
-    <div>進度 <span class="score-val" id="q-progress">0/65</span></div>
+    <div>進度 <span class="score-val" id="q-progress">0/??</span></div>
   </div>
   <div class="quiz-card">
     <div class="quiz-prompt-label">請拼出這個詞</div>
@@ -228,7 +226,7 @@
   </div>
 </div>
 
-<div class="word-list" id="list-view-wrap">
+<div class="word-list" id="list-view-wrap" style="display:none;width:100%;max-width:480px;">
   <div class="list-search-bar">
     <span class="list-search-icon">⌕</span>
     <input type="text" id="list-search" placeholder="搜尋單字或中文…" oninput="filterList()" autocomplete="off" spellcheck="false">
@@ -256,7 +254,7 @@ const WORDS = [
     usage:["grip the wheel","lose one's grip","in the grip of fear","come to grips with"],
     special:"come to grips with = 開始認真應對（某困難）。get a grip = 鎮定下來，控制情緒。",
     examples:["She gripped the railing as the boat rocked.", "Fear had a tight grip on the whole community.", "It's time to come to grips with the problem."]},
-  { en:"pluck", zh:"鼓起勇氣／摘", pos:["v.","n."],
+  { en:"pluck", zh:"鼓起勇氣／摘", pos:["v."],
     defs:[{pos:"v.", en:"to pull quickly; to pick (a flower/fruit); to play a string instrument by pulling", zh:"採摘；拔；撥（弦）；鼓起（勇氣）"},{pos:"n.", en:"spirited and determined courage", zh:"勇氣；膽量"}],
     usage:["pluck up courage","pluck a flower","pluck the strings","pluck from obscurity"],
     special:"pluck up courage / pluck up the nerve = 鼓起勇氣（常見固定搭配）。pluck from obscurity = 從默默無名中被發掘。",
@@ -266,12 +264,11 @@ const WORDS = [
     usage:["jury trial","hung jury","the jury is still out","jury duty"],
     special:"the jury is still out（on sth）= 尚無定論，仍有爭議。hung jury = 陪審團意見分歧，無法達成裁決。jury duty = 陪審義務（公民責任）。",
     examples:["The jury reached a unanimous verdict of not guilty.", "The jury is still out on whether the new policy will work.", "She was called for jury duty next month."]},
-  { en:"trial", zh:"審判／試驗", pos:["n.","v."],
+  { en:"trial", zh:"審判／試驗", pos:["n."],
     defs:[{pos:"n.", en:"a formal examination of evidence in court; a test of performance or quality", zh:"審判；試驗；試用"},{pos:"v.", en:"to test something", zh:"試驗；試用"}],
     usage:["stand trial","clinical trial","trial and error","on trial","trial run","trial period"],
     special:"trial and error = 嘗試錯誤法。stand trial = 接受審判。on trial = ①受審②試用中。clinical trial = 臨床試驗（醫學）。",
     examples:["The suspect will stand trial next month.", "The new drug is currently in clinical trials.", "I learned to cook through trial and error."]},
-  // ── Original words ──
   { en:"imbue", zh:"賦予", pos:["v."],
     defs:[{pos:"v.", en:"to inspire or permeate with a quality or feeling", zh:"賦予；使充滿（某種特質或情感）"}],
     usage:["imbue with confidence","imbue with meaning","imbue with a sense of purpose"],
@@ -292,7 +289,7 @@ const WORDS = [
     usage:["mediocre performance","mediocre results","settle for mediocre"],
     special:"mediocrity（名詞）= 平庸；平凡。常含輕蔑意味，暗示「本可以更好」。",
     examples:["The film received mediocre reviews from critics.", "She refused to settle for mediocrity in her career.", "His mediocre grades didn't reflect his actual intelligence."]},
-  { en:"debate", zh:"辯論", pos:["n.","v."],
+  { en:"debate", zh:"辯論", pos:["n."],
     defs:[{pos:"n.", en:"a formal discussion of opposing arguments", zh:"辯論；討論；爭議"},{pos:"v.", en:"to argue about a subject formally or informally", zh:"辯論；爭論；考慮"}],
     usage:["open to debate","debate the issue","heated debate","under debate","debate whether to…"],
     special:"open to debate = 仍有爭議的。debate whether/what to do = 考慮是否做某事（個人內心的猶豫）。",
@@ -307,17 +304,17 @@ const WORDS = [
     usage:["hilarious joke","find something hilarious","absolutely hilarious"],
     special:"hilarious 語氣比 funny 強烈許多，相當於「笑到肚子痛」的程度。副詞 hilariously 也常用：hilariously bad = 爛得可笑。",
     examples:["The comedian's routine was absolutely hilarious.", "I found his reaction hilarious — he didn't even notice.", "It's hilariously ironic that he ended up being the last to know."]},
-  { en:"requisition", zh:"徵用", pos:["n.","v."],
+  { en:"requisition", zh:"徵用", pos:["n."],
     defs:[{pos:"n.", en:"an official demand or order for something", zh:"徵用令；申請書；徵調"},{pos:"v.", en:"to officially demand the use or supply of something", zh:"徵用；徵調；正式申請"}],
     usage:["requisition supplies","put in a requisition","military requisition"],
     special:"多用於軍事或官僚語境。civilian context 中指提交正式申請表格（submit a requisition form）。",
     examples:["The army requisitioned several private buildings during the war.", "She put in a requisition for new office equipment.", "All food supplies were subject to military requisition."]},
-  { en:"requisite", zh:"必需品", pos:["n.","adj."],
+  { en:"requisite", zh:"必需品", pos:["n."],
     defs:[{pos:"n.", en:"a thing that is necessary for a particular purpose", zh:"必需品；必要條件"},{pos:"adj.", en:"made necessary by particular circumstances", zh:"必要的；必需的；不可缺少的"}],
     usage:["the requisite skills","all the requisites","requisite knowledge"],
     special:"adj. 用法：with the requisite experience（具備必要的經驗）。與 prerequisite 區分：prerequisite 強調「事先」必須具備的條件。",
     examples:["Candidates must have the requisite qualifications for the role.", "She lacked the requisite confidence to speak in public.", "Patience is an absolute requisite for teaching young children."]},
-  { en:"prerequisite", zh:"先決條件", pos:["n.","adj."],
+  { en:"prerequisite", zh:"先決條件", pos:["n."],
     defs:[{pos:"n.", en:"a thing required as a prior condition", zh:"先決條件；前提；預備條件"},{pos:"adj.", en:"required as a prior condition", zh:"先決的；預備的"}],
     usage:["prerequisite for","prerequisite course","prerequisite knowledge"],
     special:"學術語境常見：This course is a prerequisite for Advanced Biology.（這門課是修讀進階生物的先修條件。）",
@@ -327,7 +324,7 @@ const WORDS = [
     usage:["devoid of emotion","devoid of meaning","devoid of any talent"],
     special:"devoid 必須搭配 of 使用：devoid of…（完全缺乏……），語氣較強，常暗示批評或惋惜。",
     examples:["His speech was devoid of any real substance.", "The landscape was bleak and devoid of life.", "She seemed completely devoid of empathy."]},
-  { en:"tinge", zh:"色調", pos:["n.","v."],
+  { en:"tinge", zh:"色調", pos:["n."],
     defs:[{pos:"n.", en:"a slight trace of a colour or quality", zh:"色調；些許（色彩或感覺）；輕微帶有"},{pos:"v.", en:"to colour or affect slightly", zh:"略帶色彩；略微影響"}],
     usage:["a tinge of sadness","tinged with regret","a tinge of red","tinged with irony"],
     special:"tinged with = 略帶有某種感情色彩（常用於情感描述）：tinged with nostalgia（帶著淡淡的懷舊情懷）。",
@@ -347,7 +344,7 @@ const WORDS = [
     usage:["discern a pattern","discern the difference","hard to discern","discerning taste"],
     special:"discerning（adj.）= 有眼光的、有品味的：a discerning audience（懂得欣賞的觀眾）。discernible = 可察覺的。",
     examples:["It was hard to discern any real difference between the two proposals.", "She has a discerning eye for quality.", "I could barely discern his face in the dim light."]},
-  { en:"temper", zh:"脾氣", pos:["n.","v."],
+  { en:"temper", zh:"脾氣", pos:["n."],
     defs:[{pos:"n.", en:"a person's state of mind or mood; tendency to anger quickly", zh:"脾氣；性情；怒氣"},{pos:"v.", en:"to moderate or restrain; to strengthen metal by heating and cooling", zh:"緩和；調和；鍛造（金屬）"}],
     usage:["lose one's temper","keep one's temper","temper justice with mercy","quick temper","bad temper"],
     special:"lose one's temper = 發脾氣。keep one's temper = 忍住不發火。temper sth with sth = 用……緩和……（正式）：temper criticism with kindness。",
@@ -367,22 +364,22 @@ const WORDS = [
     usage:["owe money","owe an apology","owe it to someone","owe one's success to"],
     special:"owe it to yourself = 為自己好也應該做某事。owe sb an explanation/apology = 欠某人一個解釋／道歉。",
     examples:["I owe you an apology for my behaviour yesterday.", "She owes her success to years of hard work.", "You owe it to yourself to take a proper holiday."]},
-  { en:"stroke", zh:"中風", pos:["n.","v."],
+  { en:"stroke", zh:"中風", pos:["n."],
     defs:[{pos:"n.", en:"a sudden brain attack; a movement of a pen or brush; a swimming style", zh:"中風；筆畫；撫摸；游泳姿勢"},{pos:"v.", en:"to gently move one's hand over", zh:"撫摸；輕撫"}],
     usage:["have a stroke","stroke of luck","brush stroke","backstroke","stroke of genius"],
     special:"stroke of luck = 好運氣。stroke of genius = 絕妙之舉。at a stroke / at one stroke = 一舉；一下子。",
     examples:["He suffered a stroke and was rushed to hospital.", "Winning the contract was a real stroke of luck.", "She stroked the cat as it purred on her lap."]},
-  { en:"clobber", zh:"重擊", pos:["v.","n."],
+  { en:"clobber", zh:"重擊", pos:["v."],
     defs:[{pos:"v.", en:"to hit hard; to defeat decisively; to affect severely", zh:"重擊；狠揍；大敗；嚴重打擊"},{pos:"n.", en:"(British informal) clothing or belongings", zh:"（英式俚語）衣物；家當"}],
     usage:["clobber the opposition","get clobbered","clobber the economy"],
     special:"clobber 在英式英語中也可指「個人物品、行李」（非正式）。作動詞時語氣強烈，常用於體育比賽或政策衝擊。",
     examples:["Our team got absolutely clobbered — we lost 8 to 1.", "The new tax will clobber small businesses.", "He left all his clobber at my place after the party."]},
-  { en:"grave", zh:"嚴重", pos:["adj.","n."],
+  { en:"grave", zh:"嚴重", pos:["adj."],
     defs:[{pos:"adj.", en:"giving cause for alarm; serious and solemn", zh:"嚴重的；嚴峻的；嚴肅的"},{pos:"n.", en:"an excavation for burial of a corpse", zh:"墳墓；墓穴"}],
     usage:["grave concern","grave mistake","grave consequences","dig one's own grave","turn in one's grave"],
     special:"dig one's own grave = 自掘墳墓（自找麻煩）。turn in one's grave = （死去的人）若泉下有知一定會震驚搖頭。grave accent（`) = 法語等語言中的重音符號。",
     examples:["The doctor's expression was grave as he delivered the news.", "This is a matter of grave concern for public health.", "He's digging his own grave by ignoring the warnings."]},
-  { en:"slap", zh:"拍擊", pos:["v.","n.","adv."],
+  { en:"slap", zh:"拍擊", pos:["v."],
     defs:[{pos:"v.", en:"to strike with the open hand; to put carelessly", zh:"掌摑；拍打；隨意放置"},{pos:"n.", en:"a sharp blow with the open hand", zh:"拍打；掌摑；一巴掌"},{pos:"adv.", en:"(informal) directly; exactly", zh:"（非正式）正好地；直接地"}],
     usage:["slap in the face","slap on the wrist","slap-up meal","slap down","slap bang"],
     special:"a slap in the face = 奇恥大辱；令人難堪的對待。a slap on the wrist = 輕描淡寫的懲罰。slap-up（英式）= 豐盛的（slap-up meal）。",
@@ -393,7 +390,7 @@ const WORDS = [
     special:"linger on = 繼續存在或不肯離去（常指痛苦、疾病或記憶）。linger over = 慢慢享受（一頓飯、一本書）。",
     examples:["The smell of perfume lingered in the room long after she left.", "He lingered over his coffee, reluctant to start the day.", "The memory of that summer lingers still."]},
   { en:"lingering", zh:"揮之不去的", pos:["adj."],
-    defs:[{pos:"adj.", en:"lasting for a long time; slow to end or disappear", zh:"揮之不去的；持久的；縈繞不散的；拖延的"}],
+    defs:[{pos:"adj.", en:"lasting for a long time; slow to end or disappear", zh:"揮之不去的；持久的；營繞不散的；拖延的"}],
     usage:["lingering doubt","lingering pain","lingering smell","lingering look"],
     special:"常用搭配：a lingering doubt（揮之不去的疑慮）、a lingering look（深情的一瞥）、a lingering illness（久病）。",
     examples:["There were lingering doubts about the safety of the product.", "She gave him one last lingering look before leaving.", "He died after a lingering illness at the age of 82."]},
@@ -406,164 +403,28 @@ const WORDS = [
     defs:[{pos:"n.", en:"a place of residence; a home or dwelling", zh:"住所；住處；居所"}],
     usage:["place of abode","right of abode","welcome to my humble abode"],
     special:"welcome to my humble abode = 歡迎光臨寒舍（幽默或自謙的說法）。right of abode = 居留權（法律用語，香港常見）。",
-    examples:["The form asked for his place of abode.", "Welcome to my humble abode!", "They were forced to leave their abode without notice."]},
-  { en:"authentic", zh:"真正的", pos:["adj."],
-    defs:[{pos:"adj.", en:"of undisputed origin; genuine; made in the traditional way", zh:"真正的；正宗的；真實的；可信的"}],
-    usage:["authentic cuisine","authentic self","authentic signature","authentic materials"],
-    special:"authenticate（v.）= 鑑定為真品。authenticity（n.）= 真實性。在文化、食物語境中指「正宗」：authentic Italian pizza。",
-    examples:["The restaurant serves authentic Thai food.", "Experts confirmed the painting was authentic.", "Being authentic means staying true to your values."]},
-  { en:"complement", zh:"補充", pos:["v.","n."],
-    defs:[{pos:"v.", en:"to add to or enhance the qualities of something", zh:"補充；補足；與……相配"},{pos:"n.", en:"a thing that completes or enhances another", zh:"補充物；互補物；補語"}],
-    usage:["complement each other","complement the flavour","a full complement","subject complement"],
-    special:"注意拼法：complement（補充）vs compliment（稱讚）。a full complement of = 全套的；完整的。文法中 complement = 補語。",
-    examples:["The wine perfectly complemented the cheese.", "Red and green complement each other on the colour wheel.", "The team had a full complement of players for the final."]},
+    examples:["The form asked for your permanent place of abode.", "He was granted right of abode in the UK.", "Welcome to my humble abode — please make yourselves at home."]},
   { en:"come into play", zh:"發揮作用", pos:["phr."],
     defs:[{pos:"phr.", en:"to begin to have an effect or influence; to become a factor", zh:"發揮作用；開始產生影響；起到作用"}],
     usage:["when factors come into play","come into play in negotiations","several variables come into play"],
-    special:"強調某個因素「開始介入並影響局勢」，常用於分析性語境：This is where experience really comes into play.",
+    special:"強烈某個因素「開始介入並影響局勢」，常用於分析性語境：This is where experience really comes into play。",
     examples:["This is where your negotiating skills really come into play.", "Several unexpected factors came into play during the crisis.", "Budget constraints often come into play when planning a project."]},
-  { en:"aesthetic", zh:"美學的", pos:["adj.","n."],
+  { en:"aesthetic", zh:"美學的", pos:["adj."],
     defs:[{pos:"adj.", en:"concerned with beauty or the appreciation of beauty", zh:"美學的；審美的；美感的"},{pos:"n.", en:"a set of principles underlying a work of art or the work of a particular artist", zh:"美學；審美觀；美感風格"}],
     usage:["aesthetic appeal","aesthetic sense","minimalist aesthetic","aesthetic judgment"],
-    special:"近年流行當名詞用，指某種整體視覺風格：a vintage aesthetic（復古美學）、a dark academic aesthetic。aesthetics（n.pl.）= 美學（學科）。",
-    examples:["The building has great aesthetic appeal.", "Her photography has a clean, minimalist aesthetic.", "Aesthetics is the branch of philosophy dealing with beauty."]},
-  { en:"blur", zh:"模糊", pos:["v.","n."],
-    defs:[{pos:"v.", en:"to make or become unclear or less distinct", zh:"使模糊；變得不清楚；混淆"},{pos:"n.", en:"something seen or remembered indistinctly", zh:"模糊的事物；朦朧；一片混亂"}],
-    usage:["blur the lines","in a blur","blur of activity","vision blurred","motion blur"],
-    special:"blur the lines / boundaries = 模糊界線（比喻意義常見）。motion blur = 動態模糊（攝影）。a blur of activity = 一陣忙亂。",
-    examples:["Tears blurred her vision.", "The days after the accident were a complete blur.", "Technology is blurring the line between work and home life."]},
-  { en:"exaggerate", zh:"誇大", pos:["v."],
-    defs:[{pos:"v.", en:"to represent something as larger, better, or worse than it really is", zh:"誇大；誇張；言過其實"}],
-    usage:["exaggerate the risk","greatly exaggerated","without exaggeration","exaggerated claims"],
-    special:"without exaggeration = 毫不誇張地說。exaggerated（adj.）= 誇張的：an exaggerated sense of self-importance。報告寫作中忌用。",
-    examples:["He tends to exaggerate when telling stories.", "Reports of its failure have been greatly exaggerated.", "Without exaggeration, it was the best meal I've ever had."]},
-  { en:"smug", zh:"躊躇滿志", pos:["adj."],
-    defs:[{pos:"adj.", en:"having or showing excessive pride in oneself; self-satisfied", zh:"自鳴得意的；沾沾自喜的；自以為是的"}],
-    usage:["smug look","smug attitude","feel smug about","wipe the smug smile off"],
-    special:"含貶義，指令人不快的自滿。wipe the smug smile off sb's face = 讓某人笑不出來；殺殺某人的威風。",
-    examples:["She had a smug expression after winning the argument.", "Don't be too smug — things could still go wrong.", "That loss wiped the smug smile right off their faces."]},
-  { en:"actress", zh:"演員", pos:["n."],
-    defs:[{pos:"n.", en:"a woman who acts in plays, films, or television", zh:"女演員；（泛指）演員"}],
-    usage:["lead actress","supporting actress","Best Actress award","actress turned politician"],
-    special:"現代英語中 actor 可泛指男女演員，actress 特指女性。奧斯卡獎項仍保留 Best Actress。有些女演員偏好被稱為 actor（去性別化）。",
-    examples:["She won the Academy Award for Best Actress.", "The actress gave a stunning performance.", "Many use 'actor' regardless of gender now."]},
-  { en:"感官", zh:"感官", pos:["n."],
-    defs:[{pos:"n.", en:"the senses: sight, hearing, taste, smell, and touch", zh:"感官；感覺器官；五感"}],
-    usage:["感官刺激","感官享受","感官體驗"],
-    special:"對應英文：the five senses。sensory（adj.）= 感官的：sensory experience（感官體驗）。",
-    examples:["A spa should be a complete sensory experience.", "The dish engaged all five senses.", "Sensory overload can cause stress and anxiety."]},
-  { en:"possess", zh:"具有", pos:["v."],
-    defs:[{pos:"v.", en:"to have as a quality or ability; to own", zh:"具有；擁有；持有；（鬼）附身"}],
-    usage:["possess skills","possess knowledge","what possessed you","be possessed by"],
-    special:"What possessed you? = 你當時怎麼想的？（表示震驚或不解）be possessed by = 被（鬼）附身；被（情緒）控制。",
-    examples:["She possesses a rare combination of intelligence and charm.", "What on earth possessed him to say that?", "He was possessed by an overwhelming sense of guilt."]},
-  { en:"see off", zh:"送行", pos:["phr.v."],
-    defs:[{pos:"phr.v.", en:"to go somewhere to say goodbye to someone who is leaving; to defeat or drive away", zh:"送行；為……送別；擊退；趕走"}],
-    usage:["see someone off at the airport","see off a threat","see off the competition"],
-    special:"有兩個常見意思：①去送別（送機、送站）②擊退、打敗對手：see off a rival（擊敗競爭者）。",
-    examples:["The whole family went to the airport to see her off.", "The team managed to see off their rivals in the final minutes.", "They saw off the burglars before any damage was done."]},
-  { en:"sort", zh:"種類", pos:["n.","v."],
-    defs:[{pos:"n.", en:"a category or type of thing or person", zh:"種類；類型；一種"},{pos:"v.", en:"to arrange systematically; to resolve a problem", zh:"分類；整理；解決（問題）"}],
-    usage:["all sorts of","sort out","sort through","what sort of","sort of (adverb)"],
-    special:"sort of = 有點、某種程度上（口語副詞）：I'm sort of tired.。sort out = 整理好；解決問題（英式常用）：sort out a misunderstanding。",
-    examples:["All sorts of people came to the event.", "I need to sort out my finances before the end of the month.", "It was sort of awkward — nobody knew what to say."]},
-  { en:"dispense", zh:"分配", pos:["v."],
-    defs:[{pos:"v.", en:"to distribute or supply; to prepare and give out medicine; to manage without (dispense with)", zh:"分配；分發；配藥；免除（dispense with）"}],
-    usage:["dispense medicine","dispense with formalities","dispense advice","cash dispenser"],
-    special:"dispense with = 常省略；不需要：Let's dispense with the formalities.（我們省略繁文縟節吧。）dispenser = 自動販售機或分配器。",
-    examples:["The pharmacist dispensed the medication carefully.", "Let's dispense with the introductions and get straight to the point.", "The machine dispenses coffee at the touch of a button."]},
-  { en:"riven", zh:"裂隙", pos:["adj."],
-    defs:[{pos:"adj.", en:"split apart; deeply divided or torn", zh:"裂開的；分裂的；充滿裂隙的；四分五裂的"}],
-    usage:["riven by conflict","riven with doubt","riven apart","a country riven by civil war"],
-    special:"riven 是 rive（劈裂）的過去分詞，現多作形容詞用。常見搭配：riven by / with。多用於書面語和新聞報導。",
-    examples:["The party was riven by internal disputes.", "A society riven with inequality cannot sustain itself.", "The ancient tree was riven by lightning."]},
-  { en:"at last", zh:"終於", pos:["adv."],
-    defs:[{pos:"adv.", en:"after a long time or many difficulties; finally", zh:"終於；最終；最後"}],
-    usage:["at last we arrived","at long last","at last the truth emerged"],
-    special:"at last 暗含「等了很久、終於等到」的感嘆語氣，比 finally 更帶感情色彩。at long last = 強化版，更加強調等待之漫長。",
-    examples:["At last, the rain stopped and the sun came out.", "At long last, the two sides reached an agreement.", "She arrived at last, two hours late."]},
-  { en:"blot", zh:"印跡", pos:["n.","v."],
-    defs:[{pos:"n.", en:"a stain or dark mark; a blemish on a record or reputation", zh:"印跡；污點；汙漬；（名譽上的）瑕疵"},{pos:"v.", en:"to dry ink with absorbent material; to stain or spot", zh:"吸乾；弄污；汙損"}],
-    usage:["blot on the landscape","blot on one's record","blot out","ink blot"],
-    special:"blot one's copybook（英式）= 搞砸名聲；犯了影響名譽的錯。blot out = 遮蔽；抹去（記憶）：blot out the sun；blot out a painful memory。",
-    examples:["That conviction was a serious blot on his record.", "The factory is a blot on the otherwise beautiful landscape.", "She tried to blot out the memory of that terrible day."]},
-  { en:"dim", zh:"暗淡", pos:["adj.","v."],
-    defs:[{pos:"adj.", en:"not bright; unclear; not clever (informal)", zh:"昏暗的；暗淡的；不清楚的；（口語）遲鈍的"},{pos:"v.", en:"to make or become less bright", zh:"使變暗；減弱；淡化"}],
-    usage:["dim light","dim prospects","dim memory","dim the lights","take a dim view of"],
-    special:"take a dim view of = 對某事持負面看法：She takes a dim view of lateness.（她很不認同遲到這件事。）dim memory = 模糊的記憶。",
-    examples:["The lights dimmed as the show was about to begin.", "He has only a dim recollection of his early childhood.", "Management takes a very dim view of employees arriving late."]},
-  { en:"deposit", zh:"訂金", pos:["n.","v."],
-    defs:[{pos:"n.", en:"a first instalment of a payment; a sum placed in a bank; a layer of accumulated matter", zh:"訂金；押金；存款；沉積物"},{pos:"v.", en:"to put down or place; to store money in a bank", zh:"存放；存入；沉積"}],
-    usage:["pay a deposit","security deposit","bank deposit","make a deposit","deposit account"],
-    special:"security deposit = 押金（租房常用）。deposit account = 定期存款戶頭（英式）。leave a deposit = 支付訂金預訂。",
-    examples:["We paid a 10% deposit to secure the apartment.", "She deposited the cheque into her account.", "Layers of sediment were deposited over thousands of years."]},
-  { en:"spirit", zh:"精神", pos:["n.","v."],
-    defs:[{pos:"n.", en:"the non-physical part of a person; mood; a ghost; strong alcoholic drink", zh:"精神；心靈；靈魂；鬼魂；烈酒"},{pos:"v.", en:"to convey rapidly and secretly", zh:"迅速秘密地帶走"}],
-    usage:["team spirit","spirit away","in good spirits","the spirit of the law","high spirits"],
-    special:"in high spirits = 興高采烈。spirit of the law = 法律精神（vs letter of the law 文字本義）。spirit sb away = 神不知鬼不覺地把人帶走。",
-    examples:["The team played with tremendous spirit.", "She was in high spirits after the good news.", "The prisoner was spirited away before dawn."]},
-  { en:"buffet", zh:"自助餐", pos:["n.","v."],
+    special:"近年流行當名詞用，指某種整體視覺風格：a vintage aesthetic（復古美學風格）。",
+    examples:["The building was designed for its aesthetic appeal rather than utility.", "The minimalist aesthetic of the app is very pleasing.", "He has a highly developed aesthetic sense."]},
+  { en:"buffet", zh:"自助餐", pos:["n."],
     defs:[{pos:"n.", en:"a meal where guests serve themselves from a variety of dishes; a sideboard", zh:"自助餐；百匯；餐具櫃"},{pos:"v.", en:"to knock repeatedly; to be battered by wind, waves, or hardship", zh:"衝擊；連打；使顛簸；（風浪）猛烈拍打"}],
     usage:["buffet dinner","buffet style","buffeted by the wind","buffeted by challenges"],
-    special:"注意發音差異：作名詞（自助餐）時重音在第二音節 /bʊˈfeɪ/；作動詞（猛擊）時讀 /ˈbʌfɪt/，兩者拼法相同但在含義完全不同。",
-    examples:["The hotel offers a breakfast buffet every morning.", "The small boat was buffeted by strong waves.", "She has been buffeted by one setback after another."]},
-  { en:"wrestle", zh:"搏鬥", pos:["v.","n."],
-    defs:[{pos:"v.", en:"to struggle physically; to grapple with a problem", zh:"摔跤；搏鬥；竭力應付；苦苦思索"},{pos:"n.", en:"a wrestling match; a struggle", zh:"摔跤；格鬥；苦鬥"}],
-    usage:["wrestle with a problem","wrestle to the ground","wrestling match","arm wrestle"],
-    special:"wrestle with = 苦苦思索或應對（抽象問題）：wrestle with a difficult decision（苦苦思量一個艱難決定）。",
-    examples:["The two players wrestled for control of the ball.", "She has been wrestling with the decision for weeks.", "He wrestled the attacker to the ground."]},
-  { en:"tombstone", zh:"墓碑", pos:["n."],
-    defs:[{pos:"n.", en:"a flat stone slab marking a grave, bearing the dead person's name and dates", zh:"墓碑；墓石；墓誌"}],
-    usage:["tombstone epitaph","tombstone inscription","tombstone pizza (brand)"],
-    special:"epitaph = 墓誌銘（刻在墓碑上的文字）。tombstone 也是美國亞利桑那州的一個歷史小鎮名（牛仔時代）。",
-    examples:["The tombstone was engraved with a simple epitaph.", "We paused to read the faded inscriptions on the old tombstones.", "He joked that 'I told you I was sick' would be his tombstone epitaph."]},
-  { en:"vice", zh:"副", pos:["n.","prefix","adj."],
-    defs:[{pos:"n.", en:"immoral or wicked behaviour; a tool for gripping objects", zh:"惡習；邪惡；罪行；（工具）老虎鉗"},{pos:"prefix/adj.", en:"second in authority (vice president, vice principal)", zh:"副……（如副總統、副校長）"}],
-    usage:["vice vice","vice president","vice grip","virtue and vice","vice squad"],
-    special:"vice vice = 反之亦然（常見拉丁語短語）。virtue and vice = 善與惡（對立概念）。the vice squad = 掃黃警察。",
-    examples:["The vice president stepped in to chair the meeting.", "Greed is considered a vice in many cultures.", "The roles can be swapped — and vice versa."]},
-  { en:"in the daily basis", zh:"每天", pos:["phr."],
-    defs:[{pos:"phr.", en:"(intended: on a daily basis) every day; as a daily routine", zh:"每天；日常地（正確說法為 on a daily basis）"}],
-    usage:["on a daily basis","on a regular basis","on a weekly basis"],
-    special:"注意：正確用法是 on a daily basis，不是 in a daily basis。更口語的說法是 every day 或 daily。",
-    examples:["We monitor the data on a daily basis.", "Exercise on a daily basis improves your health.", "She checks her emails on a daily basis."]},
-  { en:"reap", zh:"收割", pos:["v."],
-    defs:[{pos:"v.", en:"to cut and gather a crop; to receive the results of one's actions", zh:"收割；收穫；獲得（結果）"}],
-    usage:["reap the rewards","reap the consequences","reap what you sow","reap benefits"],
-    special:"you reap what you sow = 種瓜得瓜，種豆得豆（因果報應）。reap the rewards / benefits = 收穫好結果。reap the consequences = 自食惡果。",
-    examples:["After years of hard work, she's finally reaping the rewards.", "You reap what you sow — be kind to others.", "They are now reaping the consequences of their poor planning."]},
-  { en:"embrace", zh:"擁抱", pos:["v.","n."],
-    defs:[{pos:"v.", en:"to hold someone closely; to accept something willingly and enthusiastically", zh:"擁抱；接受；採納；熱情接受"},{pos:"n.", en:"an act of holding someone closely", zh:"擁抱；懷抱"}],
-    usage:["embrace change","embrace diversity","warm embrace","embrace the opportunity"],
-    special:"embrace 用於抽象意義時比 accept 更積極熱情：embrace diversity（熱情接納多元）；embrace change（積極迎接改變）。",
-    examples:["She embraced him warmly at the airport.", "The company has fully embraced digital transformation.", "We should embrace our differences rather than fear them."]},
-  { en:"sponsored", zh:"贊助", pos:["adj.","v."],
-    defs:[{pos:"adj.", en:"paid for or supported by a sponsor", zh:"受贊助的；由贊助商支持的"},{pos:"v.", en:"past tense of 'sponsor': to support financially or through resources", zh:"（sponsor 的過去式）贊助；資助；支持"}],
-    usage:["sponsored by","sponsored content","sponsored post","sponsored event","corporate sponsor"],
-    special:"sponsored content / sponsored post = 付費業配內容（社群媒體常見）。sponsor 也可作名詞：the main sponsor of the event（活動主贊助商）。",
-    examples:["The event was sponsored by a major tech company.", "This video is sponsored by an online learning platform.", "She sponsored a child's education through a charity."]},
-  { en:"get to see", zh:"有機會看到", pos:["phr.v."],
-    defs:[{pos:"phr.v.", en:"to have the opportunity or chance to see or experience something", zh:"有機會看到；得以見到；能夠看到"}],
-    usage:["get to see the world","get to see live","get to see for yourself","rarely get to see"],
-    special:"get to + V = 有機會做某事（強調「機會難得」）：I rarely get to see him anymore.（我現在很少有機會見到他了。）",
-    examples:["We got to see the northern lights on our last night there.", "You rarely get to see such a stunning performance.", "I finally got to see the film everyone had been talking about."]},
-  { en:"award", zh:"獎", pos:["n.","v."],
-    defs:[{pos:"n.", en:"a prize or recognition given for achievement", zh:"獎；獎項；獎勵；裁定賠償"},{pos:"v.", en:"to officially give a prize or sum of money", zh:"授予；頒發；裁定（賠償）"}],
-    usage:["award ceremony","award-winning","award damages","award a contract","receive an award"],
-    special:"award-winning（adj.）= 得獎的：an award-winning novel。award a contract = 將合約授予某方（招標語境）。award damages = 判賠損失（法律語境）。",
-    examples:["She received an award for her contribution to science.", "The court awarded her $50,000 in damages.", "It's an award-winning documentary about climate change."]},
-  { en:"pronounce", zh:"發音", pos:["v."],
-    defs:[{pos:"v.", en:"to make the sound of a word; to declare officially or formally", zh:"發音；唸出；正式宣告；宣判"}],
-    usage:["pronounce a word","pronounce sentence","pronounce dead","hard to pronounce","pronounce on"],
-    special:"pronounce sb dead = 宣告某人死亡（醫學或法律）。pronounce sentence = 宣判（法庭）。pronunciation（n.）≠ pronounciation（常見錯拼）。",
-    examples:["How do you pronounce your surname?", "The judge pronounced sentence on the defendant.", "The doctor pronounced him dead at the scene."]},
-  // ── Batch 3 (IMG_2800) ──
-  { en:"interfere", zh:"幹擾", pos:["v."],
-    defs:[{pos:"v.", en:"to intervene or meddle; to obstruct or hinder", zh:"幹擾；干涉；妨礙；阻擾"}],
+    special:"注意發音差異：作名詞（自助餐）時重音在第二音節 /bʊˈfeɪ/；作動詞（猛擊）時讀 /ˈbʌfɪt/，兩者拼法相同但含義完全不同。",
+    examples:["The hotel offers a breakfast buffet every morning.", "The small boat was buffeted by strong waves.", "She has been buffeted by one hardship after another."]},
+  { en:"interfere", zh:"干擾", pos:["v."],
+    defs:[{pos:"v.", en:"to intervene or meddle; to obstruct or hinder", zh:"干擾；干涉；妨礙；阻擾"}],
     usage:["interfere with","interfere in","don't interfere","interfere in someone's affairs"],
-    special:"interfere with = 妨礙某事進行。interfere in = 干涉他人事務（多帶貶義）。interference（n.）= 干擾；干涉。",
+    special:"interfere with = 妨礙某事進行。interfere in = 干涉他人事務（多帶貶義）。interference（名詞）= 干擾；干涉。",
     examples:["Please don't interfere with the experiment.", "The noise was interfering with my concentration.", "It's not your place to interfere in their relationship."]},
-  { en:"moan", zh:"呻吟", pos:["v.","n."],
+  { en:"moan", zh:"呻吟", pos:["v."],
     defs:[{pos:"v.", en:"to make a long low sound of pain; to complain persistently", zh:"呻吟；哀嘆；持續抱怨"},{pos:"n.", en:"a long low sound of pain or unhappiness", zh:"呻吟聲；哀嘆；牢騷"}],
     usage:["moan in pain","moan about something","moan and groan","have a moan"],
     special:"moan about = 針對某事發牢騷（英式口語常用）：She's always moaning about the weather.。moan and groan = 一直怨天尤人。",
@@ -571,18 +432,8 @@ const WORDS = [
   { en:"evacuate", zh:"撤離", pos:["v."],
     defs:[{pos:"v.", en:"to remove people from a dangerous place; to leave a place because of danger", zh:"撤離；疏散；撤走"}],
     usage:["evacuate a building","evacuate civilians","evacuation order","emergency evacuation"],
-    special:"evacuation（n.）= 撤離；疏散。evacuee（n.）= 被撤離者。醫學上也指清空（排泄）：evacuate the bowels。",
-    examples:["The entire building was evacuated after the fire alarm went off.", "Thousands of residents were evacuated due to the approaching hurricane.", "An emergency evacuation plan must be in place at all times."]},
-  { en:"deliberate", zh:"商榷", pos:["adj.","v."],
-    defs:[{pos:"adj.", en:"done on purpose; fully considered; not accidental", zh:"故意的；蓄意的；深思熟慮的"},{pos:"v.", en:"to think carefully before deciding; to discuss formally", zh:"仔細考慮；商議；審議"}],
-    usage:["a deliberate act","deliberate over","deliberate choice","jury deliberates","deliberately"],
-    special:"adj. 和 v. 重音不同：adj. /dɪˈlɪbərət/（故意的），v. /dɪˈlɪbəreɪt/（商議）。deliberately（adv.）= 故意地；蓄意地。",
-    examples:["It was a deliberate attempt to mislead the public.", "The jury deliberated for three days before reaching a verdict.", "She spoke slowly and deliberately to make sure everyone understood."]},
-  { en:"unleash", zh:"發揮", pos:["v."],
-    defs:[{pos:"v.", en:"to release a strong force or feeling; to allow to act without restraint", zh:"釋放；發揮；unleash 潛力；unleash 憤怒"}],
-    usage:["unleash potential","unleash fury","unleash creativity","unleash chaos","unleash a force"],
-    special:"帶有「原本被壓制、現在爆發」的意象：unleash one's full potential（充分發揮潛能）。也可指釋放負面力量：unleash chaos（引發混難）。",
-    examples:["The new policy unleashed a wave of protests.", "Education can unleash a child's full potential.", "She finally unleashed her frustration in a long email to the manager."]},
+    special:"evacuation（n.）= 疏散；撤離。注意：evacuate 的受詞一般是「地方」或「人群」，例如 evacuate the town 或 evacuate the residents，而不單指把一個物品搬走。",
+    examples:["Police evacuated the building after the bomb threat.", "Thousands of residents were evacuated ahead of the hurricane.", "The emergency evacuation went smoothly."]},
   { en:"circumstance", zh:"環境", pos:["n."],
     defs:[{pos:"n.", en:"a fact or condition connected with an event; conditions affecting one's life", zh:"環境；情況；情形；境遇；（pl.）經濟狀況"}],
     usage:["under the circumstances","circumstances beyond control","in difficult circumstances","under no circumstances"],
@@ -593,22 +444,53 @@ const WORDS = [
     usage:["seek sanctuary","wildlife sanctuary","sanctuary city","offer sanctuary","a sanctuary from"],
     special:"sanctuary city = 庇護城市（不移交無證移民給聯邦的城市，美國政治術語）。wildlife sanctuary = 野生動物保護區。原意指教堂聖壇，後延伸為「神聖的避難之地」。",
     examples:["The refugees sought sanctuary in the neighbouring country.", "The island has been designated a wildlife sanctuary.", "Her garden was her sanctuary from the stresses of daily life."]},
-  { en:"chronicle", zh:"編年史", pos:["n.","v."],
+  { en:"chronicle", zh:"編年史", pos:["n."],
     defs:[{pos:"n.", en:"a factual written account of events in time order", zh:"編年史；年代記；歷史記錄"},{pos:"v.", en:"to record events in detail in the order they happened", zh:"記錄；詳述（依時間順序）"}],
     usage:["chronicle of events","chronicle history","a detailed chronicle","as chronicled in"],
     special:"Chronicles 是《舊約聖經》中的歷代志。chronicle 也常作動詞：His memoir chronicles three decades of political life.（他的回憶錄記錄了三十年政治生涯。）",
     examples:["The book chronicles the rise and fall of a powerful dynasty.", "The documentary chronicles her journey from poverty to success.", "He kept a detailed chronicle of the expedition."]},
-  { en:"token", zh:"令牌", pos:["n.","adj."],
-    defs:[{pos:"n.", en:"a symbol or sign; a voucher or coin-like object", zh:"象徵；代幣；令牌；禮券；憑證"},{pos:"adj.", en:"done as a symbolic gesture only; not genuine", zh:"象徵性的；表面應付的；裝門面的"}],
-    usage:["token gesture","by the same token","token of appreciation","gift token","token resistance"],
-    special:"by the same token = 同樣地；基於同樣的道理（轉折或補充論點用）。token（adj.）常帶批評意味：a token apology（敷衍的道歉）。token resistance = 象徵性抵抗。",
-    examples:["Please accept this as a small token of my appreciation.", "He put up only token resistance — he clearly didn't mind.", "By the same token, if you expect respect, you must show it too."]}
+  { en:"hypothesis", zh:"假設", pos:["n."],
+    defs:[{pos:"n.", en:"a supposition or proposed explanation made on the basis of limited evidence as a starting point for investigation", zh:"假設；假說；推測"}],
+    usage:["test a hypothesis","prove a hypothesis","working hypothesis","null hypothesis","hypothesis testing"],
+    special:"null hypothesis（虛無假設）= 統計學術語，假設無顯著差異。working hypothesis = 暫定假設（研究初期用）。hypothesis → hypothesize（v.) → hypothetical（adj.）。",
+    examples:["Scientists formed a hypothesis about the cause of the disease.", "The experiment was designed to test their hypothesis.", "His working hypothesis was that stress was a major contributing factor."]},
+  { en:"vitals", zh:"命脈", pos:["n."],
+    defs:[{pos:"n.", en:"(plural) vital signs: pulse, blood pressure, temperature; essential body organs or key elements", zh:"生命徵象；命脈；重要器官；關鍵指標"}],
+    usage:["check someone's vitals","vital signs","monitor vitals","patient's vitals"],
+    special:"vitals 在醫療語境指「生命徵象」（vital signs）= 體溫、脈搏、呼吸、血壓。口語也指任何「不可或缺的核心部分」：the vitals of the economy（經濟命脈）。",
+    examples:["The nurse checked the patient's vitals every hour.", "His vitals were stable after the surgery.", "The supply chain is the vitals of any modern manufacturing business."]},
+  { en:"vital", zh:"必不可少的", pos:["adj."],
+    defs:[{pos:"adj.", en:"absolutely necessary; essential; full of life and energy", zh:"必不可少的；至關重要的；充滿活力的"},{pos:"n.", en:"(plural: vitals) vital organs or signs", zh:"（複數）重要器官；生命徵象"}],
+    usage:["vital role","vital information","vital signs","vital to","it is vital that"],
+    special:"it is vital that + 子句（用虛擬語氣）：It is vital that he be informed immediately.。vital to / for = 對……至關重要。",
+    examples:["Exercise is vital for maintaining good health.", "She played a vital role in the project's success.", "It is vital that all safety procedures are followed."]},
+  { en:"lure someone into", zh:"引誘/誘騙某人去…", pos:["phr.v."],
+    defs:[{pos:"phr.v.", en:"to tempt or attract someone into a situation, often a harmful one", zh:"引誘某人；誘騙某人進入（某情況，常為負面）"}],
+    usage:["lure into a trap","lure into investing","lure with promises","lure someone away from"],
+    special:"lure（v./n.）= 引誘；誘惑；誘餌。lure away = 以利挖角：lure talent away from competitors.（從競爭對手挖走人才。）",
+    examples:["Scammers lured victims into fake investment schemes.", "The promise of quick profits lured many into the fraud.", "She was lured into a false sense of security before the attack."]},
+  { en:"under threat of", zh:"在…威脅之下", pos:["phr."],
+    defs:[{pos:"phr.", en:"facing the danger or possibility of something bad", zh:"在……威脅之下；面臨……的威脅"}],
+    usage:["under threat of violence","under threat of dismissal","under threat of extinction","species under threat"],
+    special:"under threat = 受到威脅（常用）：Many species are under threat.。under threat of = 在……的明確威脅下：She confessed under threat of arrest.。",
+    examples:["He signed the contract under threat of legal action.", "Many languages are under threat of extinction.", "She acted under threat of violence from her captors."]},
+  { en:"commit to", zh:"致力於…", pos:["phr.v."],
+    defs:[{pos:"phr.v.", en:"to dedicate oneself to; to pledge to do something", zh:"致力於……；承諾做……；將……正式移交"}],
+    usage:["commit to a plan","commit to change","commit to Ving","commit to memory"],
+    special:"commit to + Ving / N = 承諾做某事。commit to memory = 記住；背下來。committed（adj.）= 投入的；有承諾的：a committed team player。",
+    examples:["The government committed to reducing carbon emissions by 50%.", "She committed herself fully to the project.", "I committed the poem to memory in one evening."]},
+  { en:"forensic accounting", zh:"法務會計", pos:["n."],
+    defs:[{pos:"n.", en:"the use of accounting skills to investigate financial fraud for legal purposes", zh:"法務會計；司法會計（用會計技能調查財務詐欺或法律糾紛）"}],
+    usage:["forensic accountant","forensic accounting investigation","forensic audit"],
+    special:"forensic（adj.）= 與法庭或法律調查相關的。forensic accounting = 用於訴訟的財務調查（揭發詐騙、追蹤洗錢）。forensic accountant 常受僱於律師事務所或執法機構。",
+    examples:["Forensic accounting uncovered millions in hidden assets.", "The company hired a forensic accountant to investigate the fraud.", "Forensic accounting is an increasingly important field in corporate law."]}
 ];
 
 let deck = [...WORDS];
 let currentIdx = 0;
 let firstSide = 'en';
 let isFlipped = false;
+
 let quizDeck = [];
 let quizIdx = 0;
 let quizCorrect = 0;
@@ -618,16 +500,16 @@ let quizAnswered = false;
 let usedKeys = {};
 let currentUtterance = null;
 
-// 初始化執行
-renderCard();
-
 function speak(text, btn) {
   window.speechSynthesis.cancel();
-  if(btn && btn.classList.contains('playing')) { btn.classList.remove('playing'); return; }
+  if(btn && btn.classList.contains('playing')) {
+    btn.classList.remove('playing');
+    return;
+  }
   document.querySelectorAll('.wl-speak-btn.playing').forEach(b=>b.classList.remove('playing'));
+  
   const utter = new SpeechSynthesisUtterance(text);
   utter.lang = 'en-US';
-  utter.rate = 0.9;
   if(btn) {
     btn.classList.add('playing');
     utter.onend = () => btn.classList.remove('playing');
@@ -636,6 +518,7 @@ function speak(text, btn) {
   window.speechSynthesis.speak(utter);
 }
 
+// 🛠️ 修正了這裡：原本控制 list-view 導致外層外殼 list-view-wrap 依舊保持 display:none
 function switchTab(tab) {
   document.querySelectorAll('.tab').forEach((t,i)=>{
     t.classList.toggle('active', ['cards','quiz','list'][i]===tab);
@@ -643,7 +526,10 @@ function switchTab(tab) {
   document.getElementById('flashcard-view').style.display = tab==='cards' ? 'block' : 'none';
   document.getElementById('card-settings').style.display = tab==='cards' ? 'flex' : 'none';
   document.getElementById('quiz-view').style.display = tab==='quiz' ? 'block' : 'none';
+  
+  // 修正：現在切換到 list 時，能正常打開最外層的包裹結構了！
   document.getElementById('list-view-wrap').style.display = tab==='list' ? 'block' : 'none';
+  
   if(tab==='quiz') initQuiz();
   if(tab==='list') renderList();
 }
@@ -662,6 +548,7 @@ function renderCard() {
   const total = deck.length;
   document.getElementById('progress-fill').style.width = ((currentIdx+1)/total*100)+'%';
   document.getElementById('progress-label').textContent = `${currentIdx+1} / ${total}`;
+  
   if(firstSide==='en') {
     document.getElementById('front-label').textContent = 'English';
     document.getElementById('back-label').textContent = '中文';
@@ -681,142 +568,292 @@ function renderCard() {
   document.getElementById('next-btn').disabled = currentIdx===deck.length-1;
 }
 
-function flipCard() { isFlipped=!isFlipped; document.getElementById('card-inner').classList.toggle('flipped',isFlipped); }
-function prevCard() { if(currentIdx>0){currentIdx--;isFlipped=false;document.getElementById('card-inner').classList.remove('flipped');renderCard();} }
-function nextCard() { if(currentIdx<deck.length-1){currentIdx++;isFlipped=false;document.getElementById('card-inner').classList.remove('flipped');renderCard();} }
+function flipCard() {
+  isFlipped=!isFlipped;
+  document.getElementById('card-inner').classList.toggle('flipped', isFlipped);
+}
+
+function nextCard() {
+  if(currentIdx < deck.length-1) {
+    currentIdx++;
+    isFlipped=false;
+    document.getElementById('card-inner').classList.remove('flipped');
+    renderCard();
+  }
+}
+
+function prevCard() {
+  if(currentIdx > 0) {
+    currentIdx--;
+    isFlipped=false;
+    document.getElementById('card-inner').classList.remove('flipped');
+    renderCard();
+  }
+}
+
 function shuffleCards() {
-  for(let i=deck.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[deck[i],deck[j]]=[deck[j],deck[i]];}
-  currentIdx=0;isFlipped=false;document.getElementById('card-inner').classList.remove('flipped');renderCard();
+  for (let i = deck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [deck[i], deck[j]] = [deck[j], deck[i]];
+  }
+  currentIdx = 0;
+  isFlipped = false;
+  document.getElementById('card-inner').classList.remove('flipped');
+  renderCard();
 }
 
+// Quiz Functions
 function initQuiz() {
-  quizDeck=[...WORDS].sort(()=>Math.random()-0.5);
-  quizIdx=0;quizCorrect=0;quizWrong=0;
-  updateQuizScore();renderQuizQuestion();
-}
-function updateQuizScore() {
-  document.getElementById('q-correct').textContent=quizCorrect;
-  document.getElementById('q-wrong').textContent=quizWrong;
-  document.getElementById('q-progress').textContent=`${quizIdx}/${quizDeck.length}`;
-}
-function renderQuizQuestion() {
-  if(quizIdx>=quizDeck.length){
-    document.querySelector('.quiz-card').innerHTML=`<div style="text-align:center;padding:20px;"><div style="font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--accent);margin-bottom:12px;">完成！🎉</div><div style="color:var(--muted);font-size:0.85rem;">正確：<span style="color:var(--correct)">${quizCorrect}</span> ／ 錯誤：<span style="color:var(--wrong)">${quizWrong}</span></div><button class="quiz-btn primary" style="margin-top:18px" onclick="initQuiz()">再來一次</button></div>`;
-    document.getElementById('q-result').style.display='none';
-    document.getElementById('q-next-btn').style.display='none';
-    return;
+  quizDeck = [...WORDS];
+  for (let i = quizDeck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [quizDeck[i], quizDeck[j]] = [quizDeck[j], quizDeck[i]];
   }
-  const w=quizDeck[quizIdx];
-  quizTyped=[];quizAnswered=false;usedKeys={};
-  document.getElementById('q-chinese').textContent=w.zh;
-  document.getElementById('q-defs').innerHTML=w.defs.map(d=>`<span class="pos-tag">${d.pos}</span> ${d.en||''}<br>`).join('');
-  renderBoxes(w.en,[]);buildKeyboard(w.en);
-  document.getElementById('q-result').style.display='none';
-  document.getElementById('q-next-btn').style.display='none';
-  updateQuizScore();
-}
-function renderBoxes(answer,typed){
-  const boxes=document.getElementById('q-boxes');boxes.innerHTML='';
-  const chars=answer.toLowerCase().split('');
-  chars.forEach((ch,i)=>{
-    const box=document.createElement('div');
-    if(ch===' '){box.className='letter-box space-box';}
-    else{
-      box.className='letter-box';
-      const typedCh=typed[i]||'';
-      box.textContent=typedCh;
-      if(typedCh){box.classList.add(quizAnswered?(typedCh===ch?'correct-letter':'wrong-letter'):'filled');}
-    }
-    boxes.appendChild(box);
-  });
-}
-function buildKeyboard(answer){
-  const rows=[['q','w','e','r','t','y','u','i','o','p'],['a','s','d','f','g','h','j','k','l'],['⌫','z','x','c','v','b','n','m',' ']];
-  const kb=document.getElementById('q-keyboard');kb.innerHTML='';
-  rows.forEach(row=>{
-    const rowEl=document.createElement('div');rowEl.className='key-row';
-    row.forEach(k=>{
-      const btn=document.createElement('button');
-      btn.className='key'+(k==='⌫'||k===' '?' key-wide':'');
-      btn.textContent=k===' '?'空格':k;
-      if(quizAnswered&&usedKeys[k]==='correct')btn.classList.add('used-correct');
-      if(quizAnswered&&usedKeys[k]==='wrong')btn.classList.add('used-wrong');
-      btn.onclick=()=>quizType(k,answer);
-      rowEl.appendChild(btn);
-    });
-    kb.appendChild(rowEl);
-  });
-}
-function quizType(k,answer){
-  if(quizAnswered)return;
-  const ans=answer.toLowerCase();const chars=ans.split('');
-  let slot=quizTyped.length;
-  while(slot<chars.length&&chars[slot]===' '){quizTyped.push(' ');slot++;}
-  if(k==='⌫'){if(quizTyped.length>0){while(quizTyped.length>0&&quizTyped[quizTyped.length-1]===' ')quizTyped.pop();quizTyped.pop();}}
-  else if(slot<chars.length){quizTyped.push(k===' '?' ':k.toLowerCase());}
-  while(quizTyped.length<chars.length&&chars[quizTyped.length]===' ')quizTyped.push(' ');
-  renderBoxes(answer,quizTyped);
-  if(quizTyped.filter(c=>c!==' ').length===chars.filter(c=>c!==' ').length)checkQuizAnswer(answer);
-}
-function checkQuizAnswer(answer){
-  const ans=answer.toLowerCase();const typed=quizTyped.join('');
-  quizAnswered=true;const correct=typed===ans;
-  if(correct){quizCorrect++;}else{quizWrong++;}
-  ans.split('').forEach(ch=>{if(ch===' ')return;const ti=quizTyped[ans.indexOf(ch)];usedKeys[ch]=ti===ch?'correct':'wrong';});
-  renderBoxes(answer,quizTyped);
-  const resultEl=document.getElementById('q-result');resultEl.style.display='block';
-  if(correct){resultEl.className='quiz-result correct';resultEl.textContent='✓ 正確！';}
-  else{resultEl.className='quiz-result wrong';resultEl.innerHTML=`✗ 答案是：<strong>${answer}</strong>`;}
-  document.getElementById('q-next-btn').style.display='inline-block';
-  updateQuizScore();
-}
-function quizNext(){quizIdx++;renderQuizQuestion();}
-function quizSkip(){if(quizAnswered)return quizNext();quizWrong++;quizIdx++;renderQuizQuestion();}
-function quizHint(){
-  if(quizAnswered)return;
-  const w=quizDeck[quizIdx];const ans=w.en.toLowerCase();const chars=ans.split('');
-  for(let i=0;i<chars.length;i++){
-    if(chars[i]===' '){quizTyped[i]=' ';continue;}
-    if(!quizTyped[i]||quizTyped[i]!==chars[i]){quizTyped[i]=chars[i];break;}
-  }
-  renderBoxes(w.en,quizTyped);
-  if(quizTyped.filter(c=>c!==' ').length===chars.filter(c=>c!==' ').length)checkQuizAnswer(w.en);
+  quizIdx = 0;
+  quizCorrect = 0;
+  quizWrong = 0;
+  document.getElementById('q-correct').textContent = '0';
+  document.getElementById('q-wrong').textContent = '0';
+  document.getElementById('q-progress').textContent = `1/${quizDeck.length}`;
+  loadQuizQuestion();
 }
 
-// 渲染單字列表
-function renderList(filteredWords = WORDS) {
-  const el=document.getElementById('list-view');
-  document.getElementById('list-count').textContent = `共找到 ${filteredWords.length} 個單字`;
+function loadQuizQuestion() {
+  quizAnswered = false;
+  usedKeys = {};
+  document.getElementById('q-result').style.display = 'none';
+  document.getElementById('q-next-btn').style.display = 'none';
   
-  if (filteredWords.length === 0) {
-    el.innerHTML = `<div style="text-align:center; padding: 40px 0; color: var(--muted); font-size: 0.9rem;">沒有找到相符的單字</div>`;
+  const w = quizDeck[quizIdx];
+  document.getElementById('q-progress').textContent = `${quizIdx+1}/${quizDeck.length}`;
+  document.getElementById('q-chinese').textContent = w.zh;
+  document.getElementById('q-defs').innerHTML = w.defs.map(d=>`<span class="pos-tag">${d.pos}</span> ${d.zh}`).join('<br>');
+  
+  // Clean answer string for boxes
+  const cleanAns = w.en.toLowerCase().replace(/[^a-z ]/g, '');
+  quizTyped = Array(cleanAns.length).fill('');
+  for(let i=0; i<cleanAns.length; i++) {
+    if(cleanAns[i]===' ') quizTyped[i] = ' ';
+  }
+  
+  renderQuizBoxes();
+  renderKeyboard();
+}
+
+function renderQuizBoxes() {
+  const container = document.getElementById('q-boxes');
+  container.innerHTML = '';
+  const w = quizDeck[quizIdx];
+  const cleanAns = w.en.toLowerCase().replace(/[^a-z ]/g, '');
+
+  for(let i=0; i<cleanAns.length; i++) {
+    const box = document.createElement('div');
+    if(cleanAns[i]===' ') {
+      box.className = 'letter-box space-box';
+    } else {
+      box.className = 'letter-box' + (quizTyped[i]?' filled':'');
+      box.textContent = quizTyped[i] ? quizTyped[i].toUpperCase() : '';
+      
+      if(quizAnswered) {
+        if(quizTyped[i] === cleanAns[i]) {
+          box.classList.add('correct-letter');
+        } else {
+          box.classList.add('wrong-letter');
+          box.textContent = cleanAns[i].toUpperCase();
+        }
+      }
+    }
+    container.appendChild(box);
+  }
+}
+
+function renderKeyboard() {
+  const container = document.getElementById('q-keyboard');
+  container.innerHTML = '';
+  const rows = ["qwertyuiop", "asdfghjkl", "zxcvbnm"];
+  
+  rows.forEach((row, rIdx) => {
+    const rowDiv = document.createElement('div');
+    rowDiv.className = 'key-row';
+    
+    // Add Backspace on last row left
+    if(rIdx===2) {
+      const bs = document.createElement('button');
+      bs.className = 'key key-wide';
+      bs.textContent = '刪除';
+      bs.onclick = () => handleKeyInput('backspace');
+      bs.disabled = quizAnswered;
+      rowDiv.appendChild(bs);
+    }
+    
+    for(let char of row) {
+      const btn = document.createElement('button');
+      btn.className = 'key';
+      btn.textContent = char.toUpperCase();
+      if(usedKeys[char]) {
+        btn.classList.add(usedKeys[char]==='correct' ? 'used-correct' : 'used-wrong');
+      }
+      btn.onclick = () => handleKeyInput(char);
+      btn.disabled = quizAnswered;
+      rowDiv.appendChild(btn);
+    }
+    
+    // Add Enter on last row right
+    if(rIdx===2) {
+      const ent = document.createElement('button');
+      ent.className = 'key key-wide';
+      ent.textContent = '送出';
+      ent.onclick = () => handleKeyInput('enter');
+      ent.disabled = quizAnswered;
+      rowDiv.appendChild(ent);
+    }
+    container.appendChild(rowDiv);
+  });
+}
+
+function handleKeyInput(key) {
+  if(quizAnswered) return;
+  const w = quizDeck[quizIdx];
+  const cleanAns = w.en.toLowerCase().replace(/[^a-z ]/g, '');
+  
+  if(key==='backspace') {
+    for(let i=quizTyped.length-1; i>=0; i--) {
+      if(cleanAns[i]!==' ' && quizTyped[i]!=='') {
+        quizTyped[i] = '';
+        break;
+      }
+    }
+    renderQuizBoxes();
+  } else if(key==='enter') {
+    if(quizTyped.includes('')) return; // Must fill all
+    checkQuizAnswer();
+  } else {
+    // Letter keys
+    const firstEmpty = quizTyped.indexOf('');
+    if(firstEmpty !== -1) {
+      quizTyped[firstEmpty] = key;
+      renderQuizBoxes();
+    }
+  }
+}
+
+function checkQuizAnswer() {
+  quizAnswered = true;
+  const w = quizDeck[quizIdx];
+  const cleanAns = w.en.toLowerCase().replace(/[^a-z ]/g, '');
+  const userAns = quizTyped.join('');
+  
+  const isCorrect = userAns === cleanAns;
+  const resDiv = document.getElementById('q-result');
+  resDiv.style.display = 'block';
+  
+  if(isCorrect) {
+    quizCorrect++;
+    document.getElementById('q-correct').textContent = quizCorrect;
+    resDiv.className = 'quiz-result correct';
+    resDiv.textContent = '✓ 完全正確！';
+    // Mark keyboard keys
+    for(let char of cleanAns) {
+      if(char!==' ') usedKeys[char] = 'correct';
+    }
+  } else {
+    quizWrong++;
+    document.getElementById('q-wrong').textContent = quizWrong;
+    resDiv.className = 'quiz-result wrong';
+    resDiv.textContent = `✗ 答錯了，正確答案是: ${w.en}`;
+    // Mark keyboard wrong keys
+    for(let i=0; i<cleanAns.length; i++) {
+      if(cleanAns[i]!==' ' && quizTyped[i]!==cleanAns[i]) {
+        usedKeys[quizTyped[i]] = 'wrong';
+      }
+    }
+  }
+  
+  renderQuizBoxes();
+  renderKeyboard();
+  document.getElementById('q-next-btn').style.display = 'inline-block';
+}
+
+function quizSkip() {
+  if(quizAnswered) return;
+  quizAnswered = true;
+  quizWrong++;
+  document.getElementById('q-wrong').textContent = quizWrong;
+  
+  const w = quizDeck[quizIdx];
+  const resDiv = document.getElementById('q-result');
+  resDiv.style.display = 'block';
+  resDiv.className = 'quiz-result wrong';
+  resDiv.textContent = `已跳過。正確答案是: ${w.en}`;
+  
+  renderQuizBoxes();
+  renderKeyboard();
+  document.getElementById('q-next-btn').style.display = 'inline-block';
+}
+
+function quizHint() {
+  if(quizAnswered) return;
+  const w = quizDeck[quizIdx];
+  const cleanAns = w.en.toLowerCase().replace(/[^a-z ]/g, '');
+  const firstEmpty = quizTyped.indexOf('');
+  if(firstEmpty !== -1) {
+    quizTyped[firstEmpty] = cleanAns[firstEmpty];
+    renderQuizBoxes();
+  }
+}
+
+function quizNext() {
+  if(quizIdx < quizDeck.length-1) {
+    quizIdx++;
+    loadQuizQuestion();
+  } else {
+    alert(`測驗結束！\n正確: ${quizCorrect}\n錯誤: ${quizWrong}`);
+    initQuiz();
+  }
+}
+
+// Word List Functions
+function renderList() {
+  const query = document.getElementById('list-search').value.toLowerCase().trim();
+  const container = document.getElementById('list-view');
+  
+  const filtered = WORDS.filter(w => {
+    return w.en.toLowerCase().includes(query) || w.zh.toLowerCase().includes(query);
+  });
+  
+  document.getElementById('list-count').textContent = `共 ${filtered.length} 個單字`;
+  document.getElementById('list-clear-btn').style.display = query ? 'block' : 'none';
+  
+  if(filtered.length === 0) {
+    container.innerHTML = '<div style="text-align:center;color:var(--muted);padding:40px 0;font-size:0.85rem;">找不到對應的單字</div>';
     return;
   }
-
-  el.innerHTML=filteredWords.map((w)=>{
-    // 依據英文名稱在原始 WORDS 中的位置作為 ID，確保展開折疊與發音功能不會因為篩選而錯位
-    const origIdx = WORDS.findIndex(orig => orig.en === w.en);
-    const isEn = !/^[\u4e00-\u9fff]/.test(w.en);
-    const speakWord = isEn ? w.en : w.defs[0].en||w.en;
-    const defsHtml = w.defs.map(d=>`<div class="wl-def-row"><span class="pos-tag">${d.pos}</span>${d.zh}${d.en?' <span style="color:var(--muted);font-size:0.72rem;">— '+d.en+'</span>':''}</div>`).join('');
-    const usageHtml = w.usage ? `<div class="wl-section"><div class="wl-section-title">常見用法</div>${w.usage.map(u=>`<span class="wl-usage-pill">${u}</span>`).join('')}</div>` : '';
+  
+  container.innerHTML = filtered.map((w) => {
+    const originalIdx = WORDS.findIndex(orig => orig.en === w.en);
+    const isEn = /^[A-Za-z\s\-]+$/.test(w.en.replace(/[^A-Za-z]/g, ''));
+    const speakWord = w.en;
+    
+    const defsHtml = w.defs.map(d=>`<div class="wl-def-row"><span class="pos-tag">${d.pos}</span>${d.zh}${d.en?' — '+d.en:''}</div>`).join('');
+    const usageHtml = w.usage && w.usage.length ? `<div class="wl-section"><div class="wl-section-title">常見用法</div>${w.usage.map(u=>`<span class="wl-usage-pill">${u}</span>`).join('')}</div>` : '';
     const specialHtml = w.special ? `<div class="wl-section"><div class="wl-section-title">特殊說明</div><div class="wl-def-row" style="color:#c4bfb0;">${w.special}</div></div>` : '';
-    const examplesHtml = w.examples ? `<div class="wl-section"><div class="wl-section-title">例句</div>${w.examples.map(e=>`<div class="wl-example">${e}</div>`).join('')}</div>` : '';
+    const examplesHtml = w.examples && w.examples.length ? `<div class="wl-section"><div class="wl-section-title">例句</div>${w.examples.map(e=>`<div class="wl-example">${e}</div>`).join('')}</div>` : '';
+    
     return `<div class="wl-item">
-      <div class="wl-header" onclick="toggleDetail(${origIdx})">
+      <div class="wl-header" onclick="toggleDetail(${originalIdx})">
         <div class="wl-left">
           <div class="wl-en-row">
             <span class="wl-en">${w.en}</span>
-            ${isEn?`<button class="wl-speak-btn" id="speak-${origIdx}" onclick="event.stopPropagation();speak('${speakWord.replace(/'/g,"\\'")}',this)">▶ 發音</button>`:''}
+            ${isEn?`<button class="wl-speak-btn" id="speak-${originalIdx}" onclick="event.stopPropagation();speak('${speakWord.replace(/'/g,"\\'")}',this)">▶ 發音</button>`:''}
           </div>
           <div class="wl-pos">${w.pos.join(' / ')}</div>
         </div>
         <div class="wl-right">
           <div class="wl-zh">${w.zh}</div>
         </div>
-        <span class="wl-toggle" id="toggle-${origIdx}">›</span>
+        <span class="wl-toggle" id="toggle-${originalIdx}">›</span>
       </div>
-      <div class="wl-detail" id="detail-${origIdx}">
+      <div class="wl-detail" id="detail-${originalIdx}">
         <div class="wl-section"><div class="wl-section-title">定義</div>${defsHtml}</div>
         ${usageHtml}${specialHtml}${examplesHtml}
       </div>
@@ -824,38 +861,13 @@ function renderList(filteredWords = WORDS) {
   }).join('');
 }
 
-// 實時關鍵字搜尋邏輯 (每打一個字就觸發)
-function filterList() {
-  const query = document.getElementById('list-search').value.toLowerCase().trim();
-  const clearBtn = document.getElementById('list-clear-btn');
-  
-  if (query === '') {
-    clearBtn.style.display = 'none';
-    renderList(WORDS);
-  } else {
-    clearBtn.style.display = 'block';
-    const filtered = WORDS.filter(w => 
-      w.en.toLowerCase().includes(query) || 
-      w.zh.toLowerCase().includes(query)
-    );
-    renderList(filtered);
-  }
-}
-
-// 清除搜尋
-function clearSearch() {
-  document.getElementById('list-search').value = '';
-  filterList();
-}
-
-// 展開與折疊單字詳細內容
 function toggleDetail(idx) {
-  const detail = document.getElementById('detail-' + idx);
-  const toggle = document.getElementById('toggle-' + idx);
+  const detail = document.getElementById('detail-'+idx);
+  const toggle = document.getElementById('toggle-'+idx);
   if (!detail || !toggle) return;
   
   const isOpen = detail.classList.contains('open');
-  if (isOpen) {
+  if(isOpen) {
     detail.classList.remove('open');
     toggle.classList.remove('open');
   } else {
@@ -863,6 +875,37 @@ function toggleDetail(idx) {
     toggle.classList.add('open');
   }
 }
+
+function filterList() {
+  renderList();
+}
+
+function clearSearch() {
+  document.getElementById('list-search').value = '';
+  renderList();
+}
+
+//鍵盤原生事件綁定
+document.addEventListener('keydown', (e) => {
+  const activeTab = document.querySelector('.tab.active').textContent;
+  if(activeTab === '拼字測驗') {
+    if(quizAnswered) {
+      if(e.key === 'Enter') quizNext();
+    } else {
+      if(e.key >= 'a' && e.key <= 'z') {
+        handleKeyInput(e.key);
+      } else if(e.key === 'Backspace') {
+        handleKeyInput('backspace');
+      } else if(e.key === 'Enter') {
+        handleKeyInput('enter');
+      }
+    }
+  }
+});
+
+// 啟動初始化
+renderCard();
 </script>
+
 </body>
 </html>
