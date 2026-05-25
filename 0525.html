@@ -1,0 +1,76 @@
+<html>
+<head>
+ <style>
+  @keyframes backgroundMOVE
+   {
+     0%{ background-position-y: 0px;}
+     100%{background-position-y: 216px;} 
+   }
+    #universe { 
+        width:600px;
+        height:600px;
+        background:url("0525/bg_stars.jpg");
+        border-radius:20px;
+        animation:backgroundMOVE 0.5s linear infinite;
+        position:relative;
+    }
+    #rocket {
+        position:absolute ;
+        width:40px;
+        height:60px;
+        bottom:20px;
+        left:280px;
+        
+        
+    }
+ </style>
+ <script>
+       rocketY = 520;let rocketX = 280;
+   
+    window.onload = function() {
+       updatePosition();
+        
+   }
+    function updatePosition() {
+        console.log("getELM");
+       const rocket = document.getElementById('rocket');
+
+       rocket.style.left = rocketX + 'px';
+       rocket.style.top = rocketY + 'px';
+   }
+   function shipmove(){
+      
+        speed=10;
+        console.log("按下了按鍵:", event.key);
+        rocket.style.left = rocketX + 'px';
+        rocket.style.top = rocketY + 'px';
+         
+        if (event.key == "ArrowUp") {
+            if (rocketY > 0) rocketY -= speed;
+        }
+        
+        else if (event.key == "ArrowDown") {
+            if (rocketY < 540) rocketY += speed; // 600 - 60
+        }
+        
+        else if (event.key == "ArrowLeft") {
+            if (rocketX > 0) rocketX -= speed;
+        }
+      
+        else if (event.key == "ArrowRight") {
+            if (rocketX < 560) rocketX += speed; // 600 - 40
+        }
+
+        updatePosition();
+        
+   }
+      
+ </script>
+</head>
+<body onkeydown="shipmove()">
+ <div id="universe"><img id="rocket" src="0525/ship.png"></div></div>
+ 
+ <img id="ufo" src="0525/ufo.png"></div>
+ 
+</body>
+</html>
