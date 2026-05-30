@@ -1,394 +1,875 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>High School English: Think in English Lab</title>
-    <style>
-        :root {
-            --primary: #2563eb;
-            --primary-hover: #1d4ed8;
-            --success: #10b981;
-            --danger: #ef4444;
-            --dark: #1e293b;
-            --light: #f8fafc;
-            --robot-bg: #eff6ff;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>閱讀器 · Masayuki</title>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Noto+Serif+TC:wght@300;400;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0a;--page:#111;--ps:#1c1c1c;--ink:#e8e8e8;--il:#888;--ac:#5a9fd4;--ac2:#7ab8d4;--hy:rgba(255,220,50,.38);--hg:rgba(80,210,120,.32);--hp:rgba(255,90,120,.32);--hb:rgba(80,160,255,.32);--bd:#2a2a2a;--fs:17px;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Crimson Pro','Noto Serif TC',Georgia,serif;background:var(--bg);min-height:100vh;color:var(--ink);user-select:none;}
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--light);
-            color: var(--dark);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+/* TOOLBAR */
+#tb{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(8,8,8,.97);backdrop-filter:blur(10px);border-bottom:1px solid var(--bd);padding:9px 18px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.tg{display:flex;align-items:center;gap:5px;padding:3px 10px;border-right:1px solid var(--bd);}
+.tg:last-child{border:none;}
+.tl{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--il);font-family:'JetBrains Mono',monospace;}
+.tb2{width:30px;height:30px;border-radius:6px;border:1.5px solid var(--bd);background:#181818;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .15s;color:var(--ink);}
+.tb2:hover{background:#222;transform:translateY(-1px);}
+.tb2.on{border-color:var(--ac);background:rgba(90,159,212,.18);}
+.hb[data-c=yellow]{border-color:#6a5000;background:rgba(255,210,40,.15);}
+.hb[data-c=green]{border-color:#1a6030;background:rgba(80,200,110,.15);}
+.hb[data-c=pink]{border-color:#7a1830;background:rgba(255,80,110,.15);}
+.hb[data-c=blue]{border-color:#1840a0;background:rgba(70,150,255,.15);}
+.hb.on{transform:scale(1.15) translateY(-1px);box-shadow:0 2px 8px rgba(0,0,0,.5);}
+.cb{padding:4px 11px;height:30px;font-size:11px;font-family:'JetBrains Mono',monospace;border-radius:6px;border:1.5px solid var(--bd);background:#181818;cursor:pointer;color:var(--il);transition:all .15s;}
+.cb:hover{background:#2a0a18;border-color:#8a2040;color:#ff6080;}
+/* font size controls */
+.fsz{display:flex;align-items:center;gap:5px;}
+.fsz-btn{width:28px;height:28px;border-radius:5px;border:1.5px solid var(--bd);background:#181818;cursor:pointer;color:var(--ink);font-size:16px;font-weight:500;display:flex;align-items:center;justify-content:center;transition:all .15s;line-height:1;}
+.fsz-btn:hover{background:#222;border-color:var(--ac);color:var(--ac);}
+.fsz-val{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--il);min-width:30px;text-align:center;}
 
-        .container {
-            width: 100%;
-            max-width: 800px;
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-        }
+/* BOOK */
+#bw{margin-top:62px;padding:28px 16px 80px;display:flex;flex-direction:column;align-items:center;}
+.bt{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--il);font-family:'JetBrains Mono',monospace;margin-bottom:16px;opacity:.5;}
+#pc{width:100%;max-width:700px;}
+.pg{background:var(--page);border:1px solid var(--bd);border-radius:4px;box-shadow:0 4px 32px rgba(0,0,0,.6),0 1px 4px rgba(0,0,0,.4);padding:50px 54px 58px 54px;min-height:520px;position:relative;}
+.pg.out{animation:fo .26s ease-in forwards;}
+.pg.in{animation:fi .26s ease-out forwards;}
+@keyframes fo{from{opacity:1;transform:scale(1);}to{opacity:0;transform:scale(.98) translateY(4px);}}
+@keyframes fi{from{opacity:0;transform:scale(.98) translateY(-4px);}to{opacity:1;transform:scale(1) translateY(0);}}
+.pn{position:absolute;bottom:20px;right:36px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--il);opacity:.4;letter-spacing:.1em;}
+.pc2{position:absolute;bottom:20px;left:40px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--il);opacity:.25;letter-spacing:.09em;text-transform:uppercase;}
 
-        h1 {
-            text-align: center;
-            color: var(--primary);
-            margin-bottom: 5px;
-        }
+/* TEXT */
+.pt{line-height:2;font-size:var(--fs);font-weight:300;color:var(--ink);user-select:text;position:relative;z-index:1;}
+.pt p{margin-bottom:1.05em;text-indent:1.8em;}
+.pt p:first-child{text-indent:0;}
+.pt p.dialogue{text-indent:0;color:#c8c0a8;}
+.pt p.thought{text-indent:0;font-style:italic;color:var(--ac2);}
+.pt p.sys{text-indent:0;font-style:italic;color:#9a80c8;opacity:.9;border-left:2px solid #5a4090;padding-left:12px;margin-left:4px;}
 
-        .subtitle {
-            text-align: center;
-            color: #64748b;
-            margin-bottom: 30px;
-            font-style: italic;
-        }
+/* HIGHLIGHTS */
+.hl{border-radius:2px;padding:0 1px;cursor:pointer;transition:filter .15s;}
+.hl:hover{filter:brightness(1.2);}
+.hl[data-c=yellow]{background:var(--hy);}
+.hl[data-c=green]{background:var(--hg);}
+.hl[data-c=pink]{background:var(--hp);}
+.hl[data-c=blue]{background:var(--hb);}
+.hl[data-c=pen]{background:none!important;border-bottom:2px solid #5a9fd4;border-radius:0;}
+.wt{cursor:pointer;border-radius:2px;transition:background .1s;}
+.wt:hover{background:rgba(90,159,212,.14);}
 
-        .stats-panel {
-            display: flex;
-            justify-content: space-between;
-            background: #f1f5f9;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 25px;
-            font-weight: bold;
-        }
+/* TOOLTIP */
+#tt{position:fixed;z-index:9999;width:370px;max-width:calc(100vw - 20px);background:#12100c;border-radius:14px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.07);opacity:0;transform:translateY(10px) scale(.94);transition:opacity .2s,transform .2s;pointer-events:none;}
+#tt.show{opacity:1;transform:translateY(0) scale(1);pointer-events:auto;}
 
-        .quiz-card {
-            border: 1px solid #e2e8f0;
-            padding: 25px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            background: #ffffff;
-        }
+.tt-bc{display:none;align-items:center;gap:5px;padding:8px 14px 0;font-size:10px;font-family:'JetBrains Mono',monospace;}
+.tt-bc.show{display:flex;}
+.tt-bc button{background:none;border:none;cursor:pointer;color:#7a6858;font-size:11px;font-family:'JetBrains Mono',monospace;padding:0;transition:color .12s;}
+.tt-bc button:hover{color:#d4956a;}
+.tt-bc span{color:#4a3a28;}
 
-        .type-badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
+.tt-hd{background:linear-gradient(135deg,#2c2016,#1c160f);padding:13px 40px 11px 16px;position:relative;border-bottom:1px solid rgba(255,255,255,.07);}
+.tt-w{font-size:22px;font-weight:600;color:#f5d598;line-height:1.2;}
+.tt-badge{margin-top:6px;}
+.tt-ty{display:inline-block;font-size:10px;font-family:'JetBrains Mono',monospace;letter-spacing:.09em;text-transform:uppercase;padding:2px 9px;border-radius:20px;border:1px solid;}
+.tt-ty.v  {color:#a0d090;border-color:#50a040;background:rgba(80,160,64,.18);}
+.tt-ty.n  {color:#90b8e0;border-color:#4080c0;background:rgba(64,128,192,.18);}
+.tt-ty.adj{color:#e0b870;border-color:#c08028;background:rgba(192,128,40,.18);}
+.tt-ty.adv{color:#c090e0;border-color:#9050c0;background:rgba(144,80,192,.18);}
+.tt-ty.ph {color:#f0a060;border-color:#d06020;background:rgba(208,96,32,.2);}
+.tt-ty.id {color:#f5c850;border-color:#c09000;background:rgba(192,144,0,.2);}
+.tt-ty.gr {color:#80d8c0;border-color:#30a888;background:rgba(48,168,136,.18);}
+.tt-ty.ft {color:#d090e8;border-color:#a050c8;background:rgba(160,80,200,.18);}
+.tt-ty.ot {color:#b0a898;border-color:#706050;background:rgba(112,96,80,.18);}
 
-        .type-vocab { background: #dbeafe; color: #1e40af; }
-        .type-sentence { background: #fef3c7; color: #92400e; }
+.tt-cl{position:absolute;top:10px;right:11px;background:rgba(255,255,255,.07);border:none;color:#705848;width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;transition:all .15s;line-height:1;}
+.tt-cl:hover{background:rgba(200,60,40,.3);color:#e07060;}
 
-        .context-box {
-            font-size: 1.15rem;
-            line-height: 1.6;
-            margin-bottom: 20px;
-        }
+.tt-bd{padding:12px 16px 4px;max-height:55vh;overflow-y:auto;}
+.tt-bd::-webkit-scrollbar{width:3px;}
+.tt-bd::-webkit-scrollbar-thumb{background:#3a2a1a;border-radius:2px;}
 
-        .definition {
-            font-size: 0.95rem;
-            color: #475569;
-            background: #f8fafc;
-            padding: 10px 15px;
-            border-left: 4px solid #94a3b8;
-            margin-bottom: 20px;
-        }
+.tt-sl{font-size:9px;font-family:'JetBrains Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#5a4a38;margin-bottom:5px;margin-top:11px;}
+.tt-sl:first-child{margin-top:0;}
 
-        .input-area {
-            margin-bottom: 20px;
-        }
+/* grammar box — priority visual */
+.tt-gb{background:rgba(48,168,136,.1);border:1px solid rgba(48,168,136,.22);border-radius:8px;padding:10px 12px;margin-bottom:2px;}
+.tt-gf{font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#80d8c0;letter-spacing:.05em;margin-bottom:6px;word-break:break-all;}
+.tt-gn{font-size:13.5px;color:#c0d4cc;line-height:1.65;}
 
-        input[type="text"] {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #cbd5e1;
-            border-radius: 6px;
-            font-size: 1.1rem;
-            box-sizing: border-box;
-            transition: border-color 0.2s;
-        }
+.tt-df{color:#d0c8b8;line-height:1.65;font-size:14.5px;}
 
-        input[type="text"]:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
+.tt-eb{margin-top:2px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:8px;padding:10px 12px;}
+.tt-el{font-size:9px;font-family:'JetBrains Mono',monospace;letter-spacing:.14em;text-transform:uppercase;color:#5a4a38;margin-bottom:6px;}
+.tt-ex{font-style:italic;color:#9898b8;font-size:14px;line-height:1.65;}
+.tt-ex .ew{cursor:pointer;border-bottom:1px dashed rgba(160,140,110,.4);transition:color .12s,border-color .12s;}
+.tt-ex .ew:hover{color:#f5d598;border-bottom-color:rgba(245,213,152,.5);}
 
-        .btn-group {
-            display: flex;
-            gap: 10px;
-        }
+.tt-mb{display:none;background:none;border:none;font-size:11px;font-family:'JetBrains Mono',monospace;color:#6a5a48;cursor:pointer;padding:5px 0 2px;letter-spacing:.04em;transition:color .12s;}
+.tt-mb:hover{color:#c4944a;}
+.tt-mb.vis{display:block;}
+.tt-xe{display:none;margin-top:4px;}
+.tt-xe.open{display:block;}
+.tt-xi{font-style:italic;color:#7878a0;font-size:13.5px;line-height:1.6;padding:5px 0;border-top:1px solid rgba(255,255,255,.05);}
+.tt-xi .ew{cursor:pointer;border-bottom:1px dashed rgba(140,120,90,.35);transition:color .12s;}
+.tt-xi .ew:hover{color:#f0c878;}
 
-        button {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 6px;
-            font-size: 1rem;
-            cursor: pointer;
-            font-weight: 600;
-            transition: background 0.2s;
-        }
+.tt-ft{padding:8px 12px 10px;border-top:1px solid rgba(255,255,255,.06);display:flex;gap:6px;background:rgba(0,0,0,.25);}
+.tt-fb{font-size:11px;font-family:'JetBrains Mono',monospace;letter-spacing:.04em;padding:4px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#9a8a78;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.tt-fb:hover{background:rgba(139,58,28,.25);border-color:rgba(139,58,28,.4);color:#d4956a;}
+.tt-fb.hl{background:rgba(255,216,50,.35);border-color:rgba(200,160,20,.4);color:#5a4010;}
+.tt-fb.hl:hover{background:rgba(255,200,40,.55);}
 
-        .btn-submit { background: var(--primary); color: white; }
-        .btn-submit:hover { background: var(--primary-hover); }
-        .btn-next { background: #64748b; color: white; }
-        .btn-next:hover { background: #475569; }
+/* NAV */
+#nav{display:flex;align-items:center;gap:14px;margin-top:26px;}
+.nb{width:42px;height:42px;border-radius:50%;border:1.5px solid var(--bd);background:#181818;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;transition:all .2s;color:var(--ink);box-shadow:0 2px 8px rgba(0,0,0,.3);}
+.nb:hover:not(:disabled){background:var(--ac);color:#000;border-color:var(--ac);transform:scale(1.08);}
+.nb:disabled{opacity:.2;cursor:default;}
+.pi{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--il);letter-spacing:.1em;}
 
-        /* Robot Panel */
-        .robot-panel {
-            margin-top: 25px;
-            background: var(--robot-bg);
-            border: 1px solid #bfdbfe;
-            border-radius: 8px;
-            padding: 20px;
-            display: none;
-        }
+/* SELECTION POPUP */
+#sp{position:fixed;z-index:500;background:#13100c;border-radius:8px;padding:6px 7px;display:flex;gap:5px;align-items:center;box-shadow:0 4px 20px rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .15s;}
+#sp.show{opacity:1;pointer-events:auto;}
+.sa{width:26px;height:26px;border-radius:5px;border:none;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;transition:transform .1s;}
+.sa:hover{transform:scale(1.15);}
+.sa[data-c=yellow]{background:var(--hy);}
+.sa[data-c=green]{background:var(--hg);}
+.sa[data-c=pink]{background:var(--hp);}
+.sa[data-c=blue]{background:var(--hb);}
+.sa.pen{background:rgba(26,58,107,.2);color:#5070d0;}
+.sa.lk{background:rgba(139,58,28,.2);color:#d06030;font-family:'JetBrains Mono',monospace;font-size:10px;width:auto;padding:0 7px;letter-spacing:.04em;}
+.sd{width:1px;height:18px;background:rgba(255,255,255,.1);}
 
-        .robot-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: bold;
-            color: #1d4ed8;
-            margin-bottom: 10px;
-        }
+/* NOTES */
+#nb2{position:fixed;bottom:22px;right:22px;width:46px;height:46px;border-radius:50%;background:var(--ac);color:#000;border:none;font-size:21px;cursor:pointer;box-shadow:0 4px 16px rgba(90,159,212,.3);display:flex;align-items:center;justify-content:center;transition:transform .2s;z-index:200;}
+#nb2:hover{transform:scale(1.1);}
+#np{position:fixed;right:0;top:0;bottom:0;width:300px;background:#0d0d0d;border-left:1px solid var(--bd);box-shadow:-6px 0 24px rgba(0,0,0,.5);z-index:300;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;}
+#np.open{transform:translateX(0);}
+.ph2{padding:18px 16px 12px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;}
+.ph2 h3{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--il);font-family:'JetBrains Mono',monospace;}
+.pc3{background:none;border:none;font-size:19px;cursor:pointer;color:var(--il);transition:color .15s;}
+.pc3:hover{color:var(--ac);}
+#nl{flex:1;overflow-y:auto;padding:12px 14px;}
+.ni{padding:9px 11px;margin-bottom:7px;border-radius:6px;font-size:13px;border-left:3px solid transparent;background:rgba(255,255,255,.04);cursor:pointer;transition:background .15s;position:relative;}
+.ni:hover{background:rgba(255,255,255,.08);}
+.ni[data-c=yellow]{border-color:#8a6a00;}
+.ni[data-c=green]{border-color:#1a7a40;}
+.ni[data-c=pink]{border-color:#8a1838;}
+.ni[data-c=blue]{border-color:#1848a8;}
+.ni[data-c=pen]{border-color:#3070b8;}
+.nt{color:var(--ink);margin-bottom:2px;}
+.npg{font-size:10px;color:var(--il);font-family:'JetBrains Mono',monospace;opacity:.55;}
+.nd{position:absolute;right:7px;top:7px;background:none;border:none;font-size:12px;cursor:pointer;color:#a05060;opacity:0;transition:opacity .15s;}
+.ni:hover .nd{opacity:.6;}
+.nd:hover{opacity:1!important;}
+.ne{text-align:center;padding:36px 16px;color:var(--il);font-size:13px;opacity:.4;}
+#nl::-webkit-scrollbar{width:3px;}
+#nl::-webkit-scrollbar-thumb{background:#2a2a2a;border-radius:2px;}
 
-        .robot-avatar {
-            font-size: 1.5rem;
-        }
-
-        .robot-content {
-            font-size: 0.95rem;
-            line-height: 1.5;
-            color: #1e3a8a;
-        }
-
-        .feedback {
-            font-weight: bold;
-            font-size: 1.1rem;
-            margin-bottom: 15px;
-        }
-        .feedback.correct { color: var(--success); }
-        .feedback.incorrect { color: var(--danger); }
-    </style>
+/* MODE */
+#md{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;padding:5px 13px;border-radius:20px;background:rgba(90,159,212,.18);color:var(--ac);border:1px solid rgba(90,159,212,.25);opacity:0;transition:opacity .3s;pointer-events:none;z-index:200;}
+#md.show{opacity:1;}
+</style>
 </head>
 <body>
 
-<div class="container">
-    <h1>Think in English Lab</h1>
-    <div class="subtitle">Stop translating. Start integrating. (High School Level)</div>
-
-    <div class="stats-panel">
-        <div>Progress: <span id="current-index">1</span> / <span id="total-questions">100</span></div>
-        <div>Score: <span id="score">0</span></div>
+<div id="tb">
+  <div class="tg">
+    <span class="tl">螢光筆</span>
+    <button class="tb2 hb" data-c="yellow">🟡</button>
+    <button class="tb2 hb" data-c="green">🟢</button>
+    <button class="tb2 hb" data-c="pink">🔴</button>
+    <button class="tb2 hb" data-c="blue">🔵</button>
+  </div>
+  <div class="tg">
+    <span class="tl">畫筆</span>
+    <button class="tb2" id="penbtn">✏️</button>
+  </div>
+  <div class="tg">
+    <span class="tl">字體</span>
+    <div class="fsz">
+      <button class="fsz-btn" id="fsdec">−</button>
+      <span class="fsz-val" id="fsval">17</span>
+      <button class="fsz-btn" id="fsinc">＋</button>
     </div>
-
-    <div class="quiz-card">
-        <span id="q-type" class="type-badge type-vocab">Vocabulary</span>
-        <div id="q-context" class="context-box">Loading question...</div>
-        <div id="q-definition" class="definition">Clue: Loading...</div>
-        
-        <div class="input-area">
-            <input type="text" id="user-input" placeholder="Type your answer here..." autocomplete="off">
-        </div>
-
-        <div class="feedback" id="feedback-msg"></div>
-
-        <div class="btn-group">
-            <button class="btn-submit" id="btn-submit" onclick="checkAnswer()">Submit</button>
-            <button class="btn-next" id="btn-next" onclick="nextQuestion()" style="display:none;">Next Question</button>
-        </div>
-    </div>
-
-    <div class="robot-panel" id="robot-box">
-        <div class="robot-header">
-            <span class="robot-avatar">🤖</span>
-            <span>AI English Coach Explains:</span>
-        </div>
-        <div class="robot-content" id="robot-text">
-            Let's dissect this context...
-        </div>
-    </div>
+  </div>
+  <div class="tg">
+    <button class="cb" id="clrpg">清除本頁</button>
+    <button class="cb" id="clrall">清除全部</button>
+  </div>
+  <div style="margin-left:auto;font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--il);opacity:.35;">點擊單字查詢 · 選取文字標記</div>
 </div>
 
+<div id="bw">
+  <div class="bt">Tensura Side Story · The Masayuki Chronicles</div>
+  <div id="pc">
+    <div class="pg" id="page">
+      <div class="pt" id="pgtext"></div>
+      <div class="pn" id="pgnum"></div>
+      <div class="pc2">The Chosen Hero</div>
+    </div>
+  </div>
+  <div id="nav">
+    <button class="nb" id="prev">‹</button>
+    <span class="pi" id="pgind"></span>
+    <button class="nb" id="next">›</button>
+  </div>
+</div>
+
+<!-- TOOLTIP -->
+<div id="tt">
+  <div class="tt-bc" id="ttbc">
+    <button id="ttback">← 返回</button>
+    <span id="ttbct"></span>
+  </div>
+  <div class="tt-hd">
+    <button class="tt-cl" id="ttcl">✕</button>
+    <div class="tt-w" id="ttw"></div>
+    <div class="tt-badge"><span class="tt-ty" id="ttty"></span></div>
+  </div>
+  <div class="tt-bd" id="ttbd"></div>
+  <div class="tt-ft">
+    <button class="tt-fb hl" id="tthl">🖊 加螢光筆</button>
+    <button class="tt-fb" id="ttcp">複製</button>
+  </div>
+</div>
+
+<!-- SEL POPUP -->
+<div id="sp">
+  <button class="sa" data-c="yellow">🟡</button>
+  <button class="sa" data-c="green">🟢</button>
+  <button class="sa" data-c="pink">🔴</button>
+  <button class="sa" data-c="blue">🔵</button>
+  <div class="sd"></div>
+  <button class="sa pen">✏️</button>
+  <div class="sd"></div>
+  <button class="sa lk" id="sellk">查詢</button>
+</div>
+
+<button id="nb2">📑</button>
+<div id="np">
+  <div class="ph2"><h3>標記 &amp; 筆記</h3><button class="pc3" id="npcl">×</button></div>
+  <div id="nl"></div>
+</div>
+<div id="md"></div>
+
 <script>
-// ==========================================
-// 1. BACKEND STORAGE: VOCABULARY BANK (2000+ Word Repository Placeholder)
-// In a production app, this expands to 2000+ words. We pre-bake high-frequency target stems.
-// ==========================================
-const vocabularyBank = {
-    "abandon": "to leave a place, thing, or person forever",
-    "accumulate": "to collect a large number of things over a period of time",
-    "benevolent": "kind and helpful; wishing to do good digits",
-    "compromise": "an agreement in an argument reached by each side making a concession",
-    "diminish": "to reduce or be reduced in size or importance",
-    "extinguish": "to stop a fire or a light from burning",
-    "frustrate": "to make someone feel annoyed or less confident",
-    "guarantee": "a promise that something will be done or will happen",
-    "hypocrisy": "a situation in which someone pretends to believe something that they do not",
-    "inevitable": "certain to happen and unable to be avoided",
-    // ... Internal repository scale built to handle 2000+ items via dynamic mapping.
+// ═══════════════════════════════════════════════
+// DICTIONARY — phrase & grammar FIRST
+// ═══════════════════════════════════════════════
+var DICT = {
+"out of the blue":{cat:"id",label:"慣用語",formula:"out of the blue",gram:"副詞片語，修飾整個句子或動詞，表示「完全出乎意料」。源自 bolt from the blue（晴天霹靂）。無需加冠詞，直接放句尾或句中。",def:"突然地；完全出乎意料地發生，毫無預兆。",examples:["He appeared in this world just out of the blue.","She called me out of the blue after five years of silence.","The announcement came out of the blue and shocked everyone."]},
+"bated breath":{cat:"id",label:"慣用語",formula:"with bated breath",gram:"固定介詞片語。bated 是古語，來自 abated（憋住）。幾乎只與 with 搭配，極少單獨使用。表示極度緊張或期待，以致幾乎忘記呼吸。",def:"屏息以待；緊張萬分地等候結果。",examples:["They watched with bated breath.","We waited with bated breath for the announcement.","She listened with bated breath as the winner was revealed."]},
+"cold shoulder":{cat:"id",label:"慣用語",formula:"give sb the cold shoulder / cold-shoulder sb",gram:"名詞片語或動詞片語。give someone the cold shoulder = 有意冷落某人。cold-shoulder 也可直接當動詞。源自 19 世紀，被冷落的客人只能吃冷羊肩肉（cold shoulder of mutton）。",def:"冷落；刻意無視或不理睬某人。",examples:["Even Katya cold shouldered him, knowing his temper.","She gave him the cold shoulder at the party.","He felt hurt when his teammates cold-shouldered him."]},
+"cold shouldered":{cat:"id",label:"慣用語",formula:"give sb the cold shoulder / cold-shoulder sb",gram:"名詞片語或動詞片語。give someone the cold shoulder = 有意冷落某人。cold-shoulder 也可直接當動詞。源自 19 世紀，被冷落的客人只能吃冷羊肩肉（cold shoulder of mutton）。",def:"冷落；刻意無視或不理睬某人。",examples:["Even Katya cold shouldered him, knowing his temper.","She gave him the cold shoulder at the party.","He felt hurt when his teammates cold-shouldered him."]},
+"household name":{cat:"id",label:"慣用語",formula:"become / be a household name",gram:"名詞片語，household = 家庭、家戶。become a household name 表示「名氣大到家家戶戶都知道」。常見搭配：a household name in + 地區 / industry。",def:"家喻戶曉的名字；盡人皆知的人物或品牌。",examples:["His title eventually became a household name.","Coca-Cola is a household name around the world.","She became a household name overnight after the viral video."]},
+"hair's breadth":{cat:"id",label:"慣用語",formula:"by a hair's breadth / within a hair's breadth",gram:"名詞片語，hair's breadth 指「一根頭髮的寬度」，極微小的距離或差距。常搭配 by（差距）。",def:"一髮之差；極細微的距離或差距。",examples:["He avoided the punch by a hair's breadth.","She won the race by a hair's breadth.","The car missed the wall by a hair's breadth."]},
+"talk-no-jutsu":{cat:"ft",label:"同人術語",formula:"talk-no-jutsu（嘴遁）",gram:"jutsu（術）源自日語《火影忍者》，指鳴人靠「說教／說服」感化敵人的能力，被粉絲戲稱為 talk-no-jutsu。在本文中表示 Masayuki 打算靠說話化解危機，語氣幽默自嘲。",def:"嘴遁；靠說話說服或感化對手，而非武力解決問題。",examples:["Talk-no-jutsu was his best bet as of now.","Naruto's talk-no-jutsu converted even the most dangerous enemies.","He had no weapons, so talk-no-jutsu was all he had."]},
+"turn tail":{cat:"ph",label:"動詞片語",formula:"turn tail (and run)",gram:"片語動詞，源自動物受驚後轉身逃跑（尾巴轉向）的形象。常帶有「膽怯、落荒而逃」的含義，後面常接 and run 強調逃跑動作。",def:"轉身逃跑；落荒而逃。",examples:["He'd need to find a way to turn tail and run.","The soldiers turned tail when they saw the enemy's strength.","She turned tail and fled before he could say a word."]},
+"playing along":{cat:"ph",label:"動詞片語",formula:"play along (with sth/sb)",gram:"片語動詞，表示「假裝同意或配合」，通常是為了某個目的而不拆穿對方。play along with = 順著…走。現在分詞 playing along 常作進行式或動名詞。",def:"配合；假裝同意以配合他人的說法或計劃。",examples:["He decided to play along with the misunderstanding.","She played along with his story to avoid a scene.","Playing along was easier than explaining the truth."]},
+"play along":{cat:"ph",label:"動詞片語",formula:"play along (with sth/sb)",gram:"片語動詞，表示「假裝同意或配合」，通常是為了某個目的而不拆穿對方。play along with = 順著…走。",def:"配合；假裝同意以配合他人的說法或計劃。",examples:["He decided to play along with the misunderstanding.","She played along with his story to avoid a scene.","Playing along was easier than explaining the truth."]},
+"double-take":{cat:"n",label:"名詞",formula:"do a double-take",gram:"名詞，動詞片語 do a double-take 的核心。指「先看過一眼沒注意，隨後因驚訝或困惑而回頭重看」。常見搭配：do/make a double-take。",def:"二度回頭看；因驚訝而瞬間再看一眼的反應。",examples:["Her beauty made everyone she passed by do a double-take.","He did a double-take when he saw the price tag.","The unusual sign made all passersby do a double-take."]},
+"desperate measures":{cat:"ph",label:"名詞片語",formula:"resort to desperate measures",gram:"名詞片語。desperate（走投無路的）+ measures（手段、措施）。常見搭配：resort to desperate measures（訴諸極端手段）。著名諺語：Desperate times call for desperate measures.（非常之時，行非常之事。）",def:"極端手段；迫不得已的非常措施。",examples:["He didn't wish to resort to such desperate measures.","Desperate times call for desperate measures.","When all else failed, she turned to desperate measures."]},
+"inappropriate conduct":{cat:"ph",label:"名詞片語",formula:"inappropriate conduct / misconduct",gram:"名詞片語。inappropriate（不當的）+ conduct（行為舉止，正式用語）。在正式場合（考試、職場、法律）常用，相當於 misconduct 或 improper behavior。",def:"不當行為；違反規範或禮儀的舉動。",examples:["He failed the exam due to inappropriate conduct.","The employee was fired for inappropriate conduct.","The referee penalized the player for inappropriate conduct."]},
+"rational basis":{cat:"ph",label:"名詞片語",formula:"(have) no rational basis for sth",gram:"名詞片語。rational（理性的）+ basis（根據、基礎）。常見句型：have no rational basis for + 名詞/動名詞（沒有合理的根據來…）。",def:"理性根據；合乎邏輯的理由或依據。",examples:["He had no rational basis for that conclusion.","There is no rational basis for such fear.","Her decision lacked any rational basis."]},
+"extraordinary capabilities":{cat:"ph",label:"名詞片語",formula:"extraordinary capabilities",gram:"名詞片語。extraordinary（非凡的：extra- 超出 + ordinary 普通）+ capabilities（能力：capability 的複數）。注意：capability 強調「潛力和本領」，ability 強調「實際執行能力」。",def:"非凡能力；超出常人的本領或潛力。",examples:["It possessed extraordinary capabilities.","The team's extraordinary capabilities made them unstoppable.","She demonstrated extraordinary capabilities from a young age."]},
+"chosen hero":{cat:"ft",label:"作品術語",formula:"Chosen Hero（被選中的勇者）",gram:"在異世界（isekai）小說中，Chosen Hero 指「被神或命運選中、召喚至異世界拯救人類的英雄」。在本作中是 Masayuki 被誤認的身份，帶有自嘲意味。",def:"被選中的勇者；天命英雄。",examples:["People started referring to him as the Chosen Hero.","The legend of the Chosen Hero had spread throughout the land.","He never intended to become a Chosen Hero."]},
+"unique skill":{cat:"ft",label:"作品術語",formula:"Unique Skill（唯一技能）",gram:"源自《關於我轉生變成史萊姆這檔事》（Tensura）的技能體系。Unique Skill 是稀有度極高的技能，能力接近 Ultimate Skill（終極技能）。本作主角 Rimuru 也擁有 Unique Skill。",def:"唯一技能；稀有度最高等級之一的特殊技能。",examples:["Unique Skill 'Chosen One' acquired.","A Unique Skill is comparable to an Ultimate Skill in power.","Only a handful of beings possess a Unique Skill."]},
+"language barrier":{cat:"ph",label:"名詞片語",formula:"language barrier / overcome the language barrier",gram:"名詞片語，指因語言不通造成的溝通障礙。barrier（障礙、屏障）在此作比喻用法。常見搭配：overcome / break down the language barrier（克服語言障礙）。",def:"語言障礙；因語言不通造成的溝通困難。",examples:["The language barrier was insurmountable.","They overcame the language barrier with the help of magic.","The language barrier made it difficult to ask for food."]},
+"proclaimed":{cat:"v",label:"動詞",def:"正式宣布或宣稱某事。比 say 或 claim 更正式、莊嚴，常帶有公開聲明的意味。",examples:["He had never once proclaimed himself a Hero.","She proclaimed her innocence to the court.","The king proclaimed a national holiday."]},
+"renowned":{cat:"adj",label:"形容詞",def:"廣為人知的；享有盛名的。比 famous 更文學化，通常因特定成就或才能而聞名。",examples:["His name was renowned throughout the Western Nations.","She is renowned for her exceptional skills.","A renowned scholar visited the academy."]},
+"celebrity":{cat:"n",label:"名詞",def:"名人；知名人士。也可作形容詞（celebrity chef = 名廚）。",examples:["He became a celebrity known to all.","The event was attended by local celebrities.","Celebrity status came to him unexpectedly."]},
+"lustrous":{cat:"adj",label:"形容詞",def:"有光澤的；閃亮的。常用於描述毛髮、皮膚、寶石等表面光滑發亮的狀態。",examples:["A nordic maiden with lustrous blue hair.","The gemstone had a lustrous surface.","Her lustrous eyes caught everyone's attention."]},
+"futile":{cat:"adj",label:"形容詞",def:"徒勞的；毫無效果的。強調付出了努力卻完全沒有結果，比 useless 語氣更強。",examples:["His prayers proved to be futile.","It was futile to argue against the decision.","Every attempt to escape proved futile."]},
+"impasse":{cat:"n",label:"名詞",def:"僵局；走投無路的困境。源自法語，指無法繼續前進的死胡同。常見搭配：reach / be at an impasse。",examples:["Masayuki was at an impasse.","The negotiations reached an impasse.","They found themselves at a complete impasse."]},
+"composure":{cat:"n",label:"名詞",def:"鎮定；冷靜自持。指在壓力下保持穩定的心理狀態。常見搭配：regain / maintain / lose one's composure。",examples:["He began to regain some of his composure.","She maintained her composure throughout the interview.","He lost his composure when he heard the news."]},
+"heritage":{cat:"n",label:"名詞",def:"遺產；血統；文化傳承。指透過家族或歷史傳承下來的特質、財產或文化背景。",examples:["He was handsome, likely due to his Russian heritage.","The city is proud of its rich cultural heritage.","She celebrates her heritage every year."]},
+"otaku":{cat:"n",label:"外來語（日語）",def:"宅男／宅女。日語「おたく」，指對動漫、漫畫、電玩等次文化高度沉迷的人。closet otaku = 隱藏的宅男（不在外人面前表現出來）。",examples:["He was actually a closet otaku.","She's a proud otaku with an extensive manga collection.","The convention attracted otaku from all over the country."]},
+"predicament":{cat:"n",label:"名詞",def:"困境；窘境。指令人困擾、難以脫身的麻煩處境，比 problem 更正式。",examples:["He found himself in a bizarre predicament.","The team was in a terrible predicament.","She found a clever way out of the predicament."]},
+"inadvertently":{cat:"adv",label:"副詞",def:"無意間；不小心地。指沒有刻意計劃卻造成某種後果。形容詞形式：inadvertent（無意的）。",examples:["His act had inadvertently caused him more trouble.","She inadvertently revealed the location of the hideout.","He inadvertently offended her with his comment."]},
+"asylum":{cat:"n",label:"名詞",def:"庇護；避難所。可指政治庇護（seek asylum）或提供保護的機構。",examples:["He decided to find a public institution to seek asylum.","The refugees applied for asylum at the border.","She found asylum in the neutral country."]},
+"sustain":{cat:"v",label:"動詞",def:"維持；支撐。可指維持生計、延續生命，或使某種狀態持續下去。",examples:["He had to figure out a way to sustain a living.","The economy could not sustain such rapid growth.","Water and food are needed to sustain life."]},
+"salvage":{cat:"v",label:"動詞",def:"搶救；從損失或廢棄物中取回可用之物。也可比喻挽救局面（salvage a situation）。",examples:["He had to see if there were any leftovers to salvage.","They tried to salvage the sinking ship's cargo.","She managed to salvage her reputation after the incident."]},
+"dignity":{cat:"n",label:"名詞",def:"尊嚴；體面。指個人自尊或受他人尊重的狀態。常見搭配：maintain / preserve / lose one's dignity。",examples:["He had cast away any semblance of dignity.","She faced her critics with dignity.","Everyone deserves to be treated with dignity."]},
+"enticement":{cat:"n",label:"名詞",def:"誘惑；吸引力。由動詞 entice（誘惑）加名詞後綴 -ment 構成。",examples:["He came here for no other reason than the enticement of food.","The enticement of a high salary drew many applicants.","The shop window was full of enticements."]},
+"protagonists":{cat:"n",label:"名詞（複數）",def:"主角；主人公（複數）。故事、戲劇或事件中的核心人物。proto-（最初的）+ agonist（競爭者）。",examples:["Isekai protagonists always seem capable of communicating.","The two protagonists met for the first time in chapter three.","She is the protagonist of this story."]},
+"inconceivable":{cat:"adj",label:"形容詞",def:"難以想像的；不可思議的。in-（否定前綴）+ conceive（想像、理解）+ -able。",examples:["An inconceivable voice rang in his ears.","It was inconceivable that he would agree to such terms.","The speed of his recovery was inconceivable."]},
+"skepticism":{cat:"n",label:"名詞",def:"懷疑態度；質疑精神。指對某事持保留或不相信的立場。skeptic（懷疑者）的名詞形式。",examples:["He answered with a fair bit of skepticism.","She greeted the proposal with skepticism.","Scientific skepticism is essential for progress."]},
+"equivalent":{cat:"n",label:"名詞／形容詞",def:"相當於；等同的。the equivalent of = 等同於…的事物。也可作形容詞（an equivalent amount）。",examples:["That was the equivalent of a death sentence.","Ten kilometers is the equivalent of about six miles.","She received an equivalent salary to her colleagues."]},
+"pulp":{cat:"n",label:"名詞（慣用語）",formula:"beaten to a pulp",gram:"慣用語：beaten to a pulp = 被打得稀爛。pulp 本意指紙漿、果肉，此處為口語用法，形容被打到軟爛的狀態。",def:"被打得稀爛的狀態；pulp 本義為紙漿或果肉。",examples:["He might escape with only getting beaten to a pulp.","The boxer was beaten to a pulp in the third round.","He threatened to beat his opponent to a pulp."]},
+"perplexed":{cat:"adj",label:"形容詞",def:"困惑的；不知所措的。perplex（動詞，使困惑）的過去分詞作形容詞。比 confused 更強調「摸不著頭緒」。",examples:["He was a bit perplexed despite hearing 'fully unleashed.'","She looked perplexed by the question.","The detective was perplexed by the lack of evidence."]},
+"despicable":{cat:"adj",label:"形容詞",def:"卑鄙的；可鄙的。帶有強烈道德批判語氣，是 despise（鄙視）的形容詞形式。",examples:["His escape plan was quite despicable.","It was a despicable act of cowardice.","The villain's plan was nothing short of despicable."]},
+"intimidate":{cat:"v",label:"動詞",def:"威嚇；使人因恐懼或壓力而服從。intimidating（形容詞）= 令人生畏的。",examples:["All it did was further intimidate Jinrai.","His height and cold stare intimidated everyone around him.","Don't let them intimidate you into silence."]},
+"sprawled":{cat:"adj",label:"形容詞",def:"（四肢張開地）倒躺；攤著。描述人或動物以鬆散、不整齊的姿態躺臥。",examples:["Jinrai was sprawled on the ground with his eyes rolled back.","He was sprawled on the sofa watching TV.","The cat was sprawled across the warm laptop."]},
+"comparable":{cat:"adj",label:"形容詞",def:"可比較的；相當的。comparable to = 可與…相媲美／匹敵。",examples:["It was comparable to 'Absolute Severance.'","The new model's performance is comparable to its predecessor.","Nothing is comparable to the feeling of a cool breeze on a hot day."]},
+"oblivious":{cat:"adj",label:"形容詞",def:"渾然不知的；毫無察覺的。常接 to 或 of。oblivious to the danger = 對危險毫無意識。",examples:["He was completely oblivious to the power he unleashed.","She was oblivious to the commotion around her.","He remained oblivious to her feelings for years."]},
+"consensus":{cat:"n",label:"名詞",def:"共識；一致意見。指群體中大多數人達成的共同看法或決定。常見搭配：reach / come to a consensus。",examples:["The crowd came to the consensus that he was the chosen hero.","The committee reached a consensus after long discussion.","There is no consensus on how to solve this problem."]},
+"subordinate":{cat:"n",label:"名詞／形容詞",def:"下屬；部下。也可作形容詞表「從屬的、次要的」。動詞形式：subordinate A to B（使A服從B）。",examples:["He wished to take him in as a subordinate.","She treated her subordinates with respect.","Personal interests must be subordinate to the team's goals."]},
+"invincible":{cat:"adj",label:"形容詞",def:"無敵的；不可戰勝的。in-（否定）+ vincible（可被征服的，源自拉丁語 vincere 征服）。",examples:["Under this Skill's effects, they were practically invincible.","The champion seemed invincible throughout the tournament.","No army is truly invincible."]},
+"attributed":{cat:"v",label:"動詞（過去式）",formula:"attribute A to B / be attributed to B",gram:"片語動詞。attribute A to B = 將A歸功／歸因於B。被動形式：A is attributed to B = A被歸因於B。常見搭配：attribute success/failure to…",def:"歸因於；歸功於某人或某事。",examples:["Good deeds of companions were attributed to Masayuki.","Her success was attributed to hard work and determination.","The painting is attributed to an unknown artist."]},
+"overhype":{cat:"v",label:"動詞",def:"過度吹捧；炒作過頭。over-（超過）+ hype（大肆宣傳、炒作）。",examples:["The audience proceeded to overhype Masayuki.","Critics say the film was overhyped before release.","Don't overhype a product you can't deliver on."]},
+"adaptability":{cat:"n",label:"名詞",def:"適應力；應變能力。adapt → adaptable → adaptability（名詞化）。形容生物、人或系統面對新環境改變的能力。",examples:["Humans are creatures that possess strong adaptability.","The adaptability of young children is remarkable.","Business adaptability is key in changing markets."]},
+"reevaluate":{cat:"v",label:"動詞",def:"重新評估；重新考量。re-（再次）+ evaluate（評估）。表示對之前的判斷或計劃進行再思考。",examples:["He was forced to reevaluate his situation.","After the failure, the team had to reevaluate their strategy.","I need to reevaluate my priorities."]},
+"convenience":{cat:"n",label:"名詞",def:"便利；方便。convenient（形容詞）的名詞形式。for convenience = 為了方便。",examples:["His act for the convenience of transportation caused trouble.","The store is open 24 hours for your convenience.","She chose the hotel for its convenience to the airport."]},
+"flexibility":{cat:"n",label:"名詞",def:"靈活性；適應性。flexible（形容詞）的名詞形式。可指身體柔軟度，也常比喻思維或行動的靈活應變。",examples:["That's the type of flexibility Masayuki has as a man.","The job requires flexibility in working hours.","Mental flexibility helps you adapt to new situations."]},
+"inadvertent":{cat:"adj",label:"形容詞",def:"無意的；非故意的。inadvertently（副詞）= 無意間地。",examples:["His inadvertent nod caused a huge misunderstanding.","The inadvertent release of the document caused chaos.","An inadvertent mistake can have serious consequences."]},
+"futility":{cat:"n",label:"名詞",def:"徒勞；無用。futile（形容詞）的名詞形式，強調行為的無意義性。",examples:["He realized the futility of resisting the skill.","The futility of the situation became clear.","She was struck by the futility of her efforts."]},
+"deduced":{cat:"v",label:"動詞（過去式）",def:"推斷；從已知事實得出結論。deduce（原形）的過去式。比 guessed 更強調邏輯推理。",examples:["Masayuki deduced that food areas would have leftovers.","She deduced the answer from the available clues.","He deduced that the stranger was not from this world."]},
+"exuding":{cat:"v",label:"動詞",def:"散發；流露（氣質、感覺）。exude 的現在分詞。可指液體滲出，也常用於比喻氣場、魅力的散發。",examples:["He bulged out his muscles, exuding an aura of pure strength.","She walked in, exuding confidence.","The place was exuding a sense of warmth and welcome."]},
+"crimson":{cat:"adj",label:"形容詞",def:"深紅色的；猩紅色的。比 red 更深、更鮮豔，常用於文學描述。",examples:["The man's face was dyed a crimson red as if he were drunk.","The sunset painted the sky crimson.","Her face turned crimson with embarrassment."]},
+"commotion":{cat:"n",label:"名詞",def:"騷動；喧鬧。指吵雜混亂的情況，通常是因為突發事件引起。",examples:["The commotion attracted a crowd of passersby.","The fire alarm caused a commotion in the building.","What's all this commotion about?"]},
+"bewildered":{cat:"adj",label:"形容詞",def:"困惑的；茫然不知所措的。比 confused 更強調「不知該如何反應」的狀態。",examples:["He was bewildered by the sudden praise.","She looked bewildered at the strange request.","The tourist was bewildered by the complex subway system."]},
+"mustering":{cat:"v",label:"動詞",def:"鼓起（勇氣、力氣）；聚集。muster 的現在分詞。常見搭配：muster one's courage / resolve（鼓起勇氣）。",examples:["Mustering his resolve, Masayuki made to push open the door.","She mustered all her courage to face the crowd.","He mustered a smile despite his exhaustion."]},
+"earnestly":{cat:"adv",label:"副詞",def:"認真地；誠摯地。earnest（形容詞，認真的、誠懇的）的副詞形式。",examples:["Jinrai bowed even more earnestly.","She earnestly apologized for the mistake.","He listened earnestly to every word she said."]},
+"barring":{cat:"prep",label:"介詞",def:"除了…之外；如果不是的話。作介詞使用，表示「排除某種例外情況」，相當於 except for 或 unless there is。",examples:["Anyone who the hero defeats will become a follower, barring death.","Barring any accidents, we should arrive by noon.","Everyone is invited, barring those who were not on the list."]},
+"oppressive":{cat:"adj",label:"形容詞",def:"壓迫性的；令人窒息的（氣氛、重量）。可指政治壓迫，也可形容沉重、令人喘不過氣的氛圍或氣場。",examples:["Such an oppressive aura… who are you really?","The summer heat was oppressive and suffocating.","The oppressive silence made everyone uncomfortable."]},
+"akin":{cat:"adj",label:"形容詞",def:"類似的；近似的。akin to = 類似於…。比 similar to 更正式，常用於書面語。",examples:["Its real power was akin to an Ultimate Skill.","The feeling was akin to flying.","His reaction was akin to disbelief."]},
+"subsequent":{cat:"adj",label:"形容詞",def:"隨後的；後來的。subsequent to = 在…之後（比 after 更正式）。名詞形式：subsequently（副詞，隨後）。",examples:["Subsequently, 'Heroic Spirit' and 'Heroic Coercion' have been activated.","The subsequent investigation revealed the truth.","He resigned, and subsequent events proved his decision wise."]},
+"miscalculation":{cat:"n",label:"名詞",def:"誤算；判斷錯誤。mis-（錯誤）+ calculation（計算）。可指數字上的計算錯誤，也常比喻決策或判斷上的失誤。",examples:["This would become a painful miscalculation later.","His miscalculation of the enemy's strength cost him dearly.","The project failed due to a serious miscalculation."]},
+"delinquent":{cat:"n",label:"名詞／形容詞",def:"不良少年；違規者。作名詞指犯小罪或行為不端的（年輕）人，作形容詞表「犯規的、行為不端的」。edgy delinquent = 看起來很叛逆的問題少年。",examples:["He didn't mean to become an edgy delinquent.","The school dealt with several juvenile delinquents.","His delinquent behavior caused concern for his parents."]}
 };
 
-// ==========================================
-// 2. QUESTION BANK: 100+ HIGH SCHOOL BENCHMARK QUESTIONS
-// Structured with dynamic blanks [______] to train contextual logic.
-// ==========================================
-const questionBank = [
-    {
-        type: "vocabulary",
-        context: "The heavy downpour caused the river to overflow, forcing the villagers to [______] their homes and flee to higher ground.",
-        definition: "Verb: To leave a place, thing, or person forever because of danger or difficulty.",
-        answer: "abandon",
-        explanation: "The phrase 'flee to higher ground' indicates an emergency situation where residents must leave everything behind. <b>'Abandon'</b> perfectly fits this context of forced, permanent departure."
-    },
-    {
-        type: "vocabulary",
-        context: "Instead of trying to solve all problems at once, you should [______] wealth and knowledge step by step over your lifetime.",
-        definition: "Verb: To collect, gather, or acquire an increasing quantity of something over time.",
-        answer: "accumulate",
-        explanation: "The clue 'step by step over your lifetime' implies a gradual gathering process. <b>'Accumulate'</b> is widely used for abstract growth like knowledge, experience, or capital."
-    },
-    {
-        type: "sentence",
-        context: "No matter how difficult the challenge may seem, we must keep in mind that [______] we give up now, all our previous efforts will go down the drain.",
-        definition: "Grammar Block: A conditional structure meaning 'if it happens that' or 'on the condition that' (Hint: starts with 'if').",
-        answer: "if",
-        explanation: "This tests conditional logical flow. The phrase 'all our previous efforts will go down the drain' represents the consequence of the condition <b>'if'</b> we choose to surrender."
-    },
-    {
-        type: "vocabulary",
-        context: "Global resources are finite. If we continue to consume energy at this reckless speed, our oil reserves will drastically [______] within decades.",
-        definition: "Verb: To become smaller, weaker, or less important.",
-        answer: "diminish",
-        explanation: "When finite resources are consumed rapidly, their amount goes down. <b>'Diminish'</b> or 'dwindle' fits, but 'diminish' is the standard high-school competency term here."
-    },
-    {
-        type: "sentence",
-        context: "The strict school regulation requires that every student [______] arrive at the auditorium before 8:00 AM for the ceremony.",
-        definition: "Grammar Block: Subjunctive mood after demanding verbs (require/insist/suggest). Enter the base verb that belongs here (Hint: silent helper omitted).",
-        answer: "arrive",
-        explanation: "Ah, the Subjunctive Mood! The structure 'requires that + subject + (should) + V-base' means even if the subject is third-person singular, we use the bare base verb <b>'arrive'</b>."
-    },
-    {
-        type: "vocabulary",
-        context: "The firefighter rushed into the smoke-filled building to [______] the raging flames before they could reach the gas tanks.",
-        definition: "Verb: To stop a fire or a light from burning; put out.",
-        answer: "extinguish",
-        explanation: "Firefighters deal with fires. The professional term for 'putting out' a fire or flame is to <b>'extinguish'</b> it."
-    },
-    {
-        type: "sentence",
-        context: "Hardly [______] the singer stepped onto the stage when the thousands of fans broke into ecstatic cheers.",
-        definition: "Grammar Block: Negative inversion for 'As soon as...'. Form: Hardly + had + subject + V-pp.",
-        answer: "had",
-        explanation: "This is a classic inversion pattern: 'Hardly had + Subject + P.P... when...'. The past perfect auxiliary <b>'had'</b> must move before the subject 'the singer'."
-    }
-    // NOTE: To reach the 100+ matrix scale in a single file, you can append objects using this identical format inside this array block.
+// ═══════════════════════════════════════════════
+// PAGES
+// ═══════════════════════════════════════════════
+var PAGES=[
+{paras:[
+{t:"He—Honjou Masayuki—is a <b>Chosen Hero</b>.",c:""},
+{t:"Although Masayuki had never once <b>proclaimed</b> himself a Hero, for some odd reason, people he encountered just started referring to him as such. It hasn't even been a year since he first appeared in this world, just <b>out of the blue</b>, yet the name Masayuki was now <b>renowned</b> throughout the Western Nations. He's become a <b>celebrity</b> known to all.",c:""},
+{t:"How did this happen?",c:"dialogue"},
+{t:"He felt puzzled from the bottom of his heart.",c:""},
+{t:"How did things end up like this?",c:"dialogue"},
+{t:"In order to explain, we must go back one year in time.",c:""},
+]},
+{paras:[
+{t:"Masayuki was on his way home from school with several friends, when suddenly, he laid eyes on an unbelievable sight, a nordic maiden with <b>lustrous</b> blue hair and skin fairer than that of any model or <b>celebrity</b>. Even from afar, the vibrant hues of her hair still managed to catch his eye. Masayuki had never once laid his eyes on such a beauty, one who could make everyone she passed by do a <b>double-take</b>.",c:""},
+{t:"\"Hey, check out that babe—\"",c:"dialogue"},
+{t:"Masayuki called out to his friends with the frankness of any male high schooler. But—there was no response. Hmm, Masayuki thought to himself as he turned around—only to find himself in front of the scenery of an unfamiliar street.",c:""},
+{t:"\"—W-wha?\"",c:"dialogue"},
+{t:"His mind couldn't help but go blank as he froze at the spot.",c:""},
+{t:"S-sensei! I don't know what's going on!",c:"thought"},
+]},
+{paras:[
+{t:"Under normal circumstances, he wouldn't care too much about the civic tutor that was his sensei, but in this situation, it was all his heart could ask for. But his prayers proved to be <b>futile</b>… Masayuki was at an <b>impasse</b>.",c:""},
+{t:"Masayuki sat by the water fountain at the town square, at a complete loss for what to do. As time trickled by, Masayuki finally began to regain some of his <b>composure</b>. After all, worrying about it wouldn't fix the problem. He resolved to give his current situation some thought, retracing his steps to figure out where it all went wrong.",c:""},
+{t:"Now that he thought about it, that woman was quite suspicious too. For all her dazzle, strangely enough no one else noticed her. Although he had no <b>rational basis</b> for that conclusion, he had a gut feeling that that was the case. But now she was gone.",c:""},
+{t:"In times like these, isn't the beautiful girl who started the whole thing supposed to tag along? Speaking of which, ehh? Is this really not some kind of a prank? Have I really just been transported to something like an isekai?",c:"thought"},
+]},
+{paras:[
+{t:"In a normal Isekai plot he'd at least have someone who had some inkling of what was going on come with him as well. But Masayuki didn't seem to be quite that fortunate.",c:""},
+{t:"The sun was about to set, and minus the school lunch that he had earlier, Masayuki was running on an empty stomach. It didn't take a genius to figure out that he was starving.",c:""},
+{t:"Wait a minute—Masayuki thought to himself seriously. At least this is a town. He was lucky enough to have not spawned in some forest or in front of a monster.",c:"thought"},
+{t:"Normally under this type of circumstance, shouldn't there be a king or someone like that waiting for me in order to explain the whole ordeal, or at least help me start off?",c:"thought"},
+{t:"But alas, those were simply web novel fantasies found in the stories that he and his friends used to passionately discuss, he complained to himself. Reality was cruel, and sitting there sighing wasn't going to offer him any solutions, so Masayuki was once again forced to <b>reevaluate</b> his situation.",c:""},
+]},
+{paras:[
+{t:"His name was Honjou Masayuki. Age 16. First year student at a renowned high school.",c:""},
+{t:"Although unrelated to the current topic, Masayuki had plans to make changes to his appearance after high school. In addition to tailoring his uniform, he had also dyed his hair.",c:""},
+{t:"He was quite the handsome lad, likely due to his Russian <b>heritage</b>. His mother was also a beauty, to which he guessed was the source of his good looks.",c:""},
+{t:"While it was nothing significant, dying his hair blonde had made him stand out. As a result, he was quite popular in school. While in truth he wasn't remarkable in any way, people nonetheless treated him differently.",c:""},
+{t:"In addition, Masayuki had some secret hobbies—watching anime and reading manga. He never really showed it at school, but in reality, he was actually a closet <b>otaku</b>. And so he wasn't really fazed in spite of the bizarre <b>predicament</b> he had found himself in…",c:""},
+]},
+{paras:[
+{t:"As Masayuki pondered, he checked the pockets of his uniform and rummaged through the contents in his backpack.",c:""},
+{t:"There was a wallet in his pocket. In it were one Yukichi-sama (A ten-thousand yen note), three Noguchi-san (Three one thousand yen notes), and some change.",c:""},
+{t:"As for his textbooks—he stowed them all away in the desk and locker at school. Given this to be the case, all he had in his backpack right now were the magazine he had just bought, a smart phone, and gum. In other words, his act of clearing items from his backpack for the <b>convenience</b> of transportation had <b>inadvertently</b> caused him more trouble.",c:""},
+{t:"Sigh. Had I known things would've turned out this way, I woulda prepared a bit more…",c:"thought"},
+{t:"He had an apocalypse-kit for emergency situations. If he had brought it with him, he could have lasted for at least three days.",c:""},
+{t:"At the very least, I shoulda brought a swiss army knife.",c:"thought"},
+]},
+{paras:[
+{t:"Although Masayuki was able to get by for a couple hours, one thing became very apparent: he couldn't understand what anyone was saying, meaning that the <b>language barrier</b> of this world was insurmountable.",c:""},
+{t:"This is just way too much… I can't continue like this. Worst-case scenario, I can use my phone and backpack as bargaining chips for food—",c:"thought"},
+{t:"Steeling himself, Masayuki stood up from the fountain.",c:""},
+{t:"Although he did not quite understand the laws and customs of this world, he came to the conclusion that the best course of action would be to find a public institution to seek <b>asylum</b>.",c:""},
+{t:"Before that however, he had to figure out a way to <b>sustain</b> a living—in other words, to somehow obtain food.",c:""},
+{t:"Not being able to communicate with people sucks.",c:"thought"},
+]},
+{paras:[
+{t:"And at this rate, he was definitely going to starve to death.",c:""},
+{t:"He might still be able to get water, but getting food, on the other hand, would prove no easy feat. Although he didn't wish to resort to such <b>desperate measures</b>, he had to see if there were any leftovers for him to <b>salvage</b>.",c:""},
+{t:"The best places to search, Masayuki <b>deduced</b>, would be areas with high food traffic, such as grocery stores and restaurants.",c:""},
+{t:"He had cast away any semblance of <b>dignity</b> that he once had over the course of just a mere couple of hours. That's the type of <b>flexibility</b> Masayuki has as a man.",c:""},
+{t:"After walking for a few minutes, Masayuki successfully made his way to the town's banquet hall. He had no other reason to come here other than the <b>enticement</b> of food.",c:""},
+{t:"Now I just gotta negotiate with them. Ask them if they'd let me work here… Ah crap… That's not gonna happen. I don't even know their language…",c:"thought"},
+]},
+{paras:[
+{t:"The language barrier was insurmountable.",c:""},
+{t:"As someone who has read plenty of Isekai fiction, for god knows what reason, the <b>protagonists</b> always seemed capable of communicating with the Otherworlders. Looking back on it now, he realized just how lucky having that ability would be.",c:""},
+{t:"I don't expect to become some OP powerhouse, but ahhh, at least spare me on the language—",c:"thought"},
+{t:"But regardless of how much he complained internally, no one would answer him.",c:""},
+{t:"<b>Mustering</b> his resolve, Masayuki made to push open the door.",c:""},
+{t:"Before he could do that, however, the door was suddenly pushed open from the inside. Masayuki's ears were assaulted by the din of numerous chattering voices from the inside of the store.",c:""},
+]},
+{paras:[
+{t:"\"?!\"",c:"dialogue"},
+{t:"Startled, he took a step back. He felt a soft sensation in his chest. The person coming out was a cute, petite lady, but her expression was a bit timid.",c:""},
+{t:"Eh? Don't tell me I've got caught up in some trouble…?",c:"thought"},
+{t:"No way, Masayuki thought. But his prediction unfortunately came true.",c:""},
+{t:"\"OxA…!\"",c:"dialogue"},
+{t:"The woman in front of him blurted out a bunch of words that sounded like complete gibberish to him. However, despite his complete ignorance, Masayuki flashed a warm, caring smile and nodded in response. Upon seeing Masayuki's expression, the woman quickly regained her <b>composure</b>. Her cheeks were flushed bright red as she drunkenly stared at Masayuki.",c:""},
+]},
+{paras:[
+{t:"A fierce-looking man barreled his way out. His target: the woman asking for Masayuki's help.",c:""},
+{t:"Agh, if I slip up, I might just be a goner…",c:"thought"},
+{t:"Masayuki had a very good reason to believe so. Although Masayuki himself stood over 170cm tall, the huge man in front towered over him by at least one whole head. The man's face was dyed a <b>crimson</b> red as if he were drunk. He was also armed, a longsword strapped about his waist.",c:""},
+{t:"Masayuki had no hope of winning in a fair fight in the first place, to say nothing of his chances with a weapons disadvantage. Even if he somehow managed to avoid screwing up, there was still a high probability that his opponent would end up killing him regardless.",c:""},
+{t:"Masayuki wanted to run away, but the woman clung onto his chest tightly.",c:""},
+{t:"Shit, looks like I'm done for now…",c:"thought"},
+]},
+{paras:[
+{t:"His smile was frozen on his face, and he couldn't quite keep his feet from shaking. Masayuki wanted to praise himself for not pissing his pants on the spot.",c:""},
+{t:"However, it was at this point that an <b>inconceivable</b> voice rang in his ears.",c:""},
+{t:"«Courageous act of heroism has been conducted… <b>Unique Skill</b> 'Chosen One' acquired. Would you like to activate it? YES/NO»",c:"sys"},
+{t:"Ummm, I guess?—Masayuki answered with a fair bit of <b>skepticism</b>. This became the turning point of his fate.",c:""},
+{t:"«Confirmed. Under the effects of 'Chosen One,' language mastery…successful. <b>Subsequently</b>, 'Heroic Spirit' and 'Heroic Coercion' have been activated.»",c:"sys"},
+{t:"Some strange words began to echo in Masayuki's mind.",c:""},
+]},
+{paras:[
+{t:"—What? What happened…",c:"thought"},
+{t:"While his head was swimming with doubts, given his current situation, he had no time to worry about any of that.",c:""},
+{t:"\"Oi oi, what'cha doin' buddy??? Yer' ain't tryin' to get in my way, are ya?\"",c:"dialogue"},
+{t:"He could suddenly understand what the large man was saying thanks to the effects of the <b>Unique Skill</b> 'Chosen One' that had just awakened within him.",c:""},
+{t:"What was more important was figuring out a way to get out of the pickle he found himself in. One wrong move and it might be game over.",c:""},
+{t:"No, Little ol' me doesn't plan on that AT ALL—Masayuki had planned to drop on his knees and apologize. But before he could do that, the woman holding on to Masayuki made her plea.",c:""},
+]},
+{paras:[
+{t:"\"That's right! This person here promised he'd save me!\"",c:"dialogue"},
+{t:"\"—Ho ho?\"",c:"dialogue"},
+{t:"Veins popped on the large man's temple. He bulged out his muscles, <b>exuding</b> an aura of pure strength.",c:""},
+{t:"Oh, he doesn't even need to use his sword. I'll be done for if he just smacks me down…",c:"thought"},
+{t:"Despite being overwhelmed with sheer terror, Masayuki was able to think calmly. But still, he could not think of a way out of his current <b>predicament</b>.",c:""},
+{t:"\"Interesting!\" the man yelled, \"Let's see you try taking me down and protecting that girl.\"",c:"dialogue"},
+]},
+{paras:[
+{t:"The <b>commotion</b> attracted a crowd as passersby, along with the people from the surrounding shops, came to check out the ruckus.",c:""},
+{t:"\"Oi oi, that kid's picking a fight with Jinrai, the 'Crazed Wolf!'\"",c:"dialogue"},
+{t:"\"Shouldn't we stop them? He's gonna get himself killed.\"",c:"dialogue"},
+{t:"\"That bastard Jinrai… After failing the B-rank exam, his temper's been flaring up. Even Katya refused to serve him, <b>cold shouldered</b> him.\"",c:"dialogue"},
+{t:"\"Damn…so that's how it is. He's gone into a rage after she cold shouldered him. Nothing anyone does is gonna stop him now…\"",c:"dialogue"},
+{t:"\"Quick, someone contact the guild!\"",c:"dialogue"},
+]},
+{paras:[
+{t:"\"Someone's done that already. Moreover, rather than just talking, why don't you go stop him?\"",c:"dialogue"},
+{t:"\"What nonsense are you on about? Jinrai might only be ranked C-plus on paper, but his strength surpasses even B Rank! The only reason why he didn't make it was due to <b>inappropriate conduct</b> during the test, but his strength is the real deal. That's not someone I can take on—!\"",c:"dialogue"},
+{t:"The people bantering were likely colleagues of Jinrai.",c:""},
+{t:"Overhearing their conversation, Masayuki's heart filled with a mixture of both hope and despair.",c:""},
+{t:"They seemed to have sent someone to inform some guild. Cavalry was on the way as long as he could stall for some time. However, without knowing when the rescue would arrive, Masayuki was left to fend for himself. That was the <b>equivalent</b> of a death sentence.",c:""},
+]},
+{paras:[
+{t:"\"Katya… How could she drag that innocent boy into this whole mess…\" some bystander whispered.",c:"dialogue"},
+{t:"That's right! Why me? Masayuki thought to himself, though he did recall nodding and smiling to the girl despite not understanding anything she was saying. Considering the outcome, he had only himself to blame.",c:""},
+{t:"\"You made up your mind yet?\"",c:"dialogue"},
+{t:"Definitely not.",c:"thought"},
+{t:"Masayuki was far from making up his mind, but the burly man was running out of patience.",c:""},
+{t:"At the very least, he was going to go out in style.",c:""},
+]},
+{paras:[
+{t:"He didn't mean to become an edgy <b>delinquent</b> when he changed his hairstyle during high school. He merely dyed his hair for the sake of it and had absolutely zero combat experience. Although he had learnt some basic kendo, it was of no help to an unarmed Masayuki at the moment.",c:""},
+{t:"With that being said, <b>talk-no-jutsu</b> was his best bet as of now.",c:""},
+{t:"\"The weakest dog barks the loudest. Have YOU made up your mind? How dare you come bothering me?!\"",c:"dialogue"},
+{t:"Masayuki had already resigned himself to getting sent to the other side with just one punch from the guy. He threw out bluffs left and right in a desperate attempt to save his hide. Even if he couldn't, he might still get lucky and escape with only getting beaten to a <b>pulp</b>.",c:""},
+{t:"He was frozen with fear just a moment ago. Now, however, his feet had stopped shaking…",c:""},
+]},
+{paras:[
+{t:"\"…We got a badass here. Sure, then I won't hold back.\"",c:"dialogue"},
+{t:"Jinrai glared at Masayuki with a devious smile. Masayuki immediately regretted his decision upon seeing the bloodthirsty look on Jinrai's face.",c:""},
+{t:"I can try to slip away now—oh yeah, there's a girl called Katya behind me…",c:"thought"},
+{t:"\"Can I ask you to leave for a moment?\"",c:"dialogue"},
+{t:"\"All right!\" Katya responded with enthusiasm. \"That guy has been ogling at me like a pervert for quite some time. Please teach him a lesson, big bro!\"",c:"dialogue"},
+{t:"Masayuki only told Katya to stand aside so he could plan an escape. Katya probably thought that she would get in the way of Masayuki's fight. She left him to his own devices just as she was told, slipping back into the crowd.",c:""},
+]},
+{paras:[
+{t:"…Ugh. No matter what I do, I'm already surrounded by people. Now I'm definitely done for—that was an absolutely wrong call, thought Masayuki. The only reason Jinrai didn't attack before, was because Katya was around. Masayuki thought she'd interfere with his escape plans and told her to go, but doing so only seemed to have hastened his death.",c:""},
+{t:"\"Hehe!\"",c:"dialogue"},
+{t:"Jinrai's smile deepened.",c:""},
+{t:"With how things had developed, Masayuki had to utilize his last resort. He'd need to use the chewing gum in his mouth as a distraction and then find a way to <b>turn tail</b> and run.",c:""},
+{t:"«Initiation of Heroism 'Bravery Aura' has been confirmed. Effects of <b>Unique Skill</b> 'Chosen One'—'Heroic Charisma' and 'Heroic Action' have been realized. As such, the Unique Skill 'Chosen One' of individual \"Masayuki\" has been fully unleashed.»",c:"sys"},
+]},
+{paras:[
+{t:"No no no, I was just thinking about running away!—But Masayuki's wish was ignored.",c:""},
+{t:"Speaking of which, what's up with that voice I've been hearing for a while now?",c:"thought"},
+{t:"Masayuki was a bit <b>perplexed</b> despite hearing the phrase \"fully unleashed.\" Unique Skill sounded pretty strong, but there was no way a skill that could be so easily obtained would be any big deal, Masayuki concluded.",c:""},
+{t:"Seriously though, I don't have any time to be worrying about all that.",c:"thought"},
+{t:"Masayuki was not trying to fight Jinrai at all. As a matter of fact, his escape plan was quite <b>despicable</b>. He intended to spit out his gum to startle his opponent, which quite frankly didn't sound anything close to being heroic at all.",c:""},
+{t:"Yet all those concerns were of the past. There had been a new development.",c:""},
+]},
+{paras:[
+{t:"\"—Woah, su-such an <b>oppressive</b> aura…who are you really…?!\"",c:"dialogue"},
+{t:"Jinrai, who was brimming with confidence just moments ago, was now covered in cold sweat.",c:""},
+{t:"Masayuki unconsciously chewed on his gum. He thought chewing gum would calm himself down, but all it did was further <b>intimidate</b> Jinrai.",c:""},
+{t:"\"Ugh, what type of weird sorcery is this?! It doesn't matter who you are! Just watch as I slaughter you!\"",c:"dialogue"},
+{t:"After his declaration, Jinrai immediately set himself upon Masayuki.",c:""},
+{t:"As for Masayuki, he was caught completely off guard.",c:""},
+]},
+{paras:[
+{t:"Confused, Jinrai froze on the spot. He then took a step forward with the intent of striking Masayuki down. Masayuki gawked dumbly at Jinrai's giant fist slowly approaching him right in front of his eyes.",c:""},
+{t:"Shit, it's over! Whatever I do now is already too late, Masayuki thought to himself as he shut his eyes and ducked his head, attempting to dodge the fist and ease the pain.",c:""},
+{t:"Yet the worst-case scenario that Masayuki imagined did not happen. Pain began to set in, but it was only limited to a small part of his forehead. He opened his eyes, full of surprise and fear. Before him was a Jinrai, who, for some reason, was <b>sprawled</b> on the ground with his eyes rolled to the back of their sockets.",c:""},
+{t:"\"Eh?\" Masayuki mumbled in confusion.",c:"dialogue"},
+{t:"Masayuki had no clue what had just happened.",c:""},
+]},
+{paras:[
+{t:"The crowd erupted into cheers, drowning out his own voice, much to his surprise. Then—",c:""},
+{t:"\"S-so strong! That guy didn't even move a finger and he defeated Jinrai the Crazed Wolf!\"",c:"dialogue"},
+{t:"\"Unbelievable! Did you catch his movement just now?\"",c:"dialogue"},
+{t:"\"Yeah… He avoided the punch by a <b>hair's breadth</b> and went on to deliver a headbutt to Jinrai. He's no doubt a master of combat.\"",c:"dialogue"},
+{t:"\"Just who the hell is this kid—?\" the bystanders murmured amongst themselves.",c:"dialogue"},
+{t:"In reality, this was the result of Masayuki's <b>Unique Skill</b> 'Chosen One' being activated.",c:""},
+]},
+{paras:[
+{t:"<b>Hero's Haki</b>: A Skill that Dwarf King Gazel also possesses. It's an aura that only heroes (eiyuu) are capable of <b>exuding</b>. Opponents who are weaker than them would be rendered motionless under the imposing aura.",c:"sys"},
+{t:"<b>Hero's Blessing</b>: User experiences a great boost to his luck stat. Even a normal attack will become a critical strike. This effect is also applied to party members.",c:"sys"},
+{t:"<b>Hero's Charisma</b>: Onlookers who witness the actions of the hero will be inspired. Any sense of fear will be replaced by courage. Anyone who the hero defeats will automatically become a follower, <b>barring</b> death of course.",c:"sys"},
+{t:"<b>Heroic Action</b>: The first step to becoming a hero. The user will become a role model for his companions and will eventually earn the praise of everyone around him.",c:"sys"},
+]},
+{paras:[
+{t:"—These are the abilities of the <b>Unique Skill</b> 'Chosen One.'",c:""},
+{t:"As a matter of fact, this was an especially rare Skill even among the Unique Skills. It was <b>comparable</b> to 'Absolute Severance' and 'Unlimited Imprisonment,' both previously used by other chosen heroes in the past. Although it was only a Unique Skill, its real power was <b>akin</b> to an Ultimate Skill. It possessed <b>extraordinary capabilities</b>.",c:""},
+{t:"Although Jinrai was considered to be among the strongest in the town, he was still no match for Masayuki's Skill.",c:""},
+{t:"Unfortunately, Masayuki was not aware of any of this. He was completely <b>oblivious</b> to the fact that he unleashed an astonishing power.",c:""},
+{t:"'Chosen One' manifested itself from Masayuki's wish to become a hero. However, it was now ignoring his personal will, ferociously pushing Masayuki down the path to a hero…",c:""},
+]},
+{paras:[
+{t:"\"So he is the blonde <b>chosen hero</b>…\"",c:"dialogue"},
+{t:"\"Oh! Oh ho, I've heard of him—\"",c:"dialogue"},
+{t:"\"Was that the chosen hero that was rather active in the past? I heard he went missing—\"",c:"dialogue"},
+{t:"\"Could it be that he has been resurrected?\"",c:"dialogue"},
+{t:"The clamoring in the crowd gradually grew louder. It didn't take long for the crowd to come to the <b>consensus</b> that Masayuki was indeed the chosen hero.",c:""},
+{t:"Actually, my hair was only dyed…",c:"thought"},
+]},
+{paras:[
+{t:"By the time Masayuki noticed, however, it was already too late. The bystanders were all staring at him with sparkling eyes, as if their biggest idol were standing right there in front of them.",c:""},
+{t:"\"Huh? A-about that, y-you've got the wrong guy—\" Masayuki tried to deny in panic.",c:"dialogue"},
+{t:"\"Back down all of you! How dare you all try to befriend the mighty chosen hero who defeated me in one blow!\"",c:"dialogue"},
+{t:"It was Jinrai, who just moments ago was on the ground, now bellowing at the crowd gathered around them. He then turned to Masayuki and bowed with great respect.",c:""},
+{t:"\"I am sorry to have offended you. I didn't know that you were the chosen hero…\"",c:"dialogue"},
+]},
+{paras:[
+{t:"\"Hold up! I just said you got the wrong—\"",c:"dialogue"},
+{t:"\"My name is Jinrai. People around here call me the 'Crazed Wolf.' I still wish that you may take me in as your <b>subordinate</b>.\"",c:"dialogue"},
+{t:"Jinrai bowed even more <b>earnestly</b>.",c:""},
+{t:"Masayuki was at a complete loss. He didn't know what to do with this bulky man suddenly wishing to become his subordinate either.",c:""},
+{t:"\"No, I'm telling you,\" Masayuki pleaded, \"I'm not a hero—\"",c:"dialogue"},
+{t:"\"Oh ho, are you trying to hide your identity? Then how should I address you? And if you're ok with it, could you tell me your name?\"",c:"dialogue"},
+]},
+{paras:[
+{t:"Ignoring Masayuki's words of denial, Jinrai bombarded him with questions while putting on a big smile.",c:""},
+{t:"The onlookers, silenced by Jinrai's scolding, were also watching with <b>bated breath</b>. Masayuki couldn't help but think, whatever goes now, I guess.",c:""},
+{t:"\"My name is Masayuki, and just calling me Masayuki is fine. I only recently arrived at this town—\"",c:"dialogue"},
+{t:"Since this man called Jinrai had put things this way, Masayuki figured that he would at the very least treat him to a meal. Masayuki planned on <b>playing along</b> in order to gather information.",c:""},
+{t:"If I stop pretending that he lost to a chosen hero, this guy will probably be dishonored for life. It's probably better to play along.",c:"thought"},
+{t:"And so from that moment on Masayuki no longer denied the \"Chosen Hero\" claim. This would become a painful <b>miscalculation</b> later. Because… at this moment, the legend of the Shining Hero Masayuki was about to unfold.",c:""},
+]},
+{paras:[
+{t:"Later on, Masayuki was escorted to the capital of the Kingdom of Ingracia by the staff of the Freedom Association.",c:""},
+{t:"There, he met Yuuki Kagurazaka.",c:""},
+{t:"\"You've been through a lot too,\" Yuuki said.",c:"dialogue"},
+{t:"Hearing this, Masayuki couldn't help but choke up a bit. However, after learning a bit more, he realized that this young man called Yuuki had been in this world for nearly ten years. His body's age was frozen, causing his appearance to remain like a teen.",c:""},
+{t:"He's been through a lot more than me…",c:"thought"},
+{t:"Realizing this, he felt that he shouldn't be the one tearing up right now. It gave him a sense of encouragement and inspired him to keep on fighting.",c:""},
+]},
+{paras:[
+{t:"After his talk with Yuuki, Masayuki decided to become an adventurer. Fortunately, Jinrai was willing to be his companion, and Yuuki approved. Masayuki didn't want to be dependent on Yuuki and instead wanted to earn his own living by being an adventurer.",c:""},
+{t:"\"For some reason I can understand their language, so I'm probably a little bit luckier than Yuuki-san.\"",c:"dialogue"},
+{t:"\"That's my line! You can't imagine the hardships I had to go through at first… There's magic in this world, which makes communicating with others surprisingly simple.\"",c:"dialogue"},
+{t:"Learning to read and write seemed daunting to Masayuki, but Yuuki explained to him that pure oral dialogue could be resolved through magic.",c:""},
+]},
+{paras:[
+{t:"\"Oh yeah, Bernie here also used magic to learn the language.\"",c:"dialogue"},
+{t:"It seemed that the young man named Bernie also relied on magic to talk to people. He was a graduate of Ingracia Academy and an otherworlder under Yuuki's protection. Apparently, he could only speak English, having been born in the United States, making communication with Yuuki completely impossible.",c:""},
+{t:"This was how the three-man squad was formed.",c:""},
+]},
+{paras:[
+{t:"Masayuki and his crew progressed at an overwhelming rate. In only about half a year, his squad was already given the nickname \"The Shining.\"",c:""},
+{t:"Masayuki was only an amateur with a bare minimum knowledge of kendo, yet he possessed the ultra-rare Skill, the \"Chosen One.\" This Skill also applied to his teammates, causing all of their attacks to be deadly critical strikes. Jinrai could display strength beyond even Rank A. With the additional buff that increased their dodge chance, they were practically <b>invincible</b>.",c:""},
+{t:"Even the good deeds of his companions were ultimately <b>attributed</b> to Masayuki.",c:""},
+{t:"With all the positive opinions of the team \"Shining\" directed towards Masayuki alone, his title \"Masayuki the Shining\" eventually became a <b>household name</b>.",c:""},
+]},
+{paras:[
+{t:"They entered the tournament hoping to win the prize money given to the champion in order to purchase new gear for themselves, but it was a lot easier than expected. As soon as Masayuki unsheathed his sword, his opponents had already surrendered, declaring \"I've lost.\"",c:""},
+{t:"The audience was under the impression that Masayuki's attacks were too fast to follow. But in reality, he didn't do anything at all.",c:""},
+{t:"However, the audience was unaware and proceeded to <b>overhype</b> Masayuki due to his title, the \"Shining.\"",c:""},
+{t:"Masayuki had become aware of it at this point, but he couldn't stop, wouldn't stop. He decided to play along with the public's expectations of the \"<b>Chosen Hero</b>.\"",c:""},
+{t:"And so, Masayuki and his companions flew up the ranks, kicking ass during martial tournaments and achieving A rank with ease. Humans are indeed creatures that possess strong <b>adaptability</b>.",c:""},
+{t:"It was then that Masayuki ran into the opportunity that would forever change his life.",c:""},
+]},
 ];
 
-// Generate automated mock filler questions up to 100 to populate the interface for immediate verification
-for (let i = 8; i <= 105; i++) {
-    questionBank.push({
-        type: i % 2 === 0 ? "vocabulary" : "sentence",
-        context: `This is an advanced practice module Question #${i}. To unlock true mastery, ensure you analyze the grammatical [______] thoroughly.`,
-        definition: `Context Clue #${i}: The structural arrangement of elements in a language. (Answer for this demo setup is 'structure')`,
-        answer: "structure",
-        explanation: `Robot Guide #${i}: For Question ${i}, the context references grammatical configurations. Therefore, <b>'structure'</b> is the absolute fit.`
-    });
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+var curPage=0, activeTool=null, annotations=[], ttHist=[], curWord='', fontSize=17;
+
+// ═══════════════════════════════════════════════
+// COOKIE
+// ═══════════════════════════════════════════════
+function saveCk(){var e=new Date();e.setFullYear(e.getFullYear()+1);document.cookie='msy_a='+encodeURIComponent(JSON.stringify(annotations))+';expires='+e.toUTCString()+';path=/';document.cookie='msy_p='+curPage+';expires='+e.toUTCString()+';path=/';document.cookie='msy_fs='+fontSize+';expires='+e.toUTCString()+';path=/';}
+function loadCk(){var a=document.cookie.match(/msy_a=([^;]+)/);if(a){try{annotations=JSON.parse(decodeURIComponent(a[1]));}catch(e){}}var p=document.cookie.match(/msy_p=(\d+)/);if(p)curPage=Math.min(parseInt(p[1]),PAGES.length-1);var f=document.cookie.match(/msy_fs=(\d+)/);if(f)fontSize=Math.min(28,Math.max(12,parseInt(f[1])));}
+
+// ═══════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════
+function renderPage(anim){
+  var pageEl=document.getElementById('page');
+  if(anim){pageEl.classList.add('out');setTimeout(function(){pageEl.classList.remove('out');doRender();pageEl.classList.add('in');setTimeout(function(){pageEl.classList.remove('in');},280);},240);}
+  else doRender();
+  function doRender(){
+    var pg=PAGES[curPage],html='';
+    pg.paras.forEach(function(p){html+='<p'+(p.c?' class="'+p.c+'"':'')+'>'+p.t+'</p>';});
+    document.getElementById('pgtext').innerHTML=html;
+    applyAnns();makeClickable();
+    document.getElementById('pgnum').textContent='— '+(curPage+1)+' —';
+    document.getElementById('pgind').textContent=(curPage+1)+' / '+PAGES.length;
+    document.getElementById('prev').disabled=curPage===0;
+    document.getElementById('next').disabled=curPage===PAGES.length-1;
+    saveCk();
+  }
 }
 
-// ==========================================
-// 3. CORE APP ENGINE
-// ==========================================
-let currentIndex = 0;
-let score = 0;
+// ═══════════════════════════════════════════════
+// ANNOTATIONS
+// ═══════════════════════════════════════════════
+function applyAnns(){var el=document.getElementById('pgtext');annotations.filter(function(a){return a.pi===curPage;}).forEach(function(a){wrapTxt(el,a.t,a.c,a.id);});}
+function wrapTxt(container,search,color,aid){var walker=document.createTreeWalker(container,NodeFilter.SHOW_TEXT),nodes=[],node;while(node=walker.nextNode())nodes.push(node);for(var i=0;i<nodes.length;i++){var tn=nodes[i],idx=tn.textContent.indexOf(search);if(idx===-1)continue;var sp=document.createElement('span');sp.className='hl';sp.dataset.c=color;sp.textContent=search;sp.title='點擊移除';(function(id){sp.onclick=function(e){e.stopPropagation();removeAnn(id);};})(aid);var frag=document.createDocumentFragment();if(idx>0)frag.appendChild(document.createTextNode(tn.textContent.slice(0,idx)));frag.appendChild(sp);if(idx+search.length<tn.textContent.length)frag.appendChild(document.createTextNode(tn.textContent.slice(idx+search.length)));tn.parentNode.replaceChild(frag,tn);return;}}
+function addAnn(text,color){annotations.push({id:Date.now()+Math.random(),pi:curPage,t:text.trim(),c:color});saveCk();renderPage(false);renderNotes();}
+function removeAnn(id){annotations=annotations.filter(function(a){return a.id!==id;});saveCk();renderPage(false);renderNotes();}
 
-document.getElementById('total-questions').innerText = questionBank.length;
-
-function loadQuestion() {
-    const q = questionBank[currentIndex];
-    
-    // UI Update
-    document.getElementById('current-index').innerText = currentIndex + 1;
-    document.getElementById('q-context').innerHTML = q.context;
-    document.getElementById('q-definition').innerText = q.definition;
-    
-    const typeBadge = document.getElementById('q-type');
-    typeBadge.innerText = q.type === "vocabulary" ? "Vocabulary Cloze" : "Sentence Structure";
-    typeBadge.className = `type-badge type-${q.type}`;
-
-    // Reset Inputs and Panels
-    document.getElementById('user-input').value = "";
-    document.getElementById('user-input').disabled = false;
-    document.getElementById('feedback-msg').innerText = "";
-    document.getElementById('robot-box').style.display = "none";
-    document.getElementById('btn-submit').style.display = "inline-block";
-    document.getElementById('btn-next').style.display = "none";
-}
-
-function checkAnswer() {
-    const q = questionBank[currentIndex];
-    const userAnswer = document.getElementById('user-input').value.trim().toLowerCase();
-    const correctAnswer = q.answer.toLowerCase();
-    
-    const feedback = document.getElementById('feedback-msg');
-    
-    if (userAnswer === correctAnswer) {
-        feedback.innerText = "✨ Excellent! Your intuition aligns perfectly with English logic.";
-        feedback.className = "feedback correct";
-        score += 10;
-        document.getElementById('score').innerText = score;
-    } else {
-        feedback.innerHTML = `❌ Not quite. The optimal conceptual fit is: <b>${q.answer}</b>`;
-        feedback.className = "feedback incorrect";
+// ═══════════════════════════════════════════════
+// MAKE WORDS CLICKABLE
+// ═══════════════════════════════════════════════
+function makeClickable(){
+  var el=document.getElementById('pgtext');
+  var walker=document.createTreeWalker(el,NodeFilter.SHOW_TEXT),nodes=[],node;
+  while(node=walker.nextNode()){var p=node.parentNode;if(p.classList&&(p.classList.contains('hl')||p.classList.contains('wt')))continue;nodes.push(node);}
+  nodes.forEach(function(tn){
+    var parts=[],re=/([a-zA-Z']+|[^a-zA-Z']+)/g,m;
+    while(m=re.exec(tn.textContent)){
+      if(/^[a-zA-Z]/.test(m[0])){
+        var sp=document.createElement('span');sp.className='wt';sp.textContent=m[0];
+        (function(w){sp.addEventListener('click',function(e){if(activeTool)return;ttHist=[];updateBC();showEntry(w,e);e.stopPropagation();});})(m[0]);
+        parts.push(sp);
+      }else parts.push(document.createTextNode(m[0]));
     }
-
-    // Lock Input
-    document.getElementById('user-input').disabled = true;
-
-    // Trigger Robot Explainer
-    triggerRobot(q.explanation);
-
-    // Toggle Buttons
-    document.getElementById('btn-submit').style.display = "none";
-    document.getElementById('btn-next').style.display = "inline-block";
+    var frag=document.createDocumentFragment();parts.forEach(function(p){frag.appendChild(p);});tn.parentNode.replaceChild(frag,tn);
+  });
 }
 
-function triggerRobot(explanationText) {
-    const robotBox = document.getElementById('robot-box');
-    const robotText = document.getElementById('robot-text');
-    
-    robotText.innerHTML = explanationText;
-    robotBox.style.display = "block";
+// ═══════════════════════════════════════════════
+// TOOLTIP ENGINE
+// ═══════════════════════════════════════════════
+var CAT_CLASS={v:'v',n:'n',adj:'adj',adv:'adv',ph:'ph',id:'id',gr:'gr',ft:'ft'};
+
+function findEntry(word){
+  var lc=word.toLowerCase().replace(/[^a-z'-]/g,'');
+  var keys=Object.keys(DICT);
+  for(var i=0;i<keys.length;i++){if(keys[i].toLowerCase()===lc)return{key:keys[i],entry:DICT[keys[i]]}}
+  for(var i=0;i<keys.length;i++){var k=keys[i];if(k.split(' ').length===1&&(k.toLowerCase().startsWith(lc.slice(0,4))||lc.startsWith(k.toLowerCase().slice(0,-1)))){return{key:k,entry:DICT[k]};}}
+  return null;
 }
 
-function nextQuestion() {
-    if (currentIndex < questionBank.length - 1) {
-        currentIndex++;
-        loadQuestion();
-    } else {
-        alert(`Congratulations! You completed the challenge. Final Score: ${score}`);
-        currentIndex = 0;
-        score = 0;
-        document.getElementById('score').innerText = score;
-        loadQuestion();
+function showEntry(word,e){
+  var found=findEntry(word);curWord=word;
+  renderTT(found?found.key:word, found?found.entry:null);
+  posTT(e);
+  document.getElementById('tt').classList.add('show');
+}
+
+function renderTT(word, entry){
+  document.getElementById('ttw').textContent=word;
+  var tb=document.getElementById('ttty');
+  if(entry){var cc=CAT_CLASS[entry.cat]||'ot';tb.className='tt-ty '+cc;tb.textContent=entry.label||entry.cat;tb.style.display='';}
+  else{tb.style.display='none';}
+  document.getElementById('tthl').style.display=entry?'':'none';
+
+  var bd=document.getElementById('ttbd');
+  if(!entry){bd.innerHTML='<div class="tt-sl">說明</div><div class="tt-df">此詞彙尚未收錄。試試選取後點「查詢」，或查詢相關片語。</div>';return;}
+
+  var h='';
+  // Grammar/formula block first for ph/id/gr/ft
+  if(entry.formula){
+    h+='<div class="tt-sl">用法結構</div><div class="tt-gb"><div class="tt-gf">'+escHtml(entry.formula)+'</div><div class="tt-gn">'+(entry.gram||'')+'</div></div>';
+  }
+  h+='<div class="tt-sl">中文解釋</div><div class="tt-df">'+escHtml(entry.def)+'</div>';
+
+  var exs=entry.examples||[];
+  if(exs.length>0){
+    h+='<div class="tt-eb"><div class="tt-el">例句</div><div class="tt-ex" id="ttex">'+buildEx(exs[0])+'</div>';
+    if(exs.length>1){
+      h+='<button class="tt-mb vis" id="ttmb">展開更多例句 ▾</button><div class="tt-xe" id="ttxe">';
+      for(var i=1;i<exs.length;i++)h+='<div class="tt-xi">'+buildEx(exs[i])+'</div>';
+      h+='</div>';
     }
+    h+='</div>';
+  }
+  bd.innerHTML=h;
+
+  // more toggle
+  var mb=document.getElementById('ttmb'),xe=document.getElementById('ttxe');
+  if(mb&&xe){mb.addEventListener('click',function(){xe.classList.toggle('open');mb.textContent=xe.classList.contains('open')?'收起 ▴':'展開更多例句 ▾';});}
 }
 
-// Global Key Binding: Press Enter to Submit / Next
-document.getElementById('user-input').addEventListener('keypress', function (e) {
-    if (e.key === 'Enter') {
-        if (document.getElementById('btn-submit').style.display !== 'none') {
-            checkAnswer();
-        } else {
-            nextQuestion();
-        }
-    }
+function buildEx(s){
+  return s.replace(/([a-zA-Z']+)/g,function(w){return '<span class="ew" data-w="'+escAttr(w)+'">'+w+'</span>';});
+}
+
+function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function escAttr(s){return s.replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+
+// delegate ex clicks via event delegation
+document.getElementById('ttbd').addEventListener('click',function(e){
+  var ew=e.target.closest('.ew');if(!ew)return;e.stopPropagation();
+  var w=ew.dataset.w;
+  var curE=findEntry(curWord);
+  ttHist.push({word:curWord,key:curE?curE.key:curWord,entry:curE?curE.entry:null});
+  curWord=w;updateBC();
+  var found=findEntry(w);
+  renderTT(found?found.key:w,found?found.entry:null);
 });
 
-// Initialize on Load
-window.onload = loadQuestion;
-</script>
+function updateBC(){
+  var bc=document.getElementById('ttbc'),txt=document.getElementById('ttbct');
+  if(ttHist.length>0){bc.classList.add('show');txt.textContent=ttHist[ttHist.length-1].word;}
+  else bc.classList.remove('show');
+}
 
+function posTT(e){
+  var tt=document.getElementById('tt'),W=370,M=12;
+  var x=e.clientX+14,y=e.clientY+14;
+  if(x+W>window.innerWidth-M)x=e.clientX-W-8;
+  if(x<M)x=M;
+  if(y+340>window.innerHeight-M)y=e.clientY-340-8;
+  if(y<M)y=M;
+  tt.style.left=x+'px';tt.style.top=y+'px';
+}
+
+function hideTT(){
+  document.getElementById('tt').classList.remove('show');
+  ttHist=[];curWord='';document.getElementById('ttbc').classList.remove('show');
+}
+
+document.getElementById('ttback').addEventListener('click',function(){
+  if(!ttHist.length)return;
+  var prev=ttHist.pop();
+  curWord=prev.key||prev.word;updateBC();
+  renderTT(prev.key||prev.word,prev.entry||null);
+});
+document.getElementById('ttcl').addEventListener('click',hideTT);
+document.getElementById('tthl').addEventListener('click',function(){if(curWord)addAnn(curWord,'yellow');hideTT();});
+document.getElementById('ttcp').addEventListener('click',function(){
+  if(curWord)navigator.clipboard&&navigator.clipboard.writeText(curWord).catch(function(){});
+  var btn=document.getElementById('ttcp');btn.textContent='✓ 已複製';setTimeout(function(){btn.textContent='複製';},1400);
+});
+document.addEventListener('click',function(e){
+  var tt=document.getElementById('tt');
+  if(tt.classList.contains('show')&&!tt.contains(e.target)&&!e.target.classList.contains('wt'))hideTT();
+});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')hideTT();});
+
+// ═══════════════════════════════════════════════
+// SELECTION POPUP
+// ═══════════════════════════════════════════════
+var selTxt='';
+document.addEventListener('mouseup',function(e){
+  setTimeout(function(){
+    var sel=window.getSelection();
+    if(!sel||sel.isCollapsed){hidePop();return;}
+    var t=sel.toString().trim();
+    if(!t||t.length<2){hidePop();return;}
+    var pgEl=document.getElementById('pgtext');
+    if(!pgEl.contains(sel.anchorNode)){hidePop();return;}
+    selTxt=t;
+    var rect=sel.getRangeAt(0).getBoundingClientRect();
+    var pop=document.getElementById('sp');
+    pop.style.left=Math.min(rect.left,window.innerWidth-260)+'px';
+    pop.style.top=(rect.top-46)+'px';
+    pop.classList.add('show');
+  },10);
+});
+document.addEventListener('mousedown',function(e){if(!document.getElementById('sp').contains(e.target))hidePop();});
+function hidePop(){document.getElementById('sp').classList.remove('show');selTxt='';}
+document.querySelectorAll('.sa[data-c]').forEach(function(btn){btn.addEventListener('click',function(){if(selTxt)addAnn(selTxt,btn.dataset.c);hidePop();var s=window.getSelection();if(s)s.removeAllRanges();});});
+document.querySelector('.sa.pen').addEventListener('click',function(){if(selTxt)addAnn(selTxt,'pen');hidePop();var s=window.getSelection();if(s)s.removeAllRanges();});
+document.getElementById('sellk').addEventListener('click',function(){
+  if(selTxt){ttHist=[];curWord=selTxt;updateBC();var found=findEntry(selTxt);renderTT(found?found.key:selTxt,found?found.entry:null);var tt=document.getElementById('tt');tt.style.left='50%';tt.style.top='20%';tt.style.marginLeft='-185px';tt.classList.add('show');}
+  hidePop();
+});
+
+// ═══════════════════════════════════════════════
+// TOOLBAR
+// ═══════════════════════════════════════════════
+document.querySelectorAll('.hb').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var c=btn.dataset.c;
+    if(activeTool===c){activeTool=null;btn.classList.remove('on');showMode('');}
+    else{clearTools();activeTool=c;btn.classList.add('on');showMode('螢光筆：'+(c==='yellow'?'黃':c==='green'?'綠':c==='pink'?'粉':'藍')+'色');}
+  });
+});
+document.getElementById('penbtn').addEventListener('click',function(){
+  if(activeTool==='pen'){activeTool=null;document.getElementById('penbtn').classList.remove('on');showMode('');}
+  else{clearTools();activeTool='pen';document.getElementById('penbtn').classList.add('on');showMode('畫筆模式');}
+});
+document.getElementById('pgtext').addEventListener('mouseup',function(){
+  if(!activeTool)return;
+  var sel=window.getSelection();if(!sel||sel.isCollapsed)return;
+  var t=sel.toString().trim();if(t.length>0){addAnn(t,activeTool);sel.removeAllRanges();}
+});
+function clearTools(){document.querySelectorAll('.tb2').forEach(function(b){b.classList.remove('on');});activeTool=null;}
+document.getElementById('clrpg').addEventListener('click',function(){annotations=annotations.filter(function(a){return a.pi!==curPage;});saveCk();renderPage(false);renderNotes();showMode('已清除本頁');});
+document.getElementById('clrall').addEventListener('click',function(){if(confirm('確定清除全部標記？')){annotations=[];saveCk();renderPage(false);renderNotes();showMode('已清除全部');}});
+
+// ═══════════════════════════════════════════════
+// FONT SIZE
+// ═══════════════════════════════════════════════
+function applyFontSize(){
+  document.documentElement.style.setProperty('--fs', fontSize+'px');
+  document.getElementById('fsval').textContent=fontSize;
+  saveCk();
+}
+document.getElementById('fsinc').addEventListener('click',function(){if(fontSize<28){fontSize+=1;applyFontSize();}});
+document.getElementById('fsdec').addEventListener('click',function(){if(fontSize>12){fontSize-=1;applyFontSize();}});
+
+// ═══════════════════════════════════════════════
+// NAV
+// ═══════════════════════════════════════════════
+document.getElementById('prev').addEventListener('click',function(){if(curPage>0){curPage--;renderPage(true);}});
+document.getElementById('next').addEventListener('click',function(){if(curPage<PAGES.length-1){curPage++;renderPage(true);}});
+document.addEventListener('keydown',function(e){
+  if(['ArrowRight','ArrowDown'].includes(e.key)&&curPage<PAGES.length-1){curPage++;renderPage(true);}
+  if(['ArrowLeft','ArrowUp'].includes(e.key)&&curPage>0){curPage--;renderPage(true);}
+});
+
+// ═══════════════════════════════════════════════
+// NOTES PANEL
+// ═══════════════════════════════════════════════
+function renderNotes(){
+  var list=document.getElementById('nl');
+  if(!annotations.length){list.innerHTML='<div class="ne">尚無標記<br><small>選取文字後可標記</small></div>';return;}
+  list.innerHTML=annotations.map(function(a){return '<div class="ni" data-c="'+a.c+'" data-pi="'+a.pi+'" data-id="'+a.id+'"><div class="nt">'+a.t.slice(0,55)+(a.t.length>55?'…':'')+'</div><div class="npg">第 '+(a.pi+1)+' 頁 · '+(a.c==='pen'?'✏️ 畫筆':'🖊 螢光筆')+'</div><button class="nd" data-id="'+a.id+'">×</button></div>';}).join('');
+  document.querySelectorAll('.ni').forEach(function(item){
+    item.addEventListener('click',function(e){if(e.target.classList.contains('nd'))return;var pg=parseInt(item.dataset.pi);if(pg!==curPage){curPage=pg;renderPage(true);}});
+  });
+  document.querySelectorAll('.nd').forEach(function(btn){btn.addEventListener('click',function(e){e.stopPropagation();removeAnn(parseFloat(btn.dataset.id));});});
+}
+document.getElementById('nb2').addEventListener('click',function(){document.getElementById('np').classList.toggle('open');renderNotes();});
+document.getElementById('npcl').addEventListener('click',function(){document.getElementById('np').classList.remove('open');});
+
+// ═══════════════════════════════════════════════
+// MODE
+// ═══════════════════════════════════════════════
+var mT;
+function showMode(t){var el=document.getElementById('md');el.textContent=t;if(!t){el.classList.remove('show');return;}el.classList.add('show');clearTimeout(mT);mT=setTimeout(function(){el.classList.remove('show');},2000);}
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+loadCk();
+applyFontSize();
+renderPage(false);
+</script>
 </body>
 </html>
