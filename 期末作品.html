@@ -1,0 +1,39 @@
+<html>
+    <head>
+      <style>
+        #foxxy-prologue{
+            height:30vh;
+            width:30vh;
+            position:relative;
+            top:20%;
+            left:50%;
+        }
+        #prologue{
+        height:100vh;
+        width: 100vw;
+        border-width: 5px;
+        border-color: black;
+        border-radius:50px;
+        background:rgb(37, 37, 37) ;
+        position: absolute;
+        }
+      </style> 
+      <script>
+          function prorun(){
+            conti=0;
+            const profoxxy = document.getElementById('foxxy-prologue');
+            while( conti<1){
+            profoxxy.style.top="18%";
+            await 500;
+            profoxxy.style.top="20%";
+            await 500;
+          }
+        }
+      </script>
+    </head>
+    <body onload="prorun()">
+      <div id="prologue" onclick="conti++">
+      <img id="foxxy-prologue" src="期末/foxxy.png"></div>
+      
+    </body>
+</html>
