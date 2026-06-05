@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>網頁即時音波視覺化</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: #121212;
+            color: white;
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            background-color: #00adb5;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            transition: 0.2s;
+        }
+        button:hover { background-color: #00fff2; color: #121212; }
+        canvas {
+            border: 2px solid #333;
+            background-color: #1a1a1a;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>即時音波視覺化 (傅立葉轉換)</h1>
+    <button id="startBtn">開啟麥克風</button>
+    <canvas id="visualizer" width="800" height="300"></canvas>
+
+    <script>
+        const startBtn = document.getElementById('startBtn');
+        const canvas = document.getElementById('visualizer');
+        const ctx = canvas.getContext('2d');
+
+        startBtn.addEventListener('click', async () => {
+            try {
+                // 1. 請求麥克風權限並取得聲音串流
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                startBtn.style.display = 'none'; // 隱藏按鈕
+
+                // 2. 建立音訊環境 (AudioContext)
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const source = audioContext.createMediaStreamSource(stream);
+
+                // 3. 建立分析器節點 (AnalyserNode) 用來做快速傅立葉轉換 (FFT)
+                const analyser = audioContext.createAnalyser();
+                analyser.fftSize = 256; // 決定切分出的頻率數量 (必須是 2 的次方，越大越精細)
+                
+                // 4. 連接節點：聲音來源 -> 分析器
+                source.connect(analyser);
+
+                // 準備接收頻率數據的陣列 (長度為 fftSize 的一半)
+                const bufferLength = analyser.frequencyBinCount;
+                const dataArray = new Uint8Array(bufferLength);
+
+                // 5. 開始重複繪圖動畫
+                function draw() {
+                    requestAnimationFrame(draw);
+
+                    // 抓取當下的頻率數據 (數值範圍 0 ~ 255)
+                    analyser.getByteFrequencyData(dataArray);
+
+                    // 清空畫布
+                    ctx.fillStyle = '#1a1a1a';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                    // 計算每根音波柱子的寬度
+                    const barWidth = (canvas.width / bufferLength) * 1.5;
+                    let barHeight;
+                    let x = 0;
+
+                    // 迴圈將每個頻率繪製成柱狀圖
+                    for (let i = 0; i < bufferLength; i++) {
+                        barHeight = dataArray[i];
+
+                        // 設定漸層顏色 (根據聲音強度與頻率改變顏色)
+                        const r = barHeight + (25 * (i / bufferLength));
+                        const g = 250 * (i / bufferLength);
+                        const b = 50;
+
+                        ctx.fillStyle = `rgb(${r},${g},${b})`;
+                        
+                        // 繪製柱子 (從畫布底部往上畫)
+                        ctx.fillRect(x, canvas.height - barHeight, barWidth - 2, barHeight);
+
+                        x += barWidth;
+                    }
+                }
+
+                draw(); // 啟動繪圖
+
+            } catch (err) {
+                alert('無法取得麥克風權限：' + err);
+            }
+        });
+    </script>
+</body>
+</html>
