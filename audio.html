@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>心電圖式音波波形與數學解析</title>
+    <title>圓輪型與心電圖雙向對照音波視覺化</title>
     <style>
         body {
             margin: 0;
@@ -26,9 +26,13 @@
             cursor: pointer;
             margin-bottom: 20px;
             font-weight: bold;
-            transition: 0.2s;
         }
         button:hover { background-color: #2ea44f; }
+        .canvas-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
         canvas {
             border: 1px solid #30363d;
             background-color: #010409;
@@ -41,27 +45,24 @@
             background: #161b22;
             border: 1px solid #30363d;
             border-radius: 6px;
-            width: 770px;
+            width: 1020px;
             text-align: center;
         }
-        .formula-title {
-            color: #58a6ff;
-            margin: 0 0 10px 0;
-            font-size: 14px;
-        }
-        #formulaText {
-            font-size: 16px;
-            color: #56d364;
-            word-break: break-all;
-            line-height: 1.5;
-        }
+        .formula-title { color: #58a6ff; margin: 0 0 10px 0; font-size: 14px; }
+        #formulaText { font-size: 16px; color: #56d364; word-break: break-all; }
     </style>
 </head>
 <body>
 
-    <h1>心電圖波形與傅立葉 $\sin/\cos$ 拆解</h1>
-    <button id="startBtn">啟動麥克風監測</button>
-    <canvas id="visualizer" width="800" height="300"></canvas>
+    <h1>波形對照：左邊【圓輪極座標】 vs 右邊【橫向心電圖】</h1>
+    <button id="startBtn">啟動雙向監測對照</button>
+    
+    <div class="canvas-container">
+        <!-- 左圖：圓輪型對照圖 -->
+        <canvas id="wheelCanvas" width="500" height="400"></canvas>
+        <!-- 右圖：標準橫向心電圖 -->
+        <canvas id="waveCanvas" width="540" height="400"></canvas>
+    </div>
 
     <div class="formula-container">
         <div class="formula-title">【 即時聲音傅立葉方程式解析 】</div>
@@ -70,8 +71,10 @@
 
     <script>
         const startBtn = document.getElementById('startBtn');
-        const canvas = document.getElementById('visualizer');
-        const ctx = canvas.getContext('2d');
+        const wheelCanvas = document.getElementById('wheelCanvas');
+        const waveCanvas = document.getElementById('waveCanvas');
+        const wCtx = wheelCanvas.getContext('2d');
+        const xCtx = waveCanvas.getContext('2d');
         const formulaText = document.getElementById('formulaText');
 
         startBtn.addEventListener('click', async () => {
@@ -81,100 +84,111 @@
 
                 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 const source = audioContext.createMediaStreamSource(stream);
-                
                 const analyser = audioContext.createAnalyser();
-                analyser.fftSize = 2048; // 心電圖需要較多採樣點，線條才會流暢
+                
+                // 為了讓圓形輪胎邊緣平滑，增加採樣點數
+                analyser.fftSize = 1024; 
                 source.connect(analyser);
 
-                // 準備兩種數據陣列
-                // 1. TimeDomain: 時間軸波形數據 (畫心電圖用)
-                const timeBufferLength = analyser.frequencyBinCount;
-                const timeDataArray = new Uint8Array(timeBufferLength);
-
-                // 2. Frequency: 頻率數據 (抓出主要的 sin/cos 頻率成分用)
-                const freqBufferLength = analyser.frequencyBinCount;
-                const freqDataArray = new Uint8Array(freqBufferLength);
-
-                // 獲取錄音採樣率 (通常是 44100Hz 或 48000Hz)
+                const bufferLength = analyser.frequencyBinCount;
+                const timeDataArray = new Uint8Array(bufferLength);
+                const freqDataArray = new Uint8Array(bufferLength);
                 const sampleRate = audioContext.sampleRate;
 
                 function draw() {
                     requestAnimationFrame(draw);
 
-                    // 抓取即時波形 (振幅數據)
                     analyser.getByteTimeDomainData(timeDataArray);
-                    // 抓取即時頻譜 (頻率強度)
                     analyser.getByteFrequencyData(freqDataArray);
 
-                    // --- 1. 繪製心電圖背景網格 ---
-                    ctx.fillStyle = '#010409';
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    // 清空畫布
+                    wCtx.fillStyle = '#010409'; wCtx.fillRect(0, 0, wheelCanvas.width, wheelCanvas.height);
+                    xCtx.fillStyle = '#010409'; xCtx.fillRect(0, 0, waveCanvas.width, waveCanvas.height);
+
+                    // ==========================================
+                    // 1. 繪製左圖：圓形輪子型對照圖 (極座標)
+                    // ==========================================
+                    const centerX = wheelCanvas.width / 2;
+                    const centerY = wheelCanvas.height / 2;
+                    const baseRadius = 100; // 輪胎基底圓半徑
+
+                    // 繪製圓形參考內外網格 (軸線對照)
+                    wCtx.strokeStyle = '#161b22'; wCtx.lineWidth = 1;
+                    wCtx.beginPath(); wCtx.arc(centerX, centerY, baseRadius, 0, 2*Math.PI); wCtx.stroke();
+                    wCtx.beginPath(); wCtx.arc(centerX, centerY, baseRadius + 50, 0, 2*Math.PI); wCtx.stroke();
                     
-                    ctx.strokeStyle = '#161b22';
-                    ctx.lineWidth = 1;
-                    // 直線網格
-                    for(let i=0; i<canvas.width; i+=20) {
-                        ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
+                    // 繪製圓輪波形
+                    wCtx.lineWidth = 2;
+                    wCtx.strokeStyle = '#00adb5'; // 科技藍輪圈
+                    wCtx.shadowBlur = 5; wCtx.shadowColor = '#00adb5';
+                    wCtx.beginPath();
+
+                    for (let i = 0; i < bufferLength; i++) {
+                        // 將 0~255 振幅映射到波幅上
+                        const amplitudeModifier = (timeDataArray[i] - 128) * 0.8; 
+                        const currentRadius = baseRadius + amplitudeModifier;
+
+                        // 數學核心：將 360 度拆分，利用 sin/cos 算出圓周上的 X, Y 座標
+                        const angle = (i / bufferLength) * 2 * Math.PI;
+                        const x = centerX + Math.cos(angle) * currentRadius;
+                        const y = centerY + Math.sin(angle) * currentRadius;
+
+                        if (i === 0) { wCtx.moveTo(x, y); } else { wCtx.lineTo(x, y); }
                     }
-                    // 橫線網格
-                    for(let i=0; i<canvas.height; i+=20) {
-                        ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(canvas.width, i); ctx.stroke();
+                    wCtx.closePath(); // 讓起點終點相連，封閉成完美圓輪
+                    wCtx.stroke();
+                    wCtx.shadowBlur = 0;
+
+                    // ==========================================
+                    // 2. 繪製右圖：標準橫向心電圖
+                    // ==========================================
+                    xCtx.strokeStyle = '#161b22';
+                    for(let i=0; i<waveCanvas.width; i+=20) {
+                        xCtx.beginPath(); xCtx.moveTo(i, 0); xCtx.lineTo(i, waveCanvas.height); xCtx.stroke();
+                    }
+                    for(let i=0; i<waveCanvas.height; i+=20) {
+                        xCtx.beginPath(); xCtx.moveTo(0, i); xCtx.lineTo(waveCanvas.width, i); xCtx.stroke();
                     }
 
-                    // --- 2. 繪製心電圖線條 (綠色電子波形) ---
-                    ctx.lineWidth = 2;
-                    ctx.strokeStyle = '#39ff14'; // 經典螢光綠
-                    ctx.shadowBlur = 4;
-                    ctx.shadowColor = '#39ff14';
-                    ctx.beginPath();
+                    xCtx.lineWidth = 2;
+                    xCtx.strokeStyle = '#39ff14'; // 經典綠心電圖
+                    xCtx.shadowBlur = 5; xCtx.shadowColor = '#39ff14';
+                    xCtx.beginPath();
 
-                    const sliceWidth = canvas.width * 1.0 / timeBufferLength;
-                    let x = 0;
+                    const sliceWidth = waveCanvas.width * 1.0 / bufferLength;
+                    let waveX = 0;
 
-                    for (let i = 0; i < timeBufferLength; i++) {
-                        // v 的範圍原本在 0 ~ 255 (128是中心點)，將它轉換為畫布的 Y 軸座標
+                    for (let i = 0; i < bufferLength; i++) {
                         const v = timeDataArray[i] / 128.0;
-                        const y = v * canvas.height / 2;
+                        const waveY = v * waveCanvas.height / 2;
 
-                        if (i === 0) {
-                            ctx.moveTo(x, y);
-                        } else {
-                            ctx.lineTo(x, y);
-                        }
-                        x += sliceWidth;
+                        if (i === 0) { xCtx.moveTo(waveX, waveY); } else { xCtx.lineTo(waveX, waveY); }
+                        waveX += sliceWidth;
                     }
+                    xCtx.lineTo(waveCanvas.width, waveCanvas.height / 2);
+                    xCtx.stroke();
+                    xCtx.shadowBlur = 0;
 
-                    ctx.lineTo(canvas.width, canvas.height / 2);
-                    ctx.stroke();
-                    ctx.shadowBlur = 0; // 重設陰影避免影響其他繪製
-
-                    // --- 3. 解析最強的三個頻率成分並組合方程式 ---
-                    // 尋找頻譜中強度前三名的 index
+                    // ==========================================
+                    // 3. 解析最強的三個頻率成分並組合方程式
+                    // ==========================================
                     let peaks = [];
-                    for (let i = 1; i < freqBufferLength - 1; i++) {
+                    for (let i = 1; i < bufferLength - 1; i++) {
                         if (freqDataArray[i] > freqDataArray[i-1] && freqDataArray[i] > freqDataArray[i+1] && freqDataArray[i] > 40) {
                             peaks.push({ index: i, val: freqDataArray[i] });
                         }
                     }
-                    // 依強度由大到小排序，取前三名
                     peaks.sort((a, b) => b.val - a.val);
                     let topPeaks = peaks.slice(0, 3);
 
                     if (topPeaks.length > 0) {
                         let formulaComponents = [];
                         topPeaks.forEach((p, idx) => {
-                            // 計算該點代表的真實物理頻率 (Hz)
                             const frequencyHz = Math.round(p.index * sampleRate / analyser.fftSize);
-                            // 將振幅做適當縮放展示
                             const amplitude = (p.val / 255).toFixed(2);
-                            
-                            // 交替使用 sin 和 cos 來展示傅立葉的多項式概念
                             const waveType = (idx % 2 === 0) ? 'sin' : 'cos';
-                            
-                            // 組裝成標準角頻率 ω = 2 * π * f 形式
                             formulaComponents.push(`${amplitude}·${waveType}(2π·${frequencyHz}t)`);
                         });
-                        
                         formulaText.innerHTML = `f(t) ≒ ` + formulaComponents.join(' + ');
                     } else {
                         formulaText.innerHTML = `f(t) ≒ 0 (環境安靜中)`;
