@@ -3,109 +3,188 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>網頁即時音波視覺化</title>
+    <title>心電圖式音波波形與數學解析</title>
     <style>
         body {
             margin: 0;
-            background-color: #121212;
-            color: white;
-            font-family: sans-serif;
+            background-color: #0d1117;
+            color: #c9d1d9;
+            font-family: 'Courier New', Courier, monospace;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
+            min-height: 100vh;
         }
         button {
-            padding: 12px 24px;
+            padding: 12px 30px;
             font-size: 16px;
-            background-color: #00adb5;
+            background-color: #238636;
             color: white;
             border: none;
-            border-radius: 25px;
+            border-radius: 6px;
             cursor: pointer;
             margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            font-weight: bold;
             transition: 0.2s;
         }
-        button:hover { background-color: #00fff2; color: #121212; }
+        button:hover { background-color: #2ea44f; }
         canvas {
-            border: 2px solid #333;
-            background-color: #1a1a1a;
-            border-radius: 8px;
+            border: 1px solid #30363d;
+            background-color: #010409;
+            border-radius: 6px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+        }
+        .formula-container {
+            margin-top: 20px;
+            padding: 15px;
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            width: 770px;
+            text-align: center;
+        }
+        .formula-title {
+            color: #58a6ff;
+            margin: 0 0 10px 0;
+            font-size: 14px;
+        }
+        #formulaText {
+            font-size: 16px;
+            color: #56d364;
+            word-break: break-all;
+            line-height: 1.5;
         }
     </style>
 </head>
 <body>
 
-    <h1>即時音波視覺化 (傅立葉轉換)</h1>
-    <button id="startBtn">開啟麥克風</button>
+    <h1>心電圖波形與傅立葉 $\sin/\cos$ 拆解</h1>
+    <button id="startBtn">啟動麥克風監測</button>
     <canvas id="visualizer" width="800" height="300"></canvas>
+
+    <div class="formula-container">
+        <div class="formula-title">【 即時聲音傅立葉方程式解析 】</div>
+        <div id="formulaText">等待麥克風訊號輸入...</div>
+    </div>
 
     <script>
         const startBtn = document.getElementById('startBtn');
         const canvas = document.getElementById('visualizer');
         const ctx = canvas.getContext('2d');
+        const formulaText = document.getElementById('formulaText');
 
         startBtn.addEventListener('click', async () => {
             try {
-                // 1. 請求麥克風權限並取得聲音串流
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                startBtn.style.display = 'none'; // 隱藏按鈕
+                startBtn.style.display = 'none';
 
-                // 2. 建立音訊環境 (AudioContext)
                 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
                 const source = audioContext.createMediaStreamSource(stream);
-
-                // 3. 建立分析器節點 (AnalyserNode) 用來做快速傅立葉轉換 (FFT)
-                const analyser = audioContext.createAnalyser();
-                analyser.fftSize = 256; // 決定切分出的頻率數量 (必須是 2 的次方，越大越精細)
                 
-                // 4. 連接節點：聲音來源 -> 分析器
+                const analyser = audioContext.createAnalyser();
+                analyser.fftSize = 2048; // 心電圖需要較多採樣點，線條才會流暢
                 source.connect(analyser);
 
-                // 準備接收頻率數據的陣列 (長度為 fftSize 的一半)
-                const bufferLength = analyser.frequencyBinCount;
-                const dataArray = new Uint8Array(bufferLength);
+                // 準備兩種數據陣列
+                // 1. TimeDomain: 時間軸波形數據 (畫心電圖用)
+                const timeBufferLength = analyser.frequencyBinCount;
+                const timeDataArray = new Uint8Array(timeBufferLength);
 
-                // 5. 開始重複繪圖動畫
+                // 2. Frequency: 頻率數據 (抓出主要的 sin/cos 頻率成分用)
+                const freqBufferLength = analyser.frequencyBinCount;
+                const freqDataArray = new Uint8Array(freqBufferLength);
+
+                // 獲取錄音採樣率 (通常是 44100Hz 或 48000Hz)
+                const sampleRate = audioContext.sampleRate;
+
                 function draw() {
                     requestAnimationFrame(draw);
 
-                    // 抓取當下的頻率數據 (數值範圍 0 ~ 255)
-                    analyser.getByteFrequencyData(dataArray);
+                    // 抓取即時波形 (振幅數據)
+                    analyser.getByteTimeDomainData(timeDataArray);
+                    // 抓取即時頻譜 (頻率強度)
+                    analyser.getByteFrequencyData(freqDataArray);
 
-                    // 清空畫布
-                    ctx.fillStyle = '#1a1a1a';
+                    // --- 1. 繪製心電圖背景網格 ---
+                    ctx.fillStyle = '#010409';
                     ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    
+                    ctx.strokeStyle = '#161b22';
+                    ctx.lineWidth = 1;
+                    // 直線網格
+                    for(let i=0; i<canvas.width; i+=20) {
+                        ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
+                    }
+                    // 橫線網格
+                    for(let i=0; i<canvas.height; i+=20) {
+                        ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(canvas.width, i); ctx.stroke();
+                    }
 
-                    // 計算每根音波柱子的寬度
-                    const barWidth = (canvas.width / bufferLength) * 1.5;
-                    let barHeight;
+                    // --- 2. 繪製心電圖線條 (綠色電子波形) ---
+                    ctx.lineWidth = 2;
+                    ctx.strokeStyle = '#39ff14'; // 經典螢光綠
+                    ctx.shadowBlur = 4;
+                    ctx.shadowColor = '#39ff14';
+                    ctx.beginPath();
+
+                    const sliceWidth = canvas.width * 1.0 / timeBufferLength;
                     let x = 0;
 
-                    // 迴圈將每個頻率繪製成柱狀圖
-                    for (let i = 0; i < bufferLength; i++) {
-                        barHeight = dataArray[i];
+                    for (let i = 0; i < timeBufferLength; i++) {
+                        // v 的範圍原本在 0 ~ 255 (128是中心點)，將它轉換為畫布的 Y 軸座標
+                        const v = timeDataArray[i] / 128.0;
+                        const y = v * canvas.height / 2;
 
-                        // 設定漸層顏色 (根據聲音強度與頻率改變顏色)
-                        const r = barHeight + (25 * (i / bufferLength));
-                        const g = 250 * (i / bufferLength);
-                        const b = 50;
+                        if (i === 0) {
+                            ctx.moveTo(x, y);
+                        } else {
+                            ctx.lineTo(x, y);
+                        }
+                        x += sliceWidth;
+                    }
 
-                        ctx.fillStyle = `rgb(${r},${g},${b})`;
+                    ctx.lineTo(canvas.width, canvas.height / 2);
+                    ctx.stroke();
+                    ctx.shadowBlur = 0; // 重設陰影避免影響其他繪製
+
+                    // --- 3. 解析最強的三個頻率成分並組合方程式 ---
+                    // 尋找頻譜中強度前三名的 index
+                    let peaks = [];
+                    for (let i = 1; i < freqBufferLength - 1; i++) {
+                        if (freqDataArray[i] > freqDataArray[i-1] && freqDataArray[i] > freqDataArray[i+1] && freqDataArray[i] > 40) {
+                            peaks.push({ index: i, val: freqDataArray[i] });
+                        }
+                    }
+                    // 依強度由大到小排序，取前三名
+                    peaks.sort((a, b) => b.val - a.val);
+                    let topPeaks = peaks.slice(0, 3);
+
+                    if (topPeaks.length > 0) {
+                        let formulaComponents = [];
+                        topPeaks.forEach((p, idx) => {
+                            // 計算該點代表的真實物理頻率 (Hz)
+                            const frequencyHz = Math.round(p.index * sampleRate / analyser.fftSize);
+                            // 將振幅做適當縮放展示
+                            const amplitude = (p.val / 255).toFixed(2);
+                            
+                            // 交替使用 sin 和 cos 來展示傅立葉的多項式概念
+                            const waveType = (idx % 2 === 0) ? 'sin' : 'cos';
+                            
+                            // 組裝成標準角頻率 ω = 2 * π * f 形式
+                            formulaComponents.push(`${amplitude}·${waveType}(2π·${frequencyHz}t)`);
+                        });
                         
-                        // 繪製柱子 (從畫布底部往上畫)
-                        ctx.fillRect(x, canvas.height - barHeight, barWidth - 2, barHeight);
-
-                        x += barWidth;
+                        formulaText.innerHTML = `f(t) ≒ ` + formulaComponents.join(' + ');
+                    } else {
+                        formulaText.innerHTML = `f(t) ≒ 0 (環境安靜中)`;
                     }
                 }
 
-                draw(); // 啟動繪圖
+                draw();
 
             } catch (err) {
-                alert('無法取得麥克風權限：' + err);
+                alert('無法讀取麥克風：' + err);
             }
         });
     </script>
