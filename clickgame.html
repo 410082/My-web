@@ -99,15 +99,26 @@
 
         </style>
         <script>
+            nextSPIKE=0;
             function rand(max,min) {
                 return Math.floor((Math.random() % max) +min);
             }
             function gamestart(){
+                   time=0;
+                setInterval(() => {   
+                        time++;
+                    speed=Math.floor(time*0.02)+5;
+                        
+                                   }, 1000);
 
+                
             }
             function spikeCreator(){
-               const spike = document.getElementById spike;
-               spike.style.borderWidth= rand(270,50) rand(80,30) rand(80,30);
+                
+                spike.volume=rand(270,50);
+               const spike = document.getElementById ("spike");
+               spike.style.borderWidth= `${spike.volume}px ${0}px ${rand(80,30)}px ${rand(80,30)}px`;
+               nextSPIKE=time+Math.floor((spike.volume+20)/speed);
             }
         </script>
     </head>
