@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>量子代數：從零開始的量子力學線性代數教學平台</title>
+    <style>
+        :root {
+            --bg-main: #0b0f19;
+            --bg-sidebar: #111827;
+            --bg-card: #1f2937;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --accent: #3b82f6;
+            --accent-success: #10b981;
+            --accent-purple: #8b5cf6;
+            --border: #374151;
+            --math-color: #f43f5e;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans TC", sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* App Container Layout using display: block / standard flows suitable for conversion or native app look without broken layouts */
+        #sidebar {
+            width: 320px;
+            background-color: var(--bg-sidebar);
+            border-right: 1px solid var(--border);
+            height: 100%;
+            float: left;
+            overflow-y: auto;
+            padding: 20px 10px;
+        }
+
+        #main-content {
+            margin-left: 320px;
+            height: 100%;
+            overflow-y: auto;
+            padding: 40px;
+            background: radial-gradient(circle at top right, #1e1b4b 0%, var(--bg-main) 60%);
+        }
+
+        .brand {
+            padding: 10px;
+            margin-bottom: 25px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .brand h1 {
+            font-size: 20px;
+            color: #fff;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .brand span {
+            font-size: 11px;
+            color: var(--accent);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .syllabus-section {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            padding-left: 10px;
+            font-weight: 700;
+        }
+
+        .lesson-item {
+            display: block;
+            padding: 12px 12px;
+            color: var(--text-muted);
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 13px;
+            margin-bottom: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .lesson-item:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: #fff;
+        }
+
+        .lesson-item.active {
+            background-color: rgba(59, 130, 246, 0.15);
+            color: #fff;
+            border-left-color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* Content Styles */
+        .lesson-header {
+            margin-bottom: 30px;
+        }
+
+        .lesson-tag {
+            font-size: 11px;
+            background-color: rgba(139, 92, 246, 0.2);
+            color: var(--accent-purple);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        .lesson-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .lesson-body {
+            font-size: 15px;
+            line-height: 1.7;
+            color: #e5e7eb;
+            max-width: 850px;
+        }
+
+        p {
+            margin-bottom: 20px;
+        }
+
+        h2.sub-title {
+            font-size: 18px;
+            color: #fff;
+            margin-top: 35px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--accent);
+            padding-left: 10px;
+        }
+
+        /* Math Styling */
+        .math {
+            font-family: 'Times New Roman', Times, serif;
+            font-style: italic;
+            font-weight: bold;
+            color: #ff6584;
+            padding: 0 4px;
+        }
+
+        .math-block {
+            background-color: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 15px;
+            text-align: center;
+            margin: 20px 0;
+            font-size: 1.15em;
+        }
+
+        /* Interactive Model Box */
+        .interactive-container {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 25px;
+            margin-top: 30px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+
+        .interactive-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--accent-success);
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            letter-spacing: 0.5px;
+        }
+
+        .interactive-layout {
+            display: table;
+            width: 100%;
+        }
+
+        .interactive-cell {
+            display: table-cell;
+            vertical-align: top;
+            width: 50%;
+        }
+
+        .control-panel {
+            padding-right: 20px;
+        }
+
+        .visualizer {
+            text-align: center;
+            background-color: rgba(0,0,0,0.15);
+            border-radius: 6px;
+            padding: 15px;
+        }
+
+        /* Form Components */
+        .slider-group {
+            margin-bottom: 20px;
+        }
+
+        .slider-label {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .q-slider {
+            width: 100%;
+            accent-color: var(--accent);
+            background: #4b5563;
+            height: 6px;
+            border-radius: 3px;
+            outline: none;
+        }
+
+        .btn {
+            background-color: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: background 0.2s;
+            display: inline-block;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background-color: #2563eb;
+        }
+
+        .btn-success {
+            background-color: var(--accent-success);
+        }
+
+        .btn-success:hover {
+            background-color: #059669;
+        }
+
+        .btn-purple {
+            background-color: var(--accent-purple);
+        }
+
+        .btn-purple:hover {
+            background-color: #7c3aed;
+        }
+
+        /* Matrix notation renderer */
+        .matrix {
+            display: inline-block;
+            vertical-align: middle;
+            border-left: 2px solid var(--text-main);
+            border-right: 2px solid var(--text-main);
+            padding: 0 4px;
+            margin: 0 4px;
+            text-align: center;
+            font-family: 'Times New Roman', serif;
+        }
+        .matrix-row {
+            display: block;
+        }
+        .matrix-cell {
+            display: inline-block;
+            width: 30px;
+            padding: 2px;
+            font-style: normal;
+        }
+
+        /* Summary panel data cards */
+        .stat-grid {
+            display: table;
+            width: 100%;
+            margin-top: 15px;
+        }
+        .stat-card {
+            display: table-cell;
+            background-color: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .stat-val {
+            font-size: 18px;
+            font-weight: bold;
+            color: #fff;
+            margin-top: 5px;
+        }
+
+        .footer-nav {
+            margin-top: 40px;
+            border-top: 1px solid var(--border);
+            padding-top: 20px;
+        }
+
+        .clearfix::after {
+            content: "";
+            clear: both;
+            display: table;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR SYLLABUS -->
+    <div id="sidebar">
+        <div class="brand">
+            <h1>量子代數 (Quantum Algebra)</h1>
+            <span>用量子模型從零學線性代數</span>
+        </div>
+
+        <div class="syllabus-section">
+            <div class="section-title">第一階段：向量與量子態</div>
+            <div class="lesson-item active" onclick="loadLesson(1)">1. 什麼是量子態？一維與二維向量</div>
+            <div class="lesson-item" onclick="loadLesson(2)">2. 疊加原理與線性組合</div>
+            <div class="lesson-item" onclick="loadLesson(3)">3. 複數與複向量空間的引入</div>
+            <div class="lesson-item" onclick="loadLesson(4)">4. 內積、正交與希爾伯特空間</div>
+        </div>
+
+        <div class="syllabus-section">
+            <div class="section-title">第二階段：矩陣與量子算符</div>
+            <div class="lesson-item" onclick="loadLesson(5)">5. 矩陣轉型：從線性映射到量子算符</div>
+            <div class="lesson-item" onclick="loadLesson(6)">6. 保證物理實數的「厄米矩陣」</div>
+            <div class="lesson-item" onclick="loadLesson(7)">7. 包利矩陣與空間旋轉模型</div>
+        </div>
+
+        <div class="syllabus-section">
+            <div class="section-title">第三階段：物理量測與演化</div>
+            <div class="lesson-item" onclick="loadLesson(8)">8. 本徵值與本徵向量：量測結果</div>
+            <div class="lesson-item" onclick="loadLesson(9)">9. 投影算符與波恩機率定則</div>
+            <div class="lesson-item" onclick="loadLesson(10)">10. 酉矩陣與薛丁格時間演化</div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT VIEW -->
+    <div id="main-content">
+        <div id="lesson-content">
+            <!-- Dynamically Loaded Code via Javascript -->
+        </div>
+    </div>
+
+    <!-- DATA SOURCE & ENGINE -->
+    <script>
+        const lessonsData = {
+            1: {
+                tag: "第一階段：基礎向量",
+                title: "1. 什麼是量子態？一維與二維向量",
+                content: `
+                    <p>歡迎來到量子力學與線性代數的交界處。在經典力學中，要描述一個開關的狀態，我們非黑即白：要麼是 <span class="math">0</span>（關），要麼是 <span class="math">1</span>（開）。</p>
+                    <p>但在線性代數與量子力學的語言裡，我們用<strong>向量 (Vector)</strong> 來代表狀態。一個量子位元（Qubit）的狀態，在數學上就是一個幾何空間中的點或箭頭。</p>
+                    
+                    <h2 class="sub-title">狄拉克符號 (Bra-Ket Notation)</h2>
+                    <p>量子力學使用一種極度直觀的線性代數符號。我們把一個行向量寫成 <span class="math">|&psi;&gt;</span> (稱為 Ket)：</p>
+                    <div class="math-block">
+                        基底狀態 0： |0&gt; = <div class="matrix"><div class="matrix-row"><div class="matrix-cell">1</div></div><div class="matrix-row"><div class="matrix-cell">0</div></div></div>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        基底狀態 1： |1&gt; = <div class="matrix"><div class="matrix-row"><div class="matrix-cell">0</div></div><div class="matrix-row"><div class="matrix-cell">1</div></div></div>
+                    </div>
+                    <p>這兩個基底向量在二維座標系中，分別代表了 X 軸正方向和 Y 軸正方向的單位向量。任何一個量子態，都可以用這兩個基礎向量組合而成。</p>
+                `,
+                hasModel: true,
+                modelType: "qubit-vector"
+            },
+            2: {
+                tag: "第一階段：基礎向量",
+                title: "2. 疊加原理與線性組合",
+                content: `
+                    <p>既然量子態是二維空間裡的向量，那麼根據線性代數的最核心原則：<strong>任何兩個向量都可以進行加法與數乘運算，這稱為線性組合 (Linear Combination)</strong>。</p>
+                    <p>在物理學中，這就是大名鼎鼎的<strong>量子疊加 (Quantum Superposition)</strong>：</p>
+                    <div class="math-block">
+                        |&Psi;&gt; = &alpha;|0&gt; + &beta;|1&gt; = <div class="matrix"><div class="matrix-row"><div class="matrix-cell">&alpha;</div></div><div class="matrix-row"><div class="matrix-cell">&beta;</div></div></div>
+                    </div>
+                    <p>這裡的 <span class="math">&alpha;</span> 和 <span class="math">&beta;</span> 是權重係數。當我們拉動下方的滑桿時，實際上是在改變向量的分量大小。你可以觀察到，隨著係數的變化，狀態箭頭在幾何空間中是如何偏轉的。這代表粒子同時具有狀態 0 與狀態 1 的成分！</p>
+                `,
+                hasModel: true,
+                modelType: "superposition"
+            },
+            3: {
+                tag: "第一階段：基礎向量",
+                title: "3. 複數與複向量空間的引入",
+                content: `
+                    <p>到目前為止，我們的幾何箭頭都還停留在二維實數平面上。但量子力學有一個極其奇特的要求：線性組合的係數 <span class="math">&alpha;</span> 和 <span class="math">&beta;</span> 必須是<strong>複數 (Complex Numbers)</strong>。</p>
+                    <p>複數包含了虛數單位 <span class="math">i</span> (滿足 <span class="math">i&sup2; = -1</span>)。一個複數不僅有大小，還有<strong>相位 (Phase)</strong>。因此，量子力學的狀態空間不是普通的二維平面，而是一個複向量空間。</p>
+                    <p>為了將這個包含了複數相位的狀態視覺化，物理學家發明了<strong>布洛赫球 (Bloch Sphere)</strong> 模型。在這個球體模型中，球心到球面的箭頭代表一個量子態。經度代表了複數的相對相位，緯度則代表了狀態 0 與 1 的比例。</p>
+                `,
+                hasModel: true,
+                modelType: "bloch-sphere"
+            },
+            4: {
+                tag: "第一階段：空間完備",
+                title: "4. 內積、正交與希爾伯特空間",
+                content: `
+                    <p>在線性代數中，我們如何測量兩個向量之間的夾角或相似度？答案是<strong>內積 (Inner Product)</strong>。在量子力學中，內積的計算法則是將第一個向量取共軛轉置 (稱為 Bra <span class="math">&lang;&psi;|</span>)，再與第二個行向量 (Ket <span class="math">|&phi;&gt;</span>) 做矩陣乘法：</p>
+                    <div class="math-block">
+                        &lang;&psi;|&phi;&gt; = &alpha;<sub>1</sub>* &alpha;<sub>2</sub> + &beta;<sub>1</sub>* &beta;<sub>2</sub>
+                    </div>
+                    <p>如果兩個量子態的內積為 0，在數學上我們稱它們<strong>正交 (Orthogonal)</strong>，在物理上代表這兩個狀態完全互斥（例如完全是 0 和完全是 1）。</p>
+                    <p>一個擁有定義良好的複內積，並且在數學上完備的向量空間，就叫做<strong>希爾伯特空間 (Hilbert Space)</strong>。量子力學的所有魔術，都在這個空間中上演。</p>
+                `,
+                hasModel: true,
+                modelType: "inner-product"
+            },
+            5: {
+                tag: "第二階段：線性算符",
+                title: "5. 矩陣轉型：從線性映射到量子算符",
+                content: `
+                    <p>有了向量（狀態）之後，我們需要有東西來改變這些狀態。在線性代數中，能夠把一個向量轉換成另一個向量的工具叫做<strong>矩陣 (Matrix)</strong>。</p>
+                    <p>而在量子力學中，矩陣被賦予了一個動態的名字：<strong>算符 (Operator)</strong>，通常記作 <span class="math">Â</span>。</p>
+                    <div class="math-block">
+                        Â|&psi;&gt; = |&psi;'&gt;
+                    </div>
+                    <p>當一個 2x2 的矩陣乘上一個 2x1 的量子態向量時，它會對這個向量進行拉伸、旋轉或投影。在物理上，這代表對系統施加某種外在影響或操作。</p>
+                `,
+                hasModel: true,
+                modelType: "matrix-op"
+            },
+            6: {
+                tag: "第二階段：線性算符",
+                title: "6. 保證物理實數的「厄米矩陣」",
+                content: `
+                    <p>在數學中，矩陣的元素可以是任意複數。但在現實物理世界中，我們測量出來的物理量（如能量、動量、自旋）必須是<strong>實數</strong>，不可能是虛數。</p>
+                    <p>哪一種矩陣能保證它的物理特性永遠是實數呢？答案是<strong>厄米矩陣 (Hermitian Matrix)</strong>。它的數學定義是：矩陣的共軛轉置等於它自己：</p>
+                    <div class="math-block">
+                        H<sup>&dagger;</sup> = H
+                    </div>
+                    <p>厄米矩陣在線性代數中具有非常完美的性質：不論它的內部包含多少虛數，它的本徵值（測量結果）保證絕對是純實數。這正是數學框架完美契合物理現實的絕佳範例。</p>
+                `,
+                hasModel: true,
+                modelType: "hermitian"
+            },
+            7: {
+                tag: "第二階段：線性算符",
+                title: "7. 包利矩陣與空間旋轉模型",
+                content: `
+                    <p>在二維量子系統（Qubit）中，有三個最著名的厄米矩陣，被稱為<strong>包利矩陣 (Pauli Matrices)</strong>。它們同時扮演了量子運算中的基礎閘 (Gates)：</p>
+                    <div class="math-block">
+                        X = <div class="matrix"><div class="matrix-row"><div class="matrix-cell">0</div><div class="matrix-cell">1</div></div><div class="matrix-row"><div class="matrix-cell">1</div><div class="matrix-cell">0</div></div></div> &nbsp;, &nbsp;
+                        Y = <div class="matrix"><div class="matrix-row"><div class="matrix-cell">0</div><div class="matrix-cell">-i</div></div><div class="matrix-row"><div class="matrix-cell">i</div><div class="matrix-cell">0</div></div></div> &nbsp;, &nbsp;
+                        Z = <div class="matrix"><div class="matrix-row"><div class="matrix-cell">1</div><div class="matrix-cell">0</div></div><div class="matrix-row"><div class="matrix-cell">0</div><div class="matrix-cell">-1</div></div></div>
+                    </div>
+                    <p><span class="math">X</span> 算符的作用是把 <span class="math">|0&gt;</span> 變成 <span class="math">|1&gt;</span>，把 <span class="math">|1&gt;</span> 變成 <span class="math">|0&gt;</span>，這在數學上是基底翻轉，在量子計算中就是 <strong>NOT 閘</strong>。下方模型展示了施加 X 閘時，向量在布洛赫球上的翻轉軌跡。</p>
+                `,
+                hasModel: true,
+                modelType: "pauli-gates"
+            },
+            8: {
+                tag: "第三階段：量測演化",
+                title: "8. 本徵值與本徵向量：量測結果",
+                content: `
+                    <p>現在我們來到了量子力學最核心的數學公式：<strong>本徵方程 (Eigenvalue Equation)</strong>。在線性代數中，如果一個矩陣作用在某個向量上，向量的方向完全不變，只是長度縮放了 <span class="math">&lambda;</span> 倍，我們就稱這個向量為<strong>本徵向量</strong>，<span class="math">&lambda;</span> 為<strong>本徵值</strong>：</p>
+                    <div class="math-block">
+                        Â|&psi;&gt; = &lambda;|&psi;&gt;
+                    </div>
+                    <p>在量子力學中，這意味著：<strong>一個量子系統被測量時，它所可能顯現出來的確定觀測結果，只能是該測量算符的「本徵值」</strong>；而測量後的系統狀態，會被強迫塌縮到對應的「本徵態」（本徵向量）。</p>
+                `,
+                hasModel: true,
+                modelType: "eigen-measure"
+            },
+            9: {
+                tag: "第三階段：量測演化",
+                title: "9. 投影算符與波恩機率定則",
+                content: `
+                    <p>如果一個系統處於疊加態，我們去測量它，它會以多少的機率塌縮到某個本徵態呢？這由<strong>波恩定則 (Born's Rule)</strong> 決定。在線性代數上，這就是計算<strong>投影長度的平方</strong>。</p>
+                    <p>假設系統處於 <span class="math">|&Psi;&gt; = &alpha;|0&gt; + &beta;|1&gt;</span>，我們想知道測量出狀態 <span class="math">|0&gt;</span> 的機率。我們用投影算符或內積來計算：</p>
+                    <div class="math-block">
+                        P(0) = |&lang;0|&Psi;&gt;|&sup2; = |&alpha;|&sup2;
+                    </div>
+                    <p>內積 <span class="math">&lang;0|&Psi;&gt;</span> 是一個複數，稱為<strong>機率幅 (Probability Amplitude)</strong>。它的絕對值平方才是我們在現實中觀測到的機率。下方的模型可以讓你進行點擊量測，體驗隨機塌縮的數學過程！</p>
+                `,
+                hasModel: true,
+                modelType: "born-rule"
+            },
+            10: {
+                tag: "第三階段：量測演化",
+                title: "10. 酉矩陣與薛丁格時間演化",
+                content: `
+                    <p>在沒有人去碰它、沒有進行量測時，量子態是怎麼隨著時間變化的？這由著名的<strong>薛丁格方程式 (Schrödinger Equation)</strong> 決定：</p>
+                    <div class="math-block">
+                        iℏ (d/dt)|&Psi;(t)&gt; = Ĥ|&Psi;(t)&gt;
+                    </div>
+                    <p>其中 <span class="math">Ĥ</span> 是哈密頓算符（總能量矩陣）。這個微分方程在數學上的解，其實就是讓一個特殊的矩陣作用在初始狀態上：<span class="math">|&Psi;(t)&gt; = U(t)|&Psi;(0)&gt;</span>。</p>
+                    <p>這個 <span class="math">U</span> 矩陣具有極其嚴格的線性代數性質，叫做<strong>酉矩陣 (Unitary Matrix)</strong>，滿足 <span class="math">U<sup>&dagger;</sup>U = I</span>。酉矩陣的物理意義是：<strong>它在複空間中做完美的保長旋轉，這確保了不論系統怎麼隨時間演化，總機率（向量長度的平方）永遠等於 100%</strong>。</p>
+                `,
+                hasModel: true,
+                modelType: "schrodinger-evolution"
+            }
+        };
+
+        let currentLesson = 1;
+
+        function loadLesson(id) {
+            currentLesson = id;
+            
+            // Highlight active menu
+            document.querySelectorAll('.lesson-item').forEach((el, index) => {
+                if(index + 1 === id) el.classList.add('active');
+                else el.classList.remove('active');
+            });
+
+            const data = lessonsData[id];
+            let html = `
+                <div class="lesson-header">
+                    <span class="lesson-tag">${data.tag}</span>
+                    <h1 class="lesson-title">${data.title}</h1>
+                </div>
+                <div class="lesson-body">
+                    ${data.content}
+                </div>
+            `;
+
+            if (data.hasModel) {
+                html += generateModelHTML(data.modelType);
+            }
+
+            html += `
+                <div class="footer-nav">
+                    <button class="btn" onclick="prevLesson()" ${id===1?'style="display:none;"':''}>上一課</button>
+                    <button class="btn btn-success" onclick="nextLesson()" ${id===10?'style="display:none;"':''}>下一課，深入探索 &rarr;</button>
+                </div>
+            `;
+
+            document.getElementById('lesson-content').innerHTML = html;
+            
+            // Initialize scripts/interactions for models if needed
+            initModelLogic(data.modelType);
+        }
+
+        function nextLesson() { if(currentLesson < 10) loadLesson(currentLesson + 1); }
+        function prevLesson() { if(currentLesson > 1) loadLesson(currentLesson - 1); }
+
+        function generateModelHTML(type) {
+            let interfaceHtml = `
+                <div class="interactive-container">
+                    <div class="interactive-title">🧬 即時互動量子代數模型</div>
+                    <div class="interactive-layout">
+            `;
+
+            if (type === "qubit-vector" || type === "superposition") {
+                interfaceHtml += `
+                    <div class="interactive-cell control-panel">
+                        <div class="slider-group">
+                            <label class="slider-label">&alpha; 係數 (狀態 |0&gt; 的分量): <span id="alpha-val">1.00</span></label>
+                            <input type="range" class="q-slider" id="vector-alpha" min="0" max="100" value="100" oninput="updateQubitVector(this.value)">
+                        </div>
+                        <div class="slider-group">
+                            <label class="slider-label">&beta; 係數 (狀態 |1&gt; 的分量): <span id="beta-val">0.00</span></label>
+                            <input type="range" class="q-slider" id="vector-beta" min="0" max="100" value="0" disabled>
+                        </div>
+                        <p style="font-size:12px; color:var(--text-muted);">歸一化約束：|&alpha;|&sup2; + |&beta;|&sup2; = 1。當你調整 &alpha; 時，&beta; 會自動計算以保持向量長度為 1。</p>
+                    </div>
+                    <div class="interactive-cell visualizer">
+                        <svg width="200" height="200" style="background:#000; border-radius:50%;">
+                            <!-- Grid lines -->
+                            <line x1="0" y1="100" x2="200" y2="100" stroke="#333" stroke-dasharray="4"/>
+                            <line x1="100" y1="0" x2="100" y2="200" stroke="#333" stroke-dasharray="4"/>
+                            <!-- Labels -->
+                            <text x="175" y="115" fill="#666" font-size="12">|0&gt; (X)</text>
+                            <text x="105" y="20" fill="#666" font-size="12">|1&gt; (Y)</text>
+                            <!-- State Vector Arrow -->
+                            <line x1="100" y1="100" x2="200" y2="100" id="state-arrow" stroke="#f43f5e" stroke-width="4" marker-end="url(#arrow)"/>
+                        </svg>
+                    </div>
+                `;
+            } else if (type === "bloch-sphere" || type === "pauli-gates") {
+                interfaceHtml += `
+                    <div class="interactive-cell control-panel">
+                        <p style="font-size:13px; margin-bottom:15px;">在三維布洛赫球面模型中，複數的威力展露無遺。任意純量子態皆可表示為球面上的一個點。</p>
+                        ${type==='pauli-gates' ? `
+                            <button class="btn btn-purple" onclick="applyPauliX()">施加包利 X 算符 (NOT 閘)</button>
+                            <button class="btn btn-purple" onclick="applyPauliZ()">施加包利 Z 算符 (Phase Flip)</button>
+                        ` : `
+                            <div class="slider-group">
+                                <label class="slider-label">緯度 &theta; (代表振幅比例): <span id="theta-val">0</span>&deg;</label>
+                                <input type="range" class="q-slider" id="bloch-theta" min="0" max="180" value="0" oninput="drawBloch()">
+                            </div>
+                            <div class="slider-group">
+                                <label class="slider-label">經度 &phi; (代表相對相位): <span id="phi-val">0</span>&deg;</label>
+                                <input type="range" class="q-slider" id="bloch-phi" min="0" max="360" value="0" oninput="drawBloch()">
+                            </div>
+                        `}
+                    </div>
+                    <div class="interactive-cell visualizer">
+                        <svg width="220" height="220" viewBox="0 0 220 220">
+                            <!-- Draw Sphere Outer Circle -->
+                            <circle cx="110" cy="110" r="80" stroke="#4b5563" stroke-width="1" fill="none"/>
+                            <!-- Ellipse for Equator -->
+                            <ellipse cx="110" cy="110" rx="80" ry="25" stroke="#374151" stroke-width="1" fill="none" stroke-dasharray="4"/>
+                            <!-- Axes -->
+                            <line x1="110" y1="20" x2="110" y2="200" stroke="#4b5563" stroke-dasharray="2"/>
+                            <line x1="30" y1="110" x2="190" y2="110" stroke="#4b5563" stroke-dasharray="2"/>
+                            <!-- Labels -->
+                            <text x="105" y="15" fill="#fff" font-size="11">|0&gt;</text>
+                            <text x="105" y="215" fill="#fff" font-size="11">|1&gt;</text>
+                            <!-- Vector Indicator Line -->
+                            <line x1="110" y1="110" x2="110" y2="30" id="bloch-arrow" stroke="#10b981" stroke-width="3"/>
+                            <circle cx="110" cy="30" r="4" id="bloch-pointer" fill="#10b981"/>
+                        </svg>
+                    </div>
+                `;
+            } else if (type === "inner-product" || type === "matrix-op" || type === "hermitian") {
+                interfaceHtml += `
+                    <div class="interactive-cell control-panel">
+                        <p>透過矩陣與向量乘法，我們可以看到線性代數算符如何改變幾何空間。</p>
+                        <div class="slider-group">
+                            <label class="slider-label">算符變形強度矩陣參數 <b>k</b>: <span id="matrix-k-val">1.0</span></label>
+                            <input type="range" class="q-slider" id="matrix-k" min="-20" max="20" value="10" oninput="updateMatrixOp(this.value)">
+                        </div>
+                        <div class="math-block" style="font-size:14px; text-align:left;">
+                            當前算符 Â = <div class="matrix"><div class="matrix-row"><div class="matrix-cell" id="m00">1</div><div class="matrix-cell">0</div></div><div class="matrix-row"><div class="matrix-cell">0</div><div class="matrix-cell" id="m11">1.0</div></div></div>
+                        </div>
+                    </div>
+                    <div class="interactive-cell visualizer">
+                        <svg width="200" height="200">
+                            <line x1="0" y1="100" x2="200" y2="100" stroke="#333"/>
+                            <line x1="100" y1="0" x2="100" y2="200" stroke="#333"/>
+                            <!-- Original Vector -->
+                            <line x1="100" y1="100" x2="170" y2="30" stroke="#9ca3af" stroke-width="2" stroke-dasharray="3"/>
+                            <!-- Transformed Vector -->
+                            <line x1="100" y1="100" x2="170" y2="30" id="transform-arrow" stroke="#3b82f6" stroke-width="3"/>
+                        </svg>
+                    </div>
+                `;
+            } else if (type === "born-rule" || type === "eigen-measure" || type === "schrodinger-evolution") {
+                interfaceHtml += `
+                    <div class="interactive-cell control-panel">
+                        <p>現在系統正處於一個線性疊加態向量。當我們施加物理觀測（量測矩陣）時，系統將會隨機塌縮。</p>
+                        <button class="btn btn-success" onclick="triggerQuantumMeasurement()">💥 進行物理量測 (觀測塌縮)</button>
+                        <button class="btn" onclick="resetQuantumState()">重置回疊加態</button>
+                        
+                        <div class="stat-grid">
+                            <div class="stat-card">
+                                <div style="font-size:11px; color:var(--text-muted);">得到 |0&gt; 理論機率</div>
+                                <div class="stat-val" id="p0-val">50%</div>
+                            </div>
+                            <div class="stat-card" style="border-left:none;">
+                                <div style="font-size:11px; color:var(--text-muted);">得到 |1&gt; 理論機率</div>
+                                <div class="stat-val" id="p1-val">50%</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="interactive-cell visualizer">
+                        <div id="measurement-result-text" style="font-size:14px; font-weight:bold; color:var(--accent-purple); margin-bottom:10px;">系統狀態：均勻疊加態</div>
+                        <svg width="200" height="120" style="background:rgba(0,0,0,0.2); border-radius:4px;">
+                            <text x="10" y="30" fill="#fff" font-size="12">|0&gt; 狀態機率條：</text>
+                            <rect x="10" y="40" width="180" height="15" fill="#374151" rx="3"/>
+                            <rect x="10" y="40" width="90" height="15" fill="#3b82f6" id="bar-p0" rx="3"/>
+                            
+                            <text x="10" y="80" fill="#fff" font-size="12">|1&gt; 狀態機率條：</text>
+                            <rect x="10" y="40" width="180" height="15" fill="#374151" rx="3"/>
+                            <rect x="10" y="90" width="180" height="15" fill="#374151" rx="3"/>
+                            <rect x="10" y="90" width="90" height="15" fill="#10b981" id="bar-p1" rx="3"/>
+                        </svg>
+                    </div>
+                `;
+            }
+
+            interfaceHtml += `
+                    </div>
+                </div>
+            `;
+            return interfaceHtml;
+        }
+
+        // INTERACTIVE ENGINE LOGIC
+        function initModelLogic(type) {
+            if (type === "qubit-vector" || type === "superposition") {
+                updateQubitVector(70); // Set initial mix
+                if(document.getElementById('vector-alpha') && type === 'qubit-vector') {
+                     document.getElementById('vector-alpha').value = 100;
+                     updateQubitVector(100);
+                }
+            } else if (type === "bloch-sphere") {
+                drawBloch();
+            } else if (type === "matrix-op" || type === "hermitian") {
+                updateMatrixOp(10);
+            } else if (type === "born-rule" || type === "eigen-measure" || type === "schrodinger-evolution") {
+                // Initialize default 50-50 state probabilities
+                document.getElementById('p0-val').innerText = "50%";
+                document.getElementById('p1-val').innerText = "50%";
+            }
+        }
+
+        // Qubit Vector Update
+        function updateQubitVector(val) {
+            let alphaSq = val / 100;
+            let alpha = Math.sqrt(alphaSq);
+            let beta = Math.sqrt(1 - alphaSq);
+            
+            if(document.getElementById('alpha-val')) {
+                document.getElementById('alpha-val').innerText = alpha.toFixed(2);
+                document.getElementById('beta-val').innerText = beta.toFixed(2);
+            }
+
+            // Map to SVG coordinates (Center 100,100, radius 80)
+            let x = 100 + (alpha * 80);
+            let y = 100 - (beta * 80); // Y-axis goes downwards in SVG
+
+            let arrow = document.getElementById('state-arrow');
+            if (arrow) {
+                arrow.setAttribute('x2', x);
+                arrow.setAttribute('y2', y);
+            }
+        }
+
+        // Bloch Sphere Projection Logic
+        function drawBloch() {
+            let thetaEl = document.getElementById('bloch-theta');
+            let phiEl = document.getElementById('bloch-phi');
+            if(!thetaEl || !phiEl) return;
+
+            let theta = thetaEl.value * Math.PI / 180;
+            let phi = phiEl.value * Math.PI / 180;
+
+            document.getElementById('theta-val').innerText = thetaEl.value;
+            document.getElementById('phi-val').innerText = phiEl.value;
+
+            // Compute 3D to 2D projection coordinates for the sphere display
+            let r = 80;
+            let x3d = Math.sin(theta) * Math.cos(phi);
+            let y3d = Math.sin(theta) * Math.sin(phi);
+            let z3d = Math.cos(theta);
+
+            // Project 3D onto 2D viewport space
+            let screenX = 110 + r * (x3d * 0.7 + y3d * -0.4);
+            let screenY = 110 - r * z3d;
+
+            let arrow = document.getElementById('bloch-arrow');
+            let pointer = document.getElementById('bloch-pointer');
+            if(arrow && pointer) {
+                arrow.setAttribute('x2', screenX);
+                arrow.setAttribute('y2', screenY);
+                pointer.setAttribute('cx', screenX);
+                pointer.setAttribute('cy', screenY);
+            }
+        }
+
+        let isFlipped = false;
+        function applyPauliX() {
+            let arrow = document.getElementById('bloch-arrow');
+            let pointer = document.getElementById('bloch-pointer');
+            if(!arrow) return;
+            if(!isFlipped) {
+                arrow.setAttribute('y2', 190);
+                pointer.setAttribute('cy', 190);
+                isFlipped = true;
+            } else {
+                arrow.setAttribute('y2', 30);
+                pointer.setAttribute('cy', 30);
+                isFlipped = false;
+            }
+        }
+
+        function applyPauliZ() {
+            alert("包利 Z 算符已作用：狀態在複平面上的相位已翻轉 &pi; 弧度（矩陣對角元素符號變更）！");
+        }
+
+        // Matrix Operation Linear Transformation Visualization
+        function updateMatrixOp(val) {
+            let k = val / 10;
+            let m11 = document.getElementById('m11');
+            if(m11) m11.innerText = k.toFixed(1);
+
+            // Transformed standard vector (70, -70 relative to center 100,100)
+            let origX = 70;
+            let origY = -70;
+
+            let newX = 100 + origX * 1.0;
+            let newY = 100 + origY * k;
+
+            let arrow = document.getElementById('transform-arrow');
+            if(arrow) {
+                arrow.setAttribute('x2', newX);
+                arrow.setAttribute('y2', newY);
+            }
+        }
+
+        // Born's Rule quantum state wave-collapse simulation
+        function triggerQuantumMeasurement() {
+            let rand = Math.random();
+            let resultText = document.getElementById('measurement-result-text');
+            let bar0 = document.getElementById('bar-p0');
+            let bar1 = document.getElementById('bar-p1');
+
+            if(rand < 0.5) {
+                // Collapse to 0
+                resultText.innerHTML = "💥 塌縮結果：<span style='color:var(--accent);'>|0&gt; 狀態</span> (機率幅平方判定)";
+                bar0.setAttribute('width', '180');
+                bar1.setAttribute('width', '0');
+                document.getElementById('p0-val').innerText = "100%";
+                document.getElementById('p1-val').innerText = "0%";
+            } else {
+                // Collapse to 1
+                resultText.innerHTML = "💥 塌縮結果：<span style='color:var(--accent-success);'>|1&gt; 狀態</span> (機率幅平方判定)";
+                bar0.setAttribute('width', '0');
+                bar1.setAttribute('width', '180');
+                document.getElementById('p0-val').innerText = "0%";
+                document.getElementById('p1-val').innerText = "100%";
+            }
+        }
+
+        function resetQuantumState() {
+            document.getElementById('measurement-result-text').innerText = "系統狀態：已重置回均勻疊加態";
+            document.getElementById('bar-p0').setAttribute('width', '90');
+            document.getElementById('bar-p1').setAttribute('width', '90');
+            document.getElementById('p0-val').innerText = "50%";
+            document.getElementById('p1-val').innerText = "50%";
+        }
+
+        // Load entry lesson initially
+        window.onload = function() {
+            loadLesson(1);
+        };
+    </script>
+</body>
+</html>
