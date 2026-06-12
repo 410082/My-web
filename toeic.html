@@ -1,0 +1,3335 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TOEIC 刷題庫 Pro</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2128;
+    --border: #30363d;
+    --gold: #f0b429;
+    --gold-dim: #b38000;
+    --blue: #388bfd;
+    --green: #3fb950;
+    --red: #f85149;
+    --purple: #a371f7;
+    --orange: #f78166;
+    --text: #e6edf3;
+    --text2: #8b949e;
+    --text3: #484f58;
+    --radius: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', 'Noto Sans TC', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 15px;
+  }
+
+  /* ── Layout ── */
+  #app { display: flex; flex-direction: column; min-height: 100vh; }
+
+  /* ── Top Bar ── */
+  #topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 700; font-size: 18px; letter-spacing: .5px;
+  }
+  .logo-badge {
+    background: var(--gold);
+    color: #000;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 20px;
+    letter-spacing: 1px;
+  }
+  .score-bar {
+    display: flex; align-items: center; gap: 16px;
+  }
+  .score-item {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 13px; color: var(--text2);
+  }
+  .score-item span { color: var(--text); font-weight: 600; }
+  .xp-pill {
+    background: linear-gradient(135deg, #f0b42920, #f0b42940);
+    border: 1px solid #f0b42950;
+    color: var(--gold);
+    padding: 4px 12px; border-radius: 20px;
+    font-size: 13px; font-weight: 600;
+  }
+
+  /* ── Main Content ── */
+  #main { flex: 1; display: flex; }
+
+  /* ── Sidebar ── */
+  #sidebar {
+    width: 220px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 20px 0;
+    flex-shrink: 0;
+  }
+  .cat-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+    color: var(--text3); padding: 0 20px 8px;
+    text-transform: uppercase;
+  }
+  .cat-btn {
+    display: flex; align-items: center; gap: 10px;
+    width: 100%; padding: 10px 20px;
+    background: none; border: none; cursor: pointer;
+    color: var(--text2); font-size: 14px;
+    text-align: left; transition: all .15s;
+  }
+  .cat-btn:hover { background: var(--surface2); color: var(--text); }
+  .cat-btn.active {
+    background: linear-gradient(90deg, #388bfd18, transparent);
+    color: var(--blue);
+    border-left: 2px solid var(--blue);
+  }
+  .cat-icon { font-size: 16px; width: 20px; text-align: center; }
+  .cat-count {
+    margin-left: auto;
+    background: var(--surface2);
+    color: var(--text3);
+    font-size: 11px;
+    padding: 1px 7px; border-radius: 10px;
+  }
+  .cat-btn.active .cat-count { background: #388bfd22; color: var(--blue); }
+
+  /* ── Content Panel ── */
+  #content { flex: 1; overflow-y: auto; padding: 24px; max-width: 900px; }
+
+  /* ── Dashboard ── */
+  #dashboard { }
+  .dash-title { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+  .dash-sub { color: var(--text2); font-size: 14px; margin-bottom: 24px; }
+
+  .stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 24px; }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px; text-align: center;
+  }
+  .stat-num { font-size: 28px; font-weight: 700; }
+  .stat-label { font-size: 12px; color: var(--text2); margin-top: 2px; }
+  .stat-card.gold .stat-num { color: var(--gold); }
+  .stat-card.blue .stat-num { color: var(--blue); }
+  .stat-card.green .stat-num { color: var(--green); }
+  .stat-card.purple .stat-num { color: var(--purple); }
+
+  .progress-section { margin-bottom: 24px; }
+  .progress-title {
+    font-size: 14px; font-weight: 600; color: var(--text2);
+    margin-bottom: 12px; text-transform: uppercase; letter-spacing: .8px;
+  }
+  .prog-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .prog-name { font-size: 13px; width: 100px; flex-shrink: 0; }
+  .prog-track {
+    flex: 1; height: 6px; background: var(--surface2);
+    border-radius: 10px; overflow: hidden;
+  }
+  .prog-fill {
+    height: 100%; border-radius: 10px;
+    transition: width .5s ease;
+  }
+  .prog-pct { font-size: 12px; color: var(--text2); width: 36px; text-align: right; }
+
+  .cat-cards { display: grid; grid-template-columns: repeat(2,1fr); gap: 14px; }
+  .cat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px; cursor: pointer;
+    transition: all .15s; text-align: left;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .cat-card:hover { border-color: var(--blue); background: var(--surface2); transform: translateY(-1px); }
+  .cat-card-icon { font-size: 24px; }
+  .cat-card-title { font-size: 15px; font-weight: 600; }
+  .cat-card-sub { font-size: 12px; color: var(--text2); }
+  .cat-card-meta { display: flex; gap: 10px; margin-top: 4px; }
+  .meta-tag {
+    font-size: 11px; padding: 2px 8px; border-radius: 10px;
+    background: var(--surface2); color: var(--text3);
+  }
+
+  /* ── Question View ── */
+  #question-view { display: none; }
+  .qv-header { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+  .back-btn {
+    background: var(--surface); border: 1px solid var(--border);
+    color: var(--text2); padding: 6px 14px; border-radius: 6px;
+    cursor: pointer; font-size: 13px; transition: all .15s;
+  }
+  .back-btn:hover { color: var(--text); border-color: var(--blue); }
+  .qv-title { font-size: 20px; font-weight: 700; }
+
+  .progress-header {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .q-counter { font-size: 14px; color: var(--text2); white-space: nowrap; }
+  .q-counter strong { color: var(--text); }
+  .main-progress { flex: 1; height: 8px; background: var(--surface2); border-radius: 10px; overflow: hidden; }
+  .main-progress-fill { height: 100%; background: linear-gradient(90deg,var(--blue),var(--purple)); border-radius: 10px; transition: width .4s ease; }
+  .score-badge { font-size: 13px; font-weight: 600; color: var(--green); white-space: nowrap; }
+
+  .question-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+  .q-meta { display: flex; gap: 8px; margin-bottom: 14px; align-items: center; }
+  .q-type-badge {
+    font-size: 11px; font-weight: 600; padding: 3px 10px;
+    border-radius: 20px; letter-spacing: .5px;
+  }
+  .badge-grammar { background: #388bfd22; color: var(--blue); border: 1px solid #388bfd40; }
+  .badge-vocab { background: #a371f722; color: var(--purple); border: 1px solid #a371f740; }
+  .badge-reading { background: #3fb95022; color: var(--green); border: 1px solid #3fb95040; }
+  .badge-listening { background: #f0b42922; color: var(--gold); border: 1px solid #f0b42940; }
+  .badge-cloze { background: #f7816622; color: var(--orange); border: 1px solid #f7816640; }
+  .badge-passage { background: #f8514922; color: var(--red); border: 1px solid #f8514940; }
+  .q-num { font-size: 12px; color: var(--text3); }
+
+  .q-passage {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 14px 18px;
+    font-size: 14px; line-height: 1.8;
+    color: var(--text2); margin-bottom: 16px;
+  }
+  .q-passage .blank { color: var(--gold); font-weight: 700; border-bottom: 2px dashed var(--gold-dim); }
+
+  .q-stem {
+    font-size: 16px; line-height: 1.7; margin-bottom: 16px;
+    font-weight: 500;
+  }
+  .q-stem .blank { color: var(--gold); border-bottom: 2px dashed var(--gold-dim); padding: 0 4px; }
+
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn {
+    display: flex; align-items: flex-start; gap: 12px;
+    background: var(--surface2); border: 1.5px solid var(--border);
+    border-radius: 8px; padding: 12px 16px; cursor: pointer;
+    font-size: 14px; line-height: 1.6; text-align: left;
+    transition: all .15s; color: var(--text);
+  }
+  .option-btn:hover:not(.disabled) { border-color: var(--blue); background: #388bfd10; }
+  .option-btn.correct { border-color: var(--green); background: #3fb95015; }
+  .option-btn.wrong { border-color: var(--red); background: #f8514915; }
+  .option-btn.disabled { cursor: default; }
+  .opt-letter {
+    width: 24px; height: 24px; flex-shrink: 0;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: var(--text2);
+    transition: all .15s;
+  }
+  .option-btn.correct .opt-letter { background: var(--green); color: #000; border-color: var(--green); }
+  .option-btn.wrong .opt-letter { background: var(--red); color: #fff; border-color: var(--red); }
+
+  /* Explanation */
+  .explanation {
+    display: none;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .explanation.show { display: block; }
+  .exp-title {
+    font-size: 14px; font-weight: 700; color: var(--text2);
+    margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+    text-transform: uppercase; letter-spacing: .6px;
+  }
+  .exp-section { margin-bottom: 14px; }
+  .exp-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 1px;
+    color: var(--text3); text-transform: uppercase; margin-bottom: 6px;
+  }
+  .exp-content { font-size: 14px; line-height: 1.8; color: var(--text2); }
+  .exp-content strong { color: var(--text); }
+
+  .vocab-cards { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .vocab-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 14px;
+    font-size: 13px;
+  }
+  .vocab-word { font-weight: 700; color: var(--blue); }
+  .vocab-pos { color: var(--purple); font-size: 11px; font-style: italic; margin-left: 4px; }
+  .vocab-level { color: var(--gold); font-size: 11px; margin-left: 4px; font-weight: 600; }
+  .vocab-meaning { color: var(--text2); margin-top: 2px; font-size: 12px; }
+  .vocab-note { color: var(--text3); font-size: 11px; margin-top: 2px; }
+
+  .next-btn {
+    background: var(--blue);
+    color: #fff; border: none; padding: 12px 28px;
+    border-radius: 8px; cursor: pointer; font-size: 15px;
+    font-weight: 600; transition: all .15s; width: 100%;
+    margin-top: 4px;
+  }
+  .next-btn:hover { background: #1f6feb; }
+  .next-btn:disabled { opacity: .4; cursor: default; }
+
+  /* Listening simulation */
+  .audio-sim {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px 20px;
+    display: flex; align-items: center; gap: 16px;
+    margin-bottom: 16px;
+  }
+  .play-btn {
+    width: 44px; height: 44px;
+    background: var(--blue); border: none; border-radius: 50%;
+    color: #fff; font-size: 16px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; transition: all .15s;
+  }
+  .play-btn:hover { background: #1f6feb; transform: scale(1.05); }
+  .audio-info { flex: 1; }
+  .audio-title { font-size: 13px; color: var(--text2); }
+  .audio-wave { height: 32px; display: flex; align-items: center; gap: 3px; margin-top: 6px; }
+  .wave-bar {
+    width: 3px; border-radius: 2px; background: var(--border);
+    transition: background .2s;
+  }
+  .audio-transcript {
+    font-size: 13px; color: var(--text3); font-style: italic;
+    border-top: 1px solid var(--border); margin-top: 12px; padding-top: 12px;
+    line-height: 1.7; display: none;
+  }
+  .audio-transcript.show { display: block; }
+
+  /* Result Screen */
+  #result-view {
+    display: none;
+    text-align: center; padding: 40px 20px;
+  }
+  .result-circle {
+    width: 120px; height: 120px; border-radius: 50%;
+    background: conic-gradient(var(--gold) 0%, var(--gold) var(--pct), var(--surface2) var(--pct));
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 24px;
+    position: relative;
+  }
+  .result-inner {
+    width: 90px; height: 90px; border-radius: 50%;
+    background: var(--surface); display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+  }
+  .result-pct { font-size: 22px; font-weight: 800; color: var(--gold); }
+  .result-label { font-size: 11px; color: var(--text3); }
+  .result-title { font-size: 24px; font-weight: 800; margin-bottom: 6px; }
+  .result-sub { font-size: 15px; color: var(--text2); margin-bottom: 28px; }
+  .result-row {
+    display: flex; gap: 16px; justify-content: center; margin-bottom: 28px;
+  }
+  .result-stat {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px 24px;
+  }
+  .result-stat-num { font-size: 26px; font-weight: 700; }
+  .result-stat-lbl { font-size: 12px; color: var(--text2); margin-top: 2px; }
+  .restart-btn {
+    background: var(--surface); border: 1.5px solid var(--border);
+    color: var(--text); padding: 12px 28px; border-radius: 8px;
+    cursor: pointer; font-size: 14px; font-weight: 600;
+    transition: all .15s; margin: 0 6px;
+  }
+  .restart-btn:hover { border-color: var(--blue); color: var(--blue); }
+  .restart-btn.primary { background: var(--blue); border-color: var(--blue); color: #fff; }
+  .restart-btn.primary:hover { background: #1f6feb; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    #sidebar { display: none; }
+    .stats-row { grid-template-columns: repeat(2,1fr); }
+    .cat-cards { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- Top Bar -->
+  <div id="topbar">
+    <div class="logo">📘 TOEIC<span class="logo-badge">PRO</span></div>
+    <div class="score-bar">
+      <div class="score-item">✅ 答對 <span id="tb-correct">0</span></div>
+      <div class="score-item">❌ 答錯 <span id="tb-wrong">0</span></div>
+      <div class="xp-pill">⭐ <span id="tb-xp">0</span> XP</div>
+    </div>
+  </div>
+
+  <div id="main">
+    <!-- Sidebar -->
+    <div id="sidebar">
+      <div class="cat-label">題目分類</div>
+      <button class="cat-btn active" onclick="showDashboard()" id="sb-home">
+        <span class="cat-icon">🏠</span> 首頁總覽
+      </button>
+      <button class="cat-btn" onclick="startCategory('grammar')" id="sb-grammar">
+        <span class="cat-icon">📐</span> 文法
+        <span class="cat-count">45</span>
+      </button>
+      <button class="cat-btn" onclick="startCategory('vocab')" id="sb-vocab">
+        <span class="cat-icon">🔤</span> 詞彙
+        <span class="cat-count">40</span>
+      </button>
+      <button class="cat-btn" onclick="startCategory('reading')" id="sb-reading">
+        <span class="cat-icon">📖</span> 閱讀理解
+        <span class="cat-count">30</span>
+      </button>
+      <button class="cat-btn" onclick="startCategory('listening')" id="sb-listening">
+        <span class="cat-icon">🎧</span> 聽力
+        <span class="cat-count">35</span>
+      </button>
+      <button class="cat-btn" onclick="startCategory('cloze')" id="sb-cloze">
+        <span class="cat-icon">✏️</span> 克漏字
+        <span class="cat-count">30</span>
+      </button>
+      <button class="cat-btn" onclick="startCategory('passage')" id="sb-passage">
+        <span class="cat-icon">📄</span> 文章閱讀
+        <span class="cat-count">25</span>
+      </button>
+      <div style="margin-top:20px; border-top:1px solid var(--border); padding: 16px 20px 0;">
+        <button class="cat-btn" onclick="startCategory('all')" style="padding-left:0;">
+          <span class="cat-icon">🎯</span> 全部混合練習
+        </button>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div id="content">
+
+      <!-- Dashboard -->
+      <div id="dashboard">
+        <div class="dash-title">TOEIC 刷題庫 Pro</div>
+        <div class="dash-sub">精選 205 題 · 完整詳解 · 即時評分 · 進度追蹤</div>
+
+        <div class="stats-row">
+          <div class="stat-card gold">
+            <div class="stat-num" id="stat-xp">0</div>
+            <div class="stat-label">總 XP</div>
+          </div>
+          <div class="stat-card blue">
+            <div class="stat-num" id="stat-done">0</div>
+            <div class="stat-label">已完成題數</div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-num" id="stat-acc">—</div>
+            <div class="stat-label">正確率</div>
+          </div>
+          <div class="stat-card purple">
+            <div class="stat-num" id="stat-streak">0</div>
+            <div class="stat-label">連勝</div>
+          </div>
+        </div>
+
+        <div class="progress-section">
+          <div class="progress-title">各題型進度</div>
+          <div id="cat-progress"></div>
+        </div>
+
+        <div class="cat-cards" id="cat-cards"></div>
+      </div>
+
+      <!-- Question View -->
+      <div id="question-view">
+        <div class="qv-header">
+          <button class="back-btn" onclick="showDashboard()">← 返回</button>
+          <div class="qv-title" id="qv-title"></div>
+        </div>
+        <div class="progress-header">
+          <div class="q-counter">題 <strong id="q-num">1</strong> / <strong id="q-total">10</strong></div>
+          <div class="main-progress"><div class="main-progress-fill" id="q-progress-fill"></div></div>
+          <div class="score-badge" id="q-score-badge">+0 XP</div>
+        </div>
+        <div id="q-body"></div>
+      </div>
+
+      <!-- Result View -->
+      <div id="result-view">
+        <div class="result-circle" id="result-circle">
+          <div class="result-inner">
+            <div class="result-pct" id="result-pct"></div>
+            <div class="result-label">正確率</div>
+          </div>
+        </div>
+        <div class="result-title" id="result-title"></div>
+        <div class="result-sub" id="result-sub"></div>
+        <div class="result-row">
+          <div class="result-stat">
+            <div class="result-stat-num" id="res-correct" style="color:var(--green)"></div>
+            <div class="result-stat-lbl">答對</div>
+          </div>
+          <div class="result-stat">
+            <div class="result-stat-num" id="res-wrong" style="color:var(--red)"></div>
+            <div class="result-stat-lbl">答錯</div>
+          </div>
+          <div class="result-stat">
+            <div class="result-stat-num" id="res-xp" style="color:var(--gold)"></div>
+            <div class="result-stat-lbl">XP 獲得</div>
+          </div>
+        </div>
+        <div>
+          <button class="restart-btn" onclick="showDashboard()">返回首頁</button>
+          <button class="restart-btn primary" id="retry-btn">再練一次</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+//  QUESTION DATABASE  (205 questions)
+// ═══════════════════════════════════════════════════
+const QUESTIONS = {
+
+// ──────────────────────────────────────────────────
+// GRAMMAR  (45 題)
+// ──────────────────────────────────────────────────
+grammar: [
+{
+  type:'grammar', stem:'The marketing team _____ a new advertising strategy for the upcoming product launch.',
+  options:['is developing','are developing','has been develop','developing'],
+  answer:0,
+  exp:{
+    core:'主詞 "The marketing team" 為集合名詞，美式英文視為單數，動詞用單數。進行式 is developing 表示目前正在進行中的動作。',
+    grammar:'集合名詞（team, staff, committee）+ 單數動詞（美式）；現在進行式 = be + V-ing',
+    phrase:'"advertising strategy" 廣告策略；"product launch" 產品上市',
+    vocab:[
+      {word:'strategy',pos:'n.',level:'600+',meaning:'策略、戰略',note:'商業必備詞'},
+      {word:'launch',pos:'n./v.',level:'500+',meaning:'上市；發射',note:'TOEIC 高頻詞'},
+    ]
+  }
+},
+{
+  type:'grammar', stem:'All employees _____ submit their expense reports by the end of the month.',
+  options:['must','musts','are must','be must'],
+  answer:0,
+  exp:{
+    core:'情態助動詞（must, should, can）後接原形動詞，且情態助動詞本身不加 -s。',
+    grammar:'助動詞 + 原形動詞；must 表義務/必要性，無人稱變化',
+    phrase:'"expense report" 費用報告；"submit" 提交',
+    vocab:[
+      {word:'expense',pos:'n.',level:'500+',meaning:'費用、開銷',note:'常見商務詞彙'},
+      {word:'submit',pos:'v.',level:'400+',meaning:'提交、呈遞',note:'TOEIC 高頻動詞'},
+    ]
+  }
+},
+{
+  type:'grammar', stem:'The contract _____ before the deadline if both parties agree on the terms.',
+  options:['will be signed','will sign','is signing','signed'],
+  answer:0,
+  exp:{
+    core:'此句有條件子句（if both parties agree），主句需用未來式；contract 被簽署，需用被動語態。',
+    grammar:'被動語態：will be + p.p.；條件句：If + 現在式 → 未來式',
+    phrase:'"reach an agreement on the terms" 就條款達成協議',
+    vocab:[
+      {word:'contract',pos:'n.',level:'500+',meaning:'合約、契約',note:'法律/商務核心詞'},
+      {word:'deadline',pos:'n.',level:'400+',meaning:'截止日期',note:'辦公室高頻詞'},
+    ]
+  }
+},
+{
+  type:'grammar', stem:'Ms. Chen, _____ has worked here for ten years, was promoted to Regional Director.',
+  options:['who','which','whom','whose'],
+  answer:0,
+  exp:{
+    core:'關係代名詞修飾前方人物（Ms. Chen），且在關係子句中作主詞，故用 who。which 修飾事物，whom 作受格。',
+    grammar:'關係代名詞：who（人，主格）/ whom（人，受格）/ which（事物）/ whose（所有格）',
+    phrase:'"be promoted to" 被升遷為…',
+    vocab:[
+      {word:'promote',pos:'v.',level:'500+',meaning:'升職；促銷',note:'雙重含義注意'},
+      {word:'regional',pos:'adj.',level:'500+',meaning:'地區的',note:'常見職稱修飾語'},
+    ]
+  }
+},
+{
+  type:'grammar', stem:'The report should have been _____ to the board members before the meeting.',
+  options:['distributed','distributing','distribute','distribution'],
+  answer:0,
+  exp:{
+    core:'"should have been" 後接過去分詞，構成完成式被動語態，表示過去本應完成但未完成的動作。',
+    grammar:'完成式被動：should have been + p.p.；批評語氣（未做到應做之事）',
+    phrase:'"board member" 董事會成員；"distribute to" 分發給',
+    vocab:[
+      {word:'distribute',pos:'v.',level:'600+',meaning:'分發、配送',note:'distribution 為其名詞'},
+      {word:'board',pos:'n.',level:'500+',meaning:'委員會；董事會',note:'TOEIC 高頻詞'},
+    ]
+  }
+},
+{
+  type:'grammar', stem:'Neither the CEO nor the board members _____ aware of the financial discrepancy.',
+  options:['were','was','are being','has been'],
+  answer:0,
+  exp:{
+    core:'"Neither...nor..." 連接兩個主詞時，動詞依靠近的主詞決定。此處靠近的是 "board members"（複數），故用 were。',
+    grammar:'就近原則（Proximity Rule）：neither...nor / either...or → 動詞與最近主詞一致',
+    phrase:'"financial discrepancy" 財務差異/不符；"be aware of" 知道、意識到',
+    vocab:[
+      {word:'discrepancy',pos:'n.',level:'700+',meaning:'差異、不一致',note:'高分詞彙，常考審計類文章'},
+      {word:'aware',pos:'adj.',level:'400+',meaning:'知曉的、意識到的',note:'be aware of 固定搭配'},
+    ]
+  }
+},
+{
+  type:'grammar', stem:'The new software _____ by the IT department next week.',
+  options:['will be installed','will install','is installed','installs'],
+  answer:0,
+  exp:{
+    core:'軟體被安裝（被動），且時間為 next week（未來），故用 will be + p.p. 的未來被動語態。',
+    grammar:'未來被動語態：will be + p.p.',
+    phrase:'"IT department" 資訊科技部門；"install software" 安裝軟體',
+    vocab:[
+      {word:'install',pos:'v.',level:'400+',meaning:'安裝',note:'installation 安裝（名詞）'},
+      {word:'department',pos:'n.',level:'400+',meaning:'部門',note:'TOEIC 核心詞彙'},
+    ]
+  }
+},
+{
+  type:'grammar', stem:'_____ completing the training program, employees will receive a certification.',
+  options:['Upon','During','While','When'],
+  answer:0,
+  exp:{
+    core:'"Upon + V-ing" 表示「一……就……」，強調動作完成後立即發生的結果，相當於 "as soon as"。',
+    grammar:'"Upon/On + V-ing" 介系詞片語，表時間條件；= As soon as SV',
+    phrase:'"certification" 認證；"training program" 培訓計劃',
+    vocab:[
+      {word:'certification',pos:'n.',level:'600+',meaning:'認證、證照',note:'certify→certificate→certification'},
+      {word:'complete',pos:'v.',level:'300+',meaning:'完成',note:'upon completing 固定搭配'},
+    ]
+  }
+},
+{
+  type:'grammar', stem:'The manager asked that all reports _____ submitted in PDF format.',
+  options:['be','are','were','have been'],
+  answer:0,
+  exp:{
+    core:'動詞 ask/suggest/recommend/require/insist + that 子句時，子句動詞用假設語氣（subjunctive），即原形動詞，無論主詞為何。',
+    grammar:'假設語氣（Subjunctive Mood）：要求動詞（ask/require/suggest）+ that + S + 原形動詞',
+    phrase:'"submit in PDF format" 以 PDF 格式提交',
+    vocab:[
+      {word:'format',pos:'n.',level:'400+',meaning:'格式、形式',note:'file format 文件格式'},
+      {word:'submit',pos:'v.',level:'400+',meaning:'提交',note:'submission 提交（名詞）'},
+    ]
+  }
+},
+{
+  type:'grammar', stem:'We would appreciate _____ informed of any changes to the project schedule.',
+  options:['being','to be','be','having been'],
+  answer:0,
+  exp:{
+    core:'appreciate 後接動名詞（V-ing），被動語態的動名詞為 being + p.p.，此句主詞 We 是被告知的對象。',
+    grammar:'appreciate + V-ing；被動動名詞：being + p.p.',
+    phrase:'"be informed of" 被告知…；"project schedule" 專案時程',
+    vocab:[
+      {word:'appreciate',pos:'v.',level:'400+',meaning:'感謝；欣賞',note:'appreciate + V-ing（非 to-V）'},
+      {word:'informed',pos:'adj.',level:'400+',meaning:'知情的，被告知的',note:'keep sb informed 保持某人知情'},
+    ]
+  }
+},
+{
+  type:'grammar', stem:'The new policy _____ to take effect starting January 1st.',
+  options:['is scheduled','schedules','scheduled','is scheduling'],
+  answer:0,
+  exp:{
+    core:'"be scheduled to V" 表示「預計要……」，是 TOEIC 考試中非常常見的被動語態固定搭配。',
+    grammar:'"be scheduled to + V" 固定搭配；被動語態',
+    phrase:'"take effect" 生效；"starting + 日期" 從某日起',
+    vocab:[
+      {word:'schedule',pos:'v.',level:'400+',meaning:'排定、預定',note:'be scheduled to 被動固定搭配'},
+      {word:'policy',pos:'n.',level:'500+',meaning:'政策、規定',note:'company policy 公司規定'},
+    ]
+  }
+},
+{
+  type:'grammar', stem:'_____ the budget cuts, the company was still able to complete the project on time.',
+  options:['Despite','Although','However','Even'],
+  answer:0,
+  exp:{
+    core:'"Despite" 後接名詞/名詞片語；"Although" 後接完整子句。本句後面是名詞片語（the budget cuts），故選 Despite。',
+    grammar:'Despite/In spite of + 名詞；Although/Even though + 子句',
+    phrase:'"budget cut" 削減預算；"on time" 準時',
+    vocab:[
+      {word:'despite',pos:'prep.',level:'500+',meaning:'儘管',note:'despite = in spite of，後接名詞'},
+      {word:'budget',pos:'n.',level:'400+',meaning:'預算',note:'TOEIC 財務類核心詞'},
+    ]
+  }
+},
+{
+  type:'grammar', stem:'Applicants _____ submit their portfolios along with their application forms.',
+  options:['are required to','require to','are requiring','required'],
+  answer:0,
+  exp:{
+    core:'"be required to + V" 是被動語態固定搭配，表示「被要求做某事」。require 的主動語態為 "require sb to V"。',
+    grammar:'"be required to V" 被要求；主動：require sb to V',
+    phrase:'"portfolio" 作品集；"application form" 申請表',
+    vocab:[
+      {word:'portfolio',pos:'n.',level:'600+',meaning:'作品集；投資組合',note:'雙重含義：藝術/金融'},
+      {word:'applicant',pos:'n.',level:'500+',meaning:'申請者',note:'apply→applicant→application'},
+    ]
+  }
+},
+{
+  type:'grammar', stem:'The company has been operating in Asia _____ more than twenty years.',
+  options:['for','since','during','while'],
+  answer:0,
+  exp:{
+    core:'"for + 一段時間" 搭配完成式；"since + 時間點" 搭配完成式。此處後接 "more than twenty years" 為時間長度，故用 for。',
+    grammar:'現在完成進行式：has been V-ing；for + 時間段；since + 時間點',
+    phrase:'"operate in" 在…營運；"more than" 超過',
+    vocab:[
+      {word:'operate',pos:'v.',level:'500+',meaning:'營運、運作',note:'operation 營運（名詞）'},
+      {word:'decade',pos:'n.',level:'500+',meaning:'十年',note:'twenty years = two decades'},
+    ]
+  }
+},
+{
+  type:'grammar', stem:'The presentation _____ very impressive if the speaker had prepared more thoroughly.',
+  options:['would have been','would be','will be','had been'],
+  answer:0,
+  exp:{
+    core:'過去假設語氣（第三條件句）：If + had p.p. → would have + p.p.。此句表示與過去事實相反的假設。',
+    grammar:'假設語氣第三型：If S + had p.p., S + would/could have + p.p.',
+    phrase:'"thoroughly" 徹底地；"impressive" 令人印象深刻的',
+    vocab:[
+      {word:'thoroughly',pos:'adv.',level:'600+',meaning:'徹底地、完全地',note:'thorough 的副詞形式'},
+      {word:'impressive',pos:'adj.',level:'400+',meaning:'令人印象深刻的',note:'impress→impressive→impression'},
+    ]
+  }
+},
+{
+  type:'grammar', stem:'_____ the meeting ran over schedule, several important items were left unaddressed.',
+  options:['Because','Despite','Although','Therefore'],
+  answer:0,
+  exp:{
+    core:'"Because" 引導原因副詞子句，後接完整的主詞+動詞。本句後面有完整句子 "the meeting ran over schedule"，故選 Because。',
+    grammar:'原因連接詞：Because/Since/As + 子句；with/due to + 名詞',
+    phrase:'"run over schedule" 超過預定時間；"leave unaddressed" 未處理',
+    vocab:[
+      {word:'unaddressed',pos:'adj.',level:'700+',meaning:'未處理的',note:'前綴 un- 表否定'},
+      {word:'schedule',pos:'n.',level:'300+',meaning:'時間表，計劃',note:'on/over/ahead of schedule 常見片語'},
+    ]
+  }
+},
+{
+  type:'grammar', stem:'The financial report needs to be _____ by the auditors before it is released.',
+  options:['reviewed','reviewing','review','reviews'],
+  answer:0,
+  exp:{
+    core:'"needs to be + p.p." 是被動語態不定詞，表示需要被…。be 後面接過去分詞構成被動。',
+    grammar:'"need to be + p.p." 需要被…；被動不定詞',
+    phrase:'"auditor" 審計師；"release" 發布、公開',
+    vocab:[
+      {word:'auditor',pos:'n.',level:'600+',meaning:'審計師、查帳員',note:'audit 審計（動詞/名詞）'},
+      {word:'review',pos:'v.',level:'400+',meaning:'審核；回顧',note:'TOEIC 超高頻動詞'},
+    ]
+  }
+},
+{
+  type:'grammar', stem:'Sales figures _____ significantly since the new marketing campaign was launched.',
+  options:['have increased','increased','are increasing','will increase'],
+  answer:0,
+  exp:{
+    core:'時間副詞 "since + 過去式子句" 搭配主句現在完成式。表示從某個過去時間點到現在的變化。',
+    grammar:'Since + 過去式 → 主句現在完成式 have/has + p.p.',
+    phrase:'"sales figures" 銷售數據；"launch a campaign" 發起活動',
+    vocab:[
+      {word:'figure',pos:'n.',level:'400+',meaning:'數字；圖形；人物',note:'多義詞：sales figure/figure out'},
+      {word:'significantly',pos:'adv.',level:'500+',meaning:'顯著地',note:'significant 的副詞'},
+    ]
+  }
+},
+{
+  type:'grammar', stem:'Please make sure all equipment is _____ before leaving the laboratory.',
+  options:['turned off','turning off','turns off','turn off'],
+  answer:0,
+  exp:{
+    core:'"be turned off" 是被動語態，表示設備處於「被關掉」的狀態。make sure + that 子句中，is + p.p. 描述被動狀態。',
+    grammar:'狀態被動：be + p.p.（描述狀態）vs 動作被動：be + p.p.（強調動作）',
+    phrase:'"turn off" 關閉（電器）；"leave the laboratory" 離開實驗室',
+    vocab:[
+      {word:'equipment',pos:'n.',level:'400+',meaning:'設備（不可數）',note:'不加 s，重要考試陷阱'},
+      {word:'laboratory',pos:'n.',level:'400+',meaning:'實驗室',note:'簡稱 lab'},
+    ]
+  }
+},
+{
+  type:'grammar', stem:'We are looking for candidates _____ experience in international trade.',
+  options:['with','have','having','who have'],
+  answer:0,
+  exp:{
+    core:'"with" 作介系詞，後接名詞片語修飾 candidates。with experience = 具有經驗。也可用 who have，但此處 "with" 更簡潔為正確選項。',
+    grammar:'名詞修飾：with + 名詞片語；= who have + 名詞（關係子句）',
+    phrase:'"international trade" 國際貿易；"candidate" 候選人',
+    vocab:[
+      {word:'candidate',pos:'n.',level:'500+',meaning:'候選人；應試者',note:'job candidate 求職者'},
+      {word:'international',pos:'adj.',level:'300+',meaning:'國際的',note:'基礎高頻詞'},
+    ]
+  }
+},
+{
+  type:'grammar', stem:'The CEO _____ a statement regarding the merger by the end of the week.',
+  options:['is expected to issue','expects to issue','is expected issuing','expected issuing'],
+  answer:0,
+  exp:{
+    core:'"be expected to + V" 表示「被預期要……」，是固定被動語態搭配，在 TOEIC 商務語境中非常常見。',
+    grammar:'"be expected to V" 被動固定搭配；主動：expect sb to V',
+    phrase:'"issue a statement" 發表聲明；"merger" 合併',
+    vocab:[
+      {word:'merger',pos:'n.',level:'700+',meaning:'（公司）合併',note:'商務高分詞，merge 動詞'},
+      {word:'issue',pos:'v.',level:'500+',meaning:'發布、發行',note:'雙義：名詞issue=問題'},
+    ]
+  }
+},
+{
+  type:'grammar', stem:'The construction of the new office building is expected to be _____ within six months.',
+  options:['completed','completing','complete','completion'],
+  answer:0,
+  exp:{
+    core:'"be completed" 是被動語態過去分詞，表示工程被完成。"to be completed" 是被動不定詞。',
+    grammar:'被動不定詞：to be + p.p.；complete → completed（過去分詞）',
+    phrase:'"construction" 建設；"within + 時間" 在…之內',
+    vocab:[
+      {word:'construction',pos:'n.',level:'400+',meaning:'建設、施工',note:'under construction 施工中'},
+      {word:'complete',pos:'v.',level:'300+',meaning:'完成',note:'completion 完工（名詞）'},
+    ]
+  }
+},
+{
+  type:'grammar', stem:'_____ he had more experience, he might have been offered the senior position.',
+  options:['If','Unless','Although','Since'],
+  answer:0,
+  exp:{
+    core:'過去假設條件句，表示「如果他當時有更多經驗（但事實上沒有）」，故用 If + had，主句用 might have been。',
+    grammar:'假設語氣 III：If S + had p.p., S + would/might have + p.p.',
+    phrase:'"senior position" 高級職位；"be offered" 被提供',
+    vocab:[
+      {word:'senior',pos:'adj.',level:'400+',meaning:'高階的；年長的',note:'senior vs. junior 對比'},
+      {word:'experience',pos:'n.',level:'300+',meaning:'經驗',note:'不可數；有經驗：have experience in'},
+    ]
+  }
+},
+{
+  type:'grammar', stem:'The renovation project is _____ on budget and ahead of schedule.',
+  options:['both','either','neither','all'],
+  answer:0,
+  exp:{
+    core:'"both A and B" 表示「A 和 B 兩者都」。此句說明專案兩方面都達標：on budget 和 ahead of schedule。',
+    grammar:'both A and B（兩者都）；either A or B（兩者之一）；neither A nor B（兩者都不）',
+    phrase:'"on budget" 在預算內；"ahead of schedule" 提前完成',
+    vocab:[
+      {word:'renovation',pos:'n.',level:'600+',meaning:'翻修、整修',note:'renovate 動詞'},
+      {word:'budget',pos:'n.',level:'400+',meaning:'預算',note:'on/over/under budget 常見搭配'},
+    ]
+  }
+},
+{
+  type:'grammar', stem:'The assistant _____ the documents when the fire alarm went off.',
+  options:['was filing','filed','has filed','is filing'],
+  answer:0,
+  exp:{
+    core:'過去進行式描述過去某時間點正在進行的動作，when 引導的過去式子句表示中斷事件。',
+    grammar:'過去進行式：was/were V-ing（被打斷的動作）；when + 過去式（打斷事件）',
+    phrase:'"fire alarm" 火災警報；"go off" （警報）響起',
+    vocab:[
+      {word:'file',pos:'v.',level:'400+',meaning:'歸檔；提交（文件）',note:'filing cabinet 文件櫃'},
+      {word:'alarm',pos:'n.',level:'300+',meaning:'警報；鬧鐘',note:'fire alarm 火災警報'},
+    ]
+  }
+},
+{
+  type:'grammar', stem:'The committee members were _____ asked to review the revised proposal.',
+  options:['formally','former','form','forming'],
+  answer:0,
+  exp:{
+    core:'修飾動詞 asked 需用副詞，formally（正式地）為 formal 的副詞形式。former 是形容詞意為「前任的」。',
+    grammar:'副詞修飾動詞；formal（形容詞）→ formally（副詞）',
+    phrase:'"revised proposal" 修訂版提案；"formally asked" 正式要求',
+    vocab:[
+      {word:'formally',pos:'adv.',level:'600+',meaning:'正式地',note:'formal 正式的 → formally'},
+      {word:'proposal',pos:'n.',level:'500+',meaning:'提案、建議書',note:'propose 動詞；proposal 名詞'},
+    ]
+  }
+},
+{
+  type:'grammar', stem:'All submissions must be _____ in triplicate and signed by an authorized representative.',
+  options:['made','make','making','makes'],
+  answer:0,
+  exp:{
+    core:'"must be made" 是情態助動詞被動語態。"made in triplicate" 是固定搭配，表示一式三份。',
+    grammar:'情態助動詞被動：must be + p.p.；"in triplicate" 一式三份（固定用語）',
+    phrase:'"in triplicate" 一式三份；"authorized representative" 授權代表',
+    vocab:[
+      {word:'triplicate',pos:'n./adj.',level:'700+',meaning:'三份的；一式三份',note:'duplicate 一式兩份'},
+      {word:'authorized',pos:'adj.',level:'600+',meaning:'授權的、官方的',note:'authorize 動詞'},
+    ]
+  }
+},
+{
+  type:'grammar', stem:'The results of the survey _____ that customers are satisfied with the new service.',
+  options:['indicate','indicates','is indicated','are indicating'],
+  answer:0,
+  exp:{
+    core:'主詞為 "The results"（複數），動詞用複數 indicate。注意介系詞片語 "of the survey" 是修飾語，不影響動詞主謂一致。',
+    grammar:'主謂一致：主詞為複數時動詞用原形；不被中間插入的修飾語影響',
+    phrase:'"survey results" 調查結果；"be satisfied with" 對…感到滿意',
+    vocab:[
+      {word:'indicate',pos:'v.',level:'500+',meaning:'顯示、指出',note:'indication 指示（名詞）'},
+      {word:'satisfied',pos:'adj.',level:'400+',meaning:'滿意的',note:'be satisfied with 固定搭配'},
+    ]
+  }
+},
+{
+  type:'grammar', stem:'_____ signing the lease agreement, please read all terms and conditions carefully.',
+  options:['Before','After','By','When'],
+  answer:0,
+  exp:{
+    core:'"before + V-ing" 表示「在…之前」，後接動名詞。此句勸告人們在簽約前先仔細閱讀條款。',
+    grammar:'"Before/After + V-ing" 介系詞片語，表時間先後關係',
+    phrase:'"lease agreement" 租約；"terms and conditions" 條款與條件',
+    vocab:[
+      {word:'lease',pos:'n./v.',level:'600+',meaning:'租約；租用',note:'房屋租賃核心詞'},
+      {word:'condition',pos:'n.',level:'400+',meaning:'條件；狀態',note:'terms and conditions 合約條款'},
+    ]
+  }
+},
+{
+  type:'grammar', stem:'The new employee handbook _____ to all staff members at the orientation session.',
+  options:['was distributed','distributed','has distribute','distributes'],
+  answer:0,
+  exp:{
+    core:'手冊被分發（被動），時間為特定過去時（at the orientation session），故用過去式被動 was distributed。',
+    grammar:'過去被動：was/were + p.p.；特定過去時間 + 過去式',
+    phrase:'"orientation session" 入職說明會；"handbook" 手冊',
+    vocab:[
+      {word:'orientation',pos:'n.',level:'500+',meaning:'入職培訓；方向',note:'新員工 orientation 必考詞'},
+      {word:'handbook',pos:'n.',level:'400+',meaning:'手冊',note:'employee handbook 員工手冊'},
+    ]
+  }
+},
+{
+  type:'grammar', stem:'It is essential that every employee _____ the mandatory safety training.',
+  options:['complete','completes','completed','completing'],
+  answer:0,
+  exp:{
+    core:'"It is essential/important/necessary that + S + 原形動詞" — 這是假設語氣的固定句型，子句動詞不加 -s，也不加 -ed。',
+    grammar:'假設語氣：It is + adj. + that + S + 原形動詞（不變形）',
+    phrase:'"mandatory" 強制性的；"safety training" 安全培訓',
+    vocab:[
+      {word:'mandatory',pos:'adj.',level:'600+',meaning:'強制的、義務的',note:'= compulsory，高頻形容詞'},
+      {word:'essential',pos:'adj.',level:'500+',meaning:'必要的、基本的',note:'= necessary'},
+    ]
+  }
+},
+{
+  type:'grammar', stem:'The company _____ its headquarters from New York to San Francisco next quarter.',
+  options:['will be relocating','will be relocated','has relocating','relocates'],
+  answer:0,
+  exp:{
+    core:'未來進行式 will be V-ing 表示未來某時間正在進行或已計劃好的動作。公司主動遷移，非被動，故不用被動語態。',
+    grammar:'未來進行式：will be + V-ing（計劃中的未來動作）',
+    phrase:'"relocate headquarters" 遷移總部；"next quarter" 下一季度',
+    vocab:[
+      {word:'relocate',pos:'v.',level:'600+',meaning:'遷移、重新安置',note:'relocation 搬遷（名詞）'},
+      {word:'headquarters',pos:'n.',level:'500+',meaning:'總部（複數形，但視單/複數均可）',note:'縮寫 HQ'},
+    ]
+  }
+},
+{
+  type:'grammar', stem:'Not until the audit was completed _____ the financial irregularities discovered.',
+  options:['were','was','have been','are'],
+  answer:0,
+  exp:{
+    core:'"Not until..." 放在句首時，主句需要倒裝（auxiliary + S + V）。主詞 "the financial irregularities" 是複數，且為被動，故用 were。',
+    grammar:'否定詞前置倒裝：Not until + 時間子句, 助動詞 + S + V',
+    phrase:'"audit" 審計；"financial irregularity" 財務違規',
+    vocab:[
+      {word:'irregularity',pos:'n.',level:'700+',meaning:'不規則；違規行為',note:'irregular 形容詞'},
+      {word:'audit',pos:'n./v.',level:'600+',meaning:'審計、查帳',note:'auditor 審計師'},
+    ]
+  }
+},
+{
+  type:'grammar', stem:'The CEO suggested _____ a new approach to customer service.',
+  options:['adopting','to adopt','adopt','adopted'],
+  answer:0,
+  exp:{
+    core:'suggest 後接動名詞（V-ing），不接不定詞（to V）。這是 TOEIC 必考的動詞搭配規則。',
+    grammar:'suggest + V-ing（動名詞）；常與動名詞搭配：avoid, enjoy, consider, suggest, mind, finish',
+    phrase:'"adopt an approach" 採用方法；"customer service" 客戶服務',
+    vocab:[
+      {word:'suggest',pos:'v.',level:'400+',meaning:'建議',note:'suggest + V-ing（非 to V）'},
+      {word:'adopt',pos:'v.',level:'500+',meaning:'採用；收養',note:'adoption 採用（名詞）'},
+    ]
+  }
+},
+{
+  type:'grammar', stem:'The quarterly report must _____ by all department heads before it is finalized.',
+  options:['be approved','approve','to approve','approves'],
+  answer:0,
+  exp:{
+    core:'must + be + p.p. 是情態助動詞被動語態。報告被所有部門主管批准，是被動關係，所以用被動式。',
+    grammar:'情態助動詞被動：must be + p.p.；approved 為 approve 的過去分詞',
+    phrase:'"quarterly report" 季度報告；"finalize" 定稿、確定',
+    vocab:[
+      {word:'approve',pos:'v.',level:'500+',meaning:'批准',note:'approval 批准（名詞）'},
+      {word:'quarterly',pos:'adj./adv.',level:'500+',meaning:'季度的；每季',note:'quarter 季度'},
+    ]
+  }
+},
+{
+  type:'grammar', stem:'The training sessions are held _____ to ensure all employees stay up to date.',
+  options:['regularly','regular','regulate','regulation'],
+  answer:0,
+  exp:{
+    core:'修飾動詞 are held 需用副詞 regularly（定期地）。regular 是形容詞，不能直接修飾動詞。',
+    grammar:'副詞修飾動詞；regular（adj.）→ regularly（adv.）',
+    phrase:'"stay up to date" 保持最新狀態；"training session" 訓練課程',
+    vocab:[
+      {word:'regularly',pos:'adv.',level:'400+',meaning:'定期地、規律地',note:'regular 定期的 → regularly'},
+      {word:'ensure',pos:'v.',level:'400+',meaning:'確保',note:'= make sure'},
+    ]
+  }
+},
+{
+  type:'grammar', stem:'_____ impressive though the sales results were, the management team felt more could be achieved.',
+  options:['Impressive','Although','However','Despite'],
+  answer:1,
+  exp:{
+    core:'"Although + adj. + as/though + S + V" 是讓步倒裝句型，表示儘管…仍然…。注意 although 和 though 的讓步用法。',
+    grammar:'讓步子句倒裝：Adj. + as/though + S + V = Although + S + V（更強調讓步）',
+    phrase:'"sales results" 銷售成果；"management team" 管理團隊',
+    vocab:[
+      {word:'impressive',pos:'adj.',level:'400+',meaning:'令人印象深刻的',note:'impress→impressive→impression'},
+      {word:'achieve',pos:'v.',level:'400+',meaning:'達成、實現',note:'achievement 成就（名詞）'},
+    ]
+  }
+},
+{
+  type:'grammar', stem:'Employees are encouraged to take advantage _____ the company\'s professional development programs.',
+  options:['of','in','from','for'],
+  answer:0,
+  exp:{
+    core:'"take advantage of" 是固定片語，意為「利用、善用」，介系詞固定用 of。',
+    grammar:'"take advantage of" 固定介系詞搭配（phrasal idiom）',
+    phrase:'"take advantage of" 利用；"professional development" 專業發展',
+    vocab:[
+      {word:'advantage',pos:'n.',level:'500+',meaning:'優勢、好處',note:'take advantage of 利用（固定搭配）'},
+      {word:'professional',pos:'adj.',level:'400+',meaning:'專業的',note:'profession 職業（名詞）'},
+    ]
+  }
+},
+{
+  type:'grammar', stem:'The candidates were evaluated _____ their qualifications, experience, and interview performance.',
+  options:['based on','base on','based in','basing on'],
+  answer:0,
+  exp:{
+    core:'"based on" 是形容詞片語，修飾主詞補語或表示依據。表示「根據……」，是 TOEIC 中最常見的介系詞片語之一。',
+    grammar:'"based on" = according to（根據）；過去分詞片語當介系詞用',
+    phrase:'"qualification" 資格；"evaluate" 評估',
+    vocab:[
+      {word:'qualification',pos:'n.',level:'600+',meaning:'資格、條件',note:'qualify 動詞；qualified 形容詞'},
+      {word:'evaluate',pos:'v.',level:'500+',meaning:'評估',note:'evaluation 評估（名詞）'},
+    ]
+  }
+},
+{
+  type:'grammar', stem:'The number of visitors to the website _____ dramatically since the redesign.',
+  options:['has increased','have increased','increased','are increasing'],
+  answer:0,
+  exp:{
+    core:'"The number of + 複數名詞" 作主詞時，視為單數，動詞用 has。注意與 "A number of" 的區別（後者視為複數）。',
+    grammar:'"The number of" + 複數名詞 → 單數動詞；vs "A number of" → 複數動詞',
+    phrase:'"redesign" 重新設計；"dramatically" 大幅地',
+    vocab:[
+      {word:'dramatically',pos:'adv.',level:'600+',meaning:'大幅地、戲劇性地',note:'dramatic 形容詞'},
+      {word:'redesign',pos:'n./v.',level:'500+',meaning:'重新設計',note:'design 的加強版'},
+    ]
+  }
+},
+{
+  type:'grammar', stem:'The project will be _____ unless additional funding is secured.',
+  options:['discontinued','discontinuing','discontinue','discontinuation'],
+  answer:0,
+  exp:{
+    core:'"will be discontinued" 是未來被動語態，表示項目將被終止。unless 引導條件子句，表示「除非」。',
+    grammar:'未來被動：will be + p.p.；unless = if...not（條件子句）',
+    phrase:'"secure funding" 確保資金；"unless" 除非',
+    vocab:[
+      {word:'discontinue',pos:'v.',level:'600+',meaning:'終止、停止',note:'dis- 前綴表否定，continue 繼續'},
+      {word:'fund',pos:'n./v.',level:'500+',meaning:'資金；資助',note:'funding 資金（名詞）'},
+    ]
+  }
+},
+{
+  type:'grammar', stem:'Ms. Thompson is the _____ qualified candidate for the director position.',
+  options:['most','more','much','many'],
+  answer:0,
+  exp:{
+    core:'三個以上相比較用最高級 "most + adj."；兩者相比用比較級 "more + adj."。此句暗指候選人中最合適的一位，故用最高級。',
+    grammar:'最高級：the most + adj.（多音節）/ the + adj. + est（單音節）',
+    phrase:'"qualified candidate" 合格候選人；"director position" 主任/總監職位',
+    vocab:[
+      {word:'qualified',pos:'adj.',level:'500+',meaning:'有資格的',note:'be qualified for/to V'},
+      {word:'candidate',pos:'n.',level:'500+',meaning:'候選人',note:'job candidate 求職者'},
+    ]
+  }
+},
+{
+  type:'grammar', stem:'The annual shareholders\' meeting will be held _____ the second Tuesday of March.',
+  options:['on','in','at','during'],
+  answer:0,
+  exp:{
+    core:'特定日期前用介系詞 on。"the second Tuesday of March" 是一個特定的日期，故用 on。',
+    grammar:'時間介系詞：on + 具體日期/星期；in + 月/年/季節；at + 具體時刻',
+    phrase:'"shareholders\' meeting" 股東大會；"annual" 年度的',
+    vocab:[
+      {word:'shareholder',pos:'n.',level:'600+',meaning:'股東',note:'share 股份 + holder 持有人'},
+      {word:'annual',pos:'adj.',level:'400+',meaning:'年度的、每年的',note:'annually 每年地（副詞）'},
+    ]
+  }
+},
+{
+  type:'grammar', stem:'All employees should familiarize _____ with the new emergency procedures.',
+  options:['themselves','them','their','theirs'],
+  answer:0,
+  exp:{
+    core:'"familiarize oneself with" 是固定反身代名詞搭配，主詞 all employees 為複數，反身代名詞用 themselves。',
+    grammar:'反身代名詞：himself/herself/themselves；"familiarize oneself with" 熟悉某事',
+    phrase:'"familiarize oneself with" 使自己熟悉；"emergency procedures" 緊急程序',
+    vocab:[
+      {word:'familiarize',pos:'v.',level:'600+',meaning:'使熟悉',note:'be familiar with 熟悉（形容詞搭配）'},
+      {word:'procedure',pos:'n.',level:'500+',meaning:'程序、流程',note:'procedural 形容詞'},
+    ]
+  }
+},
+{
+  type:'grammar', stem:'The proposal _____ by the board of directors at yesterday\'s meeting.',
+  options:['was rejected','rejected','has rejected','is rejecting'],
+  answer:0,
+  exp:{
+    core:'有明確過去時間（yesterday\'s meeting），用過去式。提案被董事會否決，是被動語態，故用 was rejected。',
+    grammar:'過去被動：was/were + p.p.；特定過去時間用過去式',
+    phrase:'"board of directors" 董事會；"reject" 拒絕、否決',
+    vocab:[
+      {word:'reject',pos:'v.',level:'500+',meaning:'拒絕、否決',note:'rejection 否決（名詞）'},
+      {word:'proposal',pos:'n.',level:'500+',meaning:'提案',note:'propose 提議（動詞）'},
+    ]
+  }
+},
+],
+
+// ──────────────────────────────────────────────────
+// VOCABULARY  (40 題)
+// ──────────────────────────────────────────────────
+vocab: [
+{
+  type:'vocab', stem:'The company decided to _____ its partnership with the overseas supplier due to quality concerns.',
+  options:['terminate','initiate','maintain','expand'],
+  answer:0,
+  exp:{
+    core:'"due to quality concerns" 表示因為品質問題，合理結果是終止（terminate）合作關係，而非啟動、維持或擴大。',
+    grammar:'語境推斷：因果關係；terminate = 終止，contrast with initiate（啟動）',
+    phrase:'"terminate a partnership" 終止合作；"quality concern" 品質疑慮',
+    vocab:[
+      {word:'terminate',pos:'v.',level:'700+',meaning:'終止、結束',note:'termination 終止（名詞）；terminal 末端的'},
+      {word:'initiate',pos:'v.',level:'600+',meaning:'啟動、開始',note:'initiative 主動（名詞）'},
+      {word:'maintain',pos:'v.',level:'400+',meaning:'維持',note:'maintenance 維護（名詞）'},
+    ]
+  }
+},
+{
+  type:'vocab', stem:'The new manager proved to be highly _____, completing all assigned tasks ahead of schedule.',
+  options:['efficient','deficient','sufficient','proficient'],
+  answer:0,
+  exp:{
+    core:'任務都提前完成，形容工作表現優秀，efficient（有效率的）最符合語境。proficient 意指技術熟練，但 efficient 更強調效率。',
+    grammar:'語境推斷；-cient 字根詞族辨析',
+    phrase:'"ahead of schedule" 提前完成；"prove to be" 證明是',
+    vocab:[
+      {word:'efficient',pos:'adj.',level:'500+',meaning:'有效率的',note:'efficiency 效率（名詞）'},
+      {word:'proficient',pos:'adj.',level:'600+',meaning:'精通的、熟練的',note:'proficiency 熟練（名詞）'},
+      {word:'sufficient',pos:'adj.',level:'500+',meaning:'足夠的',note:'sufficiency 充足（名詞）'},
+    ]
+  }
+},
+{
+  type:'vocab', stem:'The conference will _____ industry leaders, experts, and key stakeholders from around the world.',
+  options:['convene','constitute','converge','convey'],
+  answer:0,
+  exp:{
+    core:'"convene" 表示「召集、集會」，是正式商業詞彙，指會議聚集人員。convene a conference = 召開會議。',
+    grammar:'字根辨析：con-（together）+ vene（come）= convene 召集',
+    phrase:'"stakeholder" 利益相關者；"convene" 召集（人員）',
+    vocab:[
+      {word:'convene',pos:'v.',level:'700+',meaning:'召集、集會',note:'convention 會議（名詞）'},
+      {word:'stakeholder',pos:'n.',level:'600+',meaning:'利益相關者',note:'商務核心詞彙'},
+      {word:'converge',pos:'v.',level:'700+',meaning:'匯聚、趨向一致',note:'convergence 匯集（名詞）'},
+    ]
+  }
+},
+{
+  type:'vocab', stem:'The company\'s annual revenue _____ expectations, reaching a record high this year.',
+  options:['exceeded','excluded','extended','excelled'],
+  answer:0,
+  exp:{
+    core:'"exceed expectations" 是固定搭配，意為「超越預期」，是 TOEIC 商務語境中最常出現的組合之一。',
+    grammar:'固定搭配：exceed expectations；excel at = 擅長（後接事物而非期望）',
+    phrase:'"exceed expectations" 超越預期；"record high" 歷史新高',
+    vocab:[
+      {word:'exceed',pos:'v.',level:'600+',meaning:'超過、超越',note:'exceed expectations 固定搭配'},
+      {word:'excel',pos:'v.',level:'500+',meaning:'擅長、表現出色',note:'excel at/in + 事物'},
+      {word:'revenue',pos:'n.',level:'600+',meaning:'營收、收入',note:'annual revenue 年度營收'},
+    ]
+  }
+},
+{
+  type:'vocab', stem:'The HR department will _____ all applications within two weeks of the submission deadline.',
+  options:['process','proceed','produce','propose'],
+  answer:0,
+  exp:{
+    core:'"process applications" 是人資部門的標準作業，意為「處理申請」。proceed 是「繼續進行」，語義不符。',
+    grammar:'語境推斷；process（處理）vs proceed（繼續）的區別',
+    phrase:'"process applications" 處理申請；"submission deadline" 截止日期',
+    vocab:[
+      {word:'process',pos:'v.',level:'400+',meaning:'處理、加工',note:'processing 處理中；process n. 過程'},
+      {word:'proceed',pos:'v.',level:'500+',meaning:'繼續進行',note:'proceed with/to 繼續做某事'},
+    ]
+  }
+},
+{
+  type:'vocab', stem:'The board approved a _____ plan to expand the company\'s operations into Southeast Asia.',
+  options:['comprehensive','comprehensible','comprehending','comprehend'],
+  answer:0,
+  exp:{
+    core:'修飾名詞 plan 需要形容詞。comprehensive 意為「全面的、綜合的」；comprehensible 意為「可理解的」，語義不符。',
+    grammar:'字形相似詞辨析：comprehensive（全面的）vs comprehensible（可理解的）',
+    phrase:'"comprehensive plan" 全面計劃；"expand into" 向…擴張',
+    vocab:[
+      {word:'comprehensive',pos:'adj.',level:'700+',meaning:'全面的、綜合的',note:'comprehensively 全面地（副詞）'},
+      {word:'comprehensible',pos:'adj.',level:'600+',meaning:'可理解的',note:'comprehend 理解（動詞）'},
+    ]
+  }
+},
+{
+  type:'vocab', stem:'The sales team was asked to _____ a detailed report on the market trends.',
+  options:['compile','comply','compliment','complain'],
+  answer:0,
+  exp:{
+    core:'"compile a report" 意為「彙整/編制報告」，是正式的商業文件動詞。comply 表示「遵從」，不與 report 搭配。',
+    grammar:'語境推斷；compile（彙整）+ 文件類詞',
+    phrase:'"compile a report" 編制報告；"market trend" 市場趨勢',
+    vocab:[
+      {word:'compile',pos:'v.',level:'600+',meaning:'彙整、編製',note:'compilation 彙編（名詞）'},
+      {word:'comply',pos:'v.',level:'600+',meaning:'遵從、服從',note:'comply with 遵守（規定）'},
+      {word:'compliment',pos:'v./n.',level:'400+',meaning:'讚美、稱讚',note:'complement 補充（注意拼寫）'},
+    ]
+  }
+},
+{
+  type:'vocab', stem:'The project manager\'s _____ approach to problem-solving impressed the entire team.',
+  options:['innovative','innovate','innovation','innovatively'],
+  answer:0,
+  exp:{
+    core:'修飾名詞 approach 需要形容詞，innovative（創新的）是正確詞性。innovate 是動詞，innovation 是名詞。',
+    grammar:'詞性轉換：innovate（v.）→ innovative（adj.）→ innovation（n.）→ innovatively（adv.）',
+    phrase:'"innovative approach" 創新方法；"problem-solving" 解決問題',
+    vocab:[
+      {word:'innovative',pos:'adj.',level:'600+',meaning:'創新的',note:'innovation 創新；innovator 創新者'},
+      {word:'approach',pos:'n.',level:'400+',meaning:'方法、途徑',note:'approach to + V-ing'},
+    ]
+  }
+},
+{
+  type:'vocab', stem:'The factory must _____ to all environmental regulations set by the government.',
+  options:['adhere','attach','adapt','adopt'],
+  answer:0,
+  exp:{
+    core:'"adhere to" 是固定搭配，意為「遵守、堅守（規定）」，相當於 comply with。此為高分必考詞彙。',
+    grammar:'"adhere to" = comply with = abide by（遵守規定的固定搭配）',
+    phrase:'"adhere to regulations" 遵守法規；"environmental regulation" 環保法規',
+    vocab:[
+      {word:'adhere',pos:'v.',level:'700+',meaning:'遵守；附著',note:'adhere to 固定搭配；adherence 遵守（名詞）'},
+      {word:'adapt',pos:'v.',level:'500+',meaning:'適應；改編',note:'adapt to 適應…'},
+      {word:'adopt',pos:'v.',level:'500+',meaning:'採用；收養',note:'adopt a policy 採用政策'},
+    ]
+  }
+},
+{
+  type:'vocab', stem:'The company issued a _____ regarding the product recall to all customers.',
+  options:['notification','notion','note','notation'],
+  answer:0,
+  exp:{
+    core:'"notification" 是正式通知，常見於商業文件中，指公司對外發出的正式告知。note 較非正式，notation 是符號記號，notion 是概念。',
+    grammar:'字形辨析：notification（通知）vs notion（概念）vs notation（記號）',
+    phrase:'"product recall" 產品召回；"issue a notification" 發出通知',
+    vocab:[
+      {word:'notification',pos:'n.',level:'500+',meaning:'通知、告知',note:'notify 通知（動詞）'},
+      {word:'recall',pos:'n./v.',level:'500+',meaning:'召回（產品）；記憶',note:'product recall 產品召回'},
+      {word:'notion',pos:'n.',level:'600+',meaning:'概念、想法',note:'= idea/concept'},
+    ]
+  }
+},
+{
+  type:'vocab', stem:'The firm\'s _____ growth over the past decade has made it a leader in the industry.',
+  options:['sustained','sustainable','sustaining','sustain'],
+  answer:0,
+  exp:{
+    core:'"sustained growth" 意為「持續的增長」（已維持一段時間的）；sustainable 意為「可持續的」（未來可繼續維持的）。根據語境「過去十年」，用 sustained 更合適。',
+    grammar:'sustained（已持續的）vs sustainable（可持續的）語義區別',
+    phrase:'"sustained growth" 持續增長；"decade" 十年',
+    vocab:[
+      {word:'sustained',pos:'adj.',level:'600+',meaning:'持續的、維持的',note:'sustain 維持（動詞）'},
+      {word:'sustainable',pos:'adj.',level:'600+',meaning:'可持續的',note:'sustainability 可持續性（名詞）'},
+    ]
+  }
+},
+{
+  type:'vocab', stem:'The construction company submitted a _____ for the new government infrastructure project.',
+  options:['bid','bide','bind','bit'],
+  answer:0,
+  exp:{
+    core:'"submit a bid" 意為「投標」，是工程、採購領域的核心詞彙。bid = 出價、競標。',
+    grammar:'語境推斷；bid（投標）vs bid（命令，bid sb to V）的多義詞',
+    phrase:'"submit a bid" 投標；"infrastructure project" 基礎設施項目',
+    vocab:[
+      {word:'bid',pos:'n./v.',level:'600+',meaning:'出價、投標',note:'bid for a contract 競標合約'},
+      {word:'infrastructure',pos:'n.',level:'600+',meaning:'基礎設施',note:'infrastructure project 基建項目'},
+    ]
+  }
+},
+{
+  type:'vocab', stem:'The company _____ a major restructuring to improve operational efficiency.',
+  options:['underwent','undertook','understood','underlined'],
+  answer:0,
+  exp:{
+    core:'"undergo" 意為「經歷（變化、過程）」，常與 restructuring, change, transformation 搭配。undertook 是 undertake 的過去式，意為「承擔、從事」。',
+    grammar:'"undergo + 名詞（過程/變化）" 固定搭配；undergo → underwent（過去式）',
+    phrase:'"undergo restructuring" 進行重組；"operational efficiency" 運營效率',
+    vocab:[
+      {word:'undergo',pos:'v.',level:'600+',meaning:'經歷、接受（過程）',note:'undergo changes/surgery/training 常用搭配'},
+      {word:'restructuring',pos:'n.',level:'700+',meaning:'重組、重整',note:'restructure 動詞'},
+    ]
+  }
+},
+{
+  type:'vocab', stem:'The new software is designed to _____ the manual data entry process.',
+  options:['automate','automation','automatic','automatically'],
+  answer:0,
+  exp:{
+    core:'句子需要動詞填入，automate（使自動化）是動詞，automation 是名詞，automatic 是形容詞。',
+    grammar:'詞性辨析：automate（v.）→ automated（adj.）→ automation（n.）→ automatically（adv.）',
+    phrase:'"automate a process" 使流程自動化；"data entry" 資料輸入',
+    vocab:[
+      {word:'automate',pos:'v.',level:'600+',meaning:'使自動化',note:'automated 自動化的（形容詞）'},
+      {word:'automation',pos:'n.',level:'600+',meaning:'自動化',note:'office automation 辦公自動化'},
+    ]
+  }
+},
+{
+  type:'vocab', stem:'The _____ of the new policy will be discussed at the next board meeting.',
+  options:['implementation','implements','implemented','implementing'],
+  answer:0,
+  exp:{
+    core:'此處需要名詞作為主詞，implementation 是 implement 的名詞形式，意為「實施」。',
+    grammar:'詞性轉換：implement（v.）→ implementation（n.）',
+    phrase:'"implementation of a policy" 政策實施；"discuss at a meeting" 在會議上討論',
+    vocab:[
+      {word:'implementation',pos:'n.',level:'600+',meaning:'實施、執行',note:'implement 執行（動詞）'},
+      {word:'policy',pos:'n.',level:'500+',meaning:'政策、規定',note:'company policy/government policy'},
+    ]
+  }
+},
+{
+  type:'vocab', stem:'The director _____ the staff to work overtime to meet the project deadline.',
+  options:['requested','requested for','requested about','was requested'],
+  answer:0,
+  exp:{
+    core:'"request sb to V" 是固定搭配，request 後直接接受詞（sb），不加介系詞。此與 ask sb to V 相同結構。',
+    grammar:'"request + sb + to V" 無介系詞；vs "apply for / ask for" 需要介系詞',
+    phrase:'"work overtime" 加班；"meet a deadline" 趕上截止日期',
+    vocab:[
+      {word:'request',pos:'v.',level:'400+',meaning:'要求、請求',note:'request sb to V（不加 for）'},
+      {word:'overtime',pos:'n./adv.',level:'400+',meaning:'加班；超時',note:'work overtime 加班'},
+    ]
+  }
+},
+{
+  type:'vocab', stem:'The financial advisor recommended that investors _____ a diversified portfolio.',
+  options:['maintain','obtain','retain','sustain'],
+  answer:0,
+  exp:{
+    core:'"maintain a portfolio" 意為「維持（多元化的）投資組合」，是財務建議的標準用語。obtain 是獲得，retain 是保留，sustain 是持續。',
+    grammar:'"maintain a portfolio" 維持投資組合；語境推斷',
+    phrase:'"diversified portfolio" 多元化投資組合；"financial advisor" 財務顧問',
+    vocab:[
+      {word:'diversified',pos:'adj.',level:'700+',meaning:'多元化的',note:'diversify 使多元化（動詞）'},
+      {word:'portfolio',pos:'n.',level:'600+',meaning:'投資組合；作品集',note:'雙義詞：金融/藝術'},
+    ]
+  }
+},
+{
+  type:'vocab', stem:'The speaker\'s presentation was very _____, using clear examples and engaging visuals.',
+  options:['compelling','compelled','compulsory','compulsion'],
+  answer:0,
+  exp:{
+    core:'"compelling presentation" 意為「引人入勝的簡報」，有例子和視覺輔助，compelling 形容詞最合語境。compulsory 是「強制的」，語義不符。',
+    grammar:'compelling（引人入勝的）vs compulsory（強制的）語義區別',
+    phrase:'"engaging visuals" 吸引人的視覺輔助；"compelling" 令人信服的',
+    vocab:[
+      {word:'compelling',pos:'adj.',level:'700+',meaning:'引人入勝的、有說服力的',note:'compel 強迫（動詞）'},
+      {word:'compulsory',pos:'adj.',level:'600+',meaning:'強制的、義務的',note:'= mandatory'},
+    ]
+  }
+},
+{
+  type:'vocab', stem:'The two companies entered into a _____ agreement to share research and development costs.',
+  options:['mutual','multiple','mutual','multitude'],
+  answer:0,
+  exp:{
+    core:'"mutual agreement" 意為「相互協議」，表示雙方都同意。mutual 強調雙方性，是合約類文件的高頻詞。',
+    grammar:'"mutual agreement/benefit/understanding" 固定搭配；mutual = 相互的',
+    phrase:'"mutual agreement" 相互協議；"research and development" 研發（R&D）',
+    vocab:[
+      {word:'mutual',pos:'adj.',level:'600+',meaning:'相互的、共同的',note:'mutual benefit 互利'},
+      {word:'enter into',pos:'phr.',level:'600+',meaning:'簽訂（協議）；進入（關係）',note:'enter into a contract/agreement'},
+    ]
+  }
+},
+{
+  type:'vocab', stem:'The company is _____ to maintaining high standards of customer service at all times.',
+  options:['committed','committing','commitment','committee'],
+  answer:0,
+  exp:{
+    core:'"be committed to" 是固定被動形容詞搭配，後接名詞或動名詞，表示「致力於、承諾」。committed 是形容詞。',
+    grammar:'"be committed to + N/V-ing" 固定搭配；to 為介系詞（非不定詞）',
+    phrase:'"be committed to" 致力於；"high standards" 高標準',
+    vocab:[
+      {word:'committed',pos:'adj.',level:'500+',meaning:'致力的、忠誠的',note:'be committed to（介系詞 to + 名詞/V-ing）'},
+      {word:'commitment',pos:'n.',level:'500+',meaning:'承諾、投入',note:'make a commitment 作出承諾'},
+    ]
+  }
+},
+{
+  type:'vocab', stem:'Please _____ that all safety protocols are followed during the equipment installation.',
+  options:['ensure','assure','insure','secure'],
+  answer:0,
+  exp:{
+    core:'"ensure" 意為「確保（某事發生）"，後接 that 子句。assure 意為「保證（某人）」，後接人。insure 是「投保」，secure 是「確保安全/獲得」。',
+    grammar:'ensure（確保事情）vs assure（保證某人）vs insure（保險）用法區別',
+    phrase:'"safety protocol" 安全規程；"ensure that" 確保…',
+    vocab:[
+      {word:'ensure',pos:'v.',level:'500+',meaning:'確保（事情）',note:'ensure + that 子句'},
+      {word:'assure',pos:'v.',level:'500+',meaning:'保證（某人）',note:'assure sb + that 子句'},
+      {word:'insure',pos:'v.',level:'500+',meaning:'投保、承保',note:'insurance 保險（名詞）'},
+    ]
+  }
+},
+{
+  type:'vocab', stem:'The merger is expected to generate significant _____ for both companies involved.',
+  options:['synergies','energies','allergies','strategies'],
+  answer:0,
+  exp:{
+    core:'"synergies" 是商業合併中常見的詞，意為「協同效應」，指合作後產生大於各部分總和的效益。',
+    grammar:'"generate synergies" 產生協同效應（商業固定搭配）',
+    phrase:'"generate synergies" 產生協同效益；"merger" 合併',
+    vocab:[
+      {word:'synergy',pos:'n.',level:'800+',meaning:'協同效應',note:'synergies（複數）；高分詞彙'},
+      {word:'merger',pos:'n.',level:'700+',meaning:'合併',note:'merge 合併（動詞）'},
+    ]
+  }
+},
+{
+  type:'vocab', stem:'The training program is designed to _____ employees with the necessary skills for the job.',
+  options:['equip','provide','give','offer'],
+  answer:0,
+  exp:{
+    core:'"equip sb with sth" 意為「使某人具備某技能/工具」，是固定搭配。provide/give/offer 後接的是物品，而非技能。',
+    grammar:'"equip sb with sth" 固定搭配（賦予技能/工具）',
+    phrase:'"equip with" 裝備、使具備；"necessary skills" 必要技能',
+    vocab:[
+      {word:'equip',pos:'v.',level:'600+',meaning:'裝備；使具備',note:'equip sb with sth 固定搭配'},
+      {word:'equipment',pos:'n.',level:'400+',meaning:'設備（不可數）',note:'equip 的名詞形式'},
+    ]
+  }
+},
+{
+  type:'vocab', stem:'The company issued a press _____ to announce the new product line.',
+  options:['release','statement','notice','announcement'],
+  answer:0,
+  exp:{
+    core:'"press release" 是「新聞稿」的固定搭配，是公司對外發布訊息的標準形式。press statement 也常見，但 press release 更標準。',
+    grammar:'"press release" 固定複合名詞',
+    phrase:'"press release" 新聞稿；"product line" 產品線',
+    vocab:[
+      {word:'press release',pos:'n.',level:'500+',meaning:'新聞稿',note:'issue/send out a press release'},
+      {word:'announcement',pos:'n.',meaning:'公告',level:'400+',note:'announce 宣佈（動詞）'},
+    ]
+  }
+},
+{
+  type:'vocab', stem:'Employees are _____ to report any safety hazards to their supervisors immediately.',
+  options:['encouraged','encouraged to','discouraged','prohibited'],
+  answer:0,
+  exp:{
+    core:'"be encouraged to V" 是固定搭配，表示「被鼓勵去做某事」。此處 encouraged 作形容詞與 be 連用。',
+    grammar:'"be encouraged to V" 被鼓勵；"be prohibited from V-ing" 被禁止',
+    phrase:'"safety hazard" 安全隱患；"supervisor" 主管',
+    vocab:[
+      {word:'hazard',pos:'n.',level:'600+',meaning:'危險、隱患',note:'safety hazard 安全隱患'},
+      {word:'supervisor',pos:'n.',level:'400+',meaning:'主管、監督員',note:'supervise 監督（動詞）'},
+    ]
+  }
+},
+{
+  type:'vocab', stem:'The CEO made a _____ decision to invest in renewable energy technologies.',
+  options:['strategic','strategize','strategy','strategically'],
+  answer:0,
+  exp:{
+    core:'修飾名詞 decision 需用形容詞 strategic（戰略性的）。strategy 是名詞，strategize 是動詞，strategically 是副詞。',
+    grammar:'詞性辨析：strategy（n.）→ strategic（adj.）→ strategically（adv.）→ strategize（v.）',
+    phrase:'"strategic decision" 戰略決策；"renewable energy" 可再生能源',
+    vocab:[
+      {word:'strategic',pos:'adj.',level:'600+',meaning:'戰略的、策略的',note:'strategic plan/decision/alliance'},
+      {word:'renewable',pos:'adj.',level:'500+',meaning:'可再生的',note:'renewable energy 可再生能源'},
+    ]
+  }
+},
+{
+  type:'vocab', stem:'The company\'s _____ expansion has been driven by strong consumer demand.',
+  options:['rapid','ripid','raped','ripen'],
+  answer:0,
+  exp:{
+    core:'"rapid expansion" 意為「快速擴張」，是商業新聞中常見的固定搭配。rapid 是形容詞，修飾 expansion。',
+    grammar:'"rapid + 名詞" 常見搭配：rapid growth/expansion/change',
+    phrase:'"rapid expansion" 快速擴張；"consumer demand" 消費者需求',
+    vocab:[
+      {word:'rapid',pos:'adj.',level:'500+',meaning:'快速的、迅速的',note:'rapidly 迅速地（副詞）'},
+      {word:'expansion',pos:'n.',level:'600+',meaning:'擴張、擴大',note:'expand 擴張（動詞）'},
+    ]
+  }
+},
+{
+  type:'vocab', stem:'The new CFO was _____ for turning around the company\'s financial situation.',
+  options:['credited','promoted','rewarded','responsible'],
+  answer:0,
+  exp:{
+    core:'"be credited for" 意為「因…而獲得讚譽」，固定搭配。responsible for 也可，但強調責任而非讚譽，語境是正面評價，credited 更佳。',
+    grammar:'"be credited for + N" 因…受到肯定；"be responsible for + N" 負責…',
+    phrase:'"turn around" 轉虧為盈；"financial situation" 財務狀況',
+    vocab:[
+      {word:'credit',pos:'v.',level:'600+',meaning:'歸功於；讚揚',note:'be credited with/for + 事物'},
+      {word:'turn around',pos:'phr.v.',level:'500+',meaning:'扭轉局面；轉身',note:'turnaround 扭轉（名詞）'},
+    ]
+  }
+},
+{
+  type:'vocab', stem:'The firm\'s _____ in the market has been strengthened by years of innovation.',
+  options:['position','possession','proposition','profession'],
+  answer:0,
+  exp:{
+    core:'"market position" 意為「市場地位」，是商業核心詞彙。strengthened by years of innovation 是描述地位的強化，position 最符語境。',
+    grammar:'語境推斷：market + position（地位）是固定搭配',
+    phrase:'"market position" 市場地位；"strengthen" 加強',
+    vocab:[
+      {word:'position',pos:'n.',level:'400+',meaning:'地位；職位；位置',note:'market position 市場地位（多義詞）'},
+      {word:'proposition',pos:'n.',level:'700+',meaning:'提議；命題',note:'value proposition 價值主張'},
+    ]
+  }
+},
+{
+  type:'vocab', stem:'The report _____ that sales would increase by 15% in the next fiscal year.',
+  options:['projected','proposed','predicted','presented'],
+  answer:2,
+  exp:{
+    core:'"predict" 意為「預測」，最符合語境。projected 也可，但在財務報告語境中 predicted 更通用。present 是呈現，propose 是提議。',
+    grammar:'"predict that" 預測某事；forecast/project/predict 均可表示預測',
+    phrase:'"fiscal year" 會計年度；"predict/forecast" 預測',
+    vocab:[
+      {word:'predict',pos:'v.',level:'400+',meaning:'預測',note:'prediction 預測（名詞）'},
+      {word:'fiscal',pos:'adj.',level:'600+',meaning:'財政的、會計的',note:'fiscal year 會計年度'},
+      {word:'project',pos:'v.',level:'500+',meaning:'預測（財務）；投影',note:'projected figures 預測數據'},
+    ]
+  }
+},
+{
+  type:'vocab', stem:'The company needs to _____ its supply chain to reduce production costs.',
+  options:['streamline','straighten','strengthen','stabilize'],
+  answer:0,
+  exp:{
+    core:'"streamline the supply chain" 意為「精簡供應鏈」，是商業效率化的核心動詞。streamline = 使更有效率、精簡流程。',
+    grammar:'"streamline + 流程/組織" 固定商業用語',
+    phrase:'"supply chain" 供應鏈；"streamline" 精簡、流線型化',
+    vocab:[
+      {word:'streamline',pos:'v.',level:'700+',meaning:'精簡、使更有效率',note:'streamlined 精簡的（形容詞）'},
+      {word:'supply chain',pos:'n.',level:'600+',meaning:'供應鏈',note:'supply chain management 供應鏈管理'},
+    ]
+  }
+},
+{
+  type:'vocab', stem:'All employees should _____ to the company\'s code of conduct.',
+  options:['adhere','defer','refer','prefer'],
+  answer:0,
+  exp:{
+    core:'"adhere to" 意為「遵守（規定、準則）」，是正式用語，相當於 comply with。code of conduct 是行為準則。',
+    grammar:'"adhere to" = comply with = abide by（遵守）',
+    phrase:'"code of conduct" 行為準則；"adhere to" 遵守',
+    vocab:[
+      {word:'adhere',pos:'v.',level:'700+',meaning:'遵守；黏附',note:'adherence 遵守（名詞）'},
+      {word:'code of conduct',pos:'n.',level:'600+',meaning:'行為準則',note:'職場倫理核心詞組'},
+    ]
+  }
+},
+{
+  type:'vocab', stem:'The marketing department is responsible for developing _____ that appeal to the target market.',
+  options:['campaigns','companies','campuses','canvasses'],
+  answer:0,
+  exp:{
+    core:'"develop campaigns" 是行銷部門的核心工作，指開發行銷活動。marketing campaign = 行銷活動。appeal to = 吸引。',
+    grammar:'"develop/launch/run a campaign" 固定動詞搭配',
+    phrase:'"marketing campaign" 行銷活動；"appeal to" 吸引',
+    vocab:[
+      {word:'campaign',pos:'n.',level:'500+',meaning:'活動；運動',note:'marketing/advertising campaign'},
+      {word:'target market',pos:'n.',level:'500+',meaning:'目標市場',note:'target audience 目標受眾'},
+    ]
+  }
+},
+{
+  type:'vocab', stem:'To _____ costs, the company decided to outsource its IT services.',
+  options:['cut','slice','trim','lower'],
+  answer:0,
+  exp:{
+    core:'"cut costs" 是最常見的固定搭配，意為「削減成本」。雖然 trim/reduce/lower 也可，但 cut costs 是商業英文中最標準的表達。',
+    grammar:'"cut costs" = reduce costs = lower costs（以 cut 最正式）',
+    phrase:'"cut costs" 削減成本；"outsource" 外包',
+    vocab:[
+      {word:'outsource',pos:'v.',level:'600+',meaning:'外包',note:'outsourcing 外包（名詞）'},
+      {word:'cut costs',pos:'phr.',level:'400+',meaning:'削減成本',note:'cost-cutting 削減成本的（形容詞）'},
+    ]
+  }
+},
+{
+  type:'vocab', stem:'The manager handled the client\'s complaint in a very _____ manner.',
+  options:['professional','proficient','prolific','profound'],
+  answer:0,
+  exp:{
+    core:'"professional manner" 意為「專業的態度」，是描述工作表現最常用的搭配。proficient 是「熟練的」，語義不同。',
+    grammar:'"in a professional manner" 以專業態度；manner = way/approach',
+    phrase:'"handle a complaint" 處理投訴；"in a professional manner" 以專業方式',
+    vocab:[
+      {word:'professional',pos:'adj.',level:'400+',meaning:'專業的',note:'professionalism 專業精神（名詞）'},
+      {word:'proficient',pos:'adj.',level:'600+',meaning:'熟練的、精通的',note:'proficiency 熟練（名詞）'},
+    ]
+  }
+},
+{
+  type:'vocab', stem:'The construction project was _____ due to unexpected weather conditions.',
+  options:['postponed','imposed','opposed','supposed'],
+  answer:0,
+  exp:{
+    core:'"postpone" 意為「延後」，因不可預期天氣條件導致工程延後，postponed 最符合語境。',
+    grammar:'"postpone/delay" + 事件；"due to" + 原因',
+    phrase:'"postpone a project" 延後專案；"due to" 由於',
+    vocab:[
+      {word:'postpone',pos:'v.',level:'500+',meaning:'延後、推遲',note:'postponement 延期（名詞）；= delay'},
+      {word:'unexpected',pos:'adj.',level:'400+',meaning:'意外的',note:'= unanticipated'},
+    ]
+  }
+},
+{
+  type:'vocab', stem:'The CEO\'s resignation came as a shock to many _____ in the industry.',
+  options:['observers','observatories','observations','observances'],
+  answer:0,
+  exp:{
+    core:'"observers" 意為「觀察者、業界人士」，在商業新聞中指關注某一領域的人。此處指業界人士對 CEO 辭職感到震驚。',
+    grammar:'字形辨析：observer（觀察者）vs observatory（天文台）vs observation（觀察）',
+    phrase:'"industry observers" 業界觀察人士；"resignation" 辭職',
+    vocab:[
+      {word:'observer',pos:'n.',level:'600+',meaning:'觀察者；業界人士',note:'observe 觀察（動詞）'},
+      {word:'resignation',pos:'n.',level:'600+',meaning:'辭職',note:'resign 辭職（動詞）'},
+    ]
+  }
+},
+{
+  type:'vocab', stem:'The organization is committed to _____ diversity and inclusion in the workplace.',
+  options:['promoting','promising','providing','proceeding'],
+  answer:0,
+  exp:{
+    core:'"promote diversity and inclusion" 是人力資源政策的標準用語，意為「推動多元化和包容性」。',
+    grammar:'"promote/foster/encourage diversity" 固定搭配',
+    phrase:'"diversity and inclusion" 多元化與包容；"be committed to" 致力於',
+    vocab:[
+      {word:'diversity',pos:'n.',level:'500+',meaning:'多元化、多樣性',note:'diverse 多樣的（形容詞）'},
+      {word:'inclusion',pos:'n.',level:'600+',meaning:'包容性、納入',note:'inclusive 包容的（形容詞）'},
+    ]
+  }
+},
+{
+  type:'vocab', stem:'The quarterly earnings report exceeded analysts\' _____ by a wide margin.',
+  options:['expectations','estimations','evaluations','examinations'],
+  answer:0,
+  exp:{
+    core:'"exceed expectations" 是財務報告中最常見的固定搭配，意為「超越預期」，其中 analysts\' expectations = 分析師的預期。',
+    grammar:'"exceed + expectations/forecasts/estimates" 常見財務用語',
+    phrase:'"earnings report" 財報；"exceed by a wide margin" 大幅超越',
+    vocab:[
+      {word:'expectation',pos:'n.',level:'500+',meaning:'預期、期望',note:'exceed/meet/fall short of expectations'},
+      {word:'analyst',pos:'n.',level:'600+',meaning:'分析師',note:'financial/market analyst'},
+    ]
+  }
+},
+],
+
+// ──────────────────────────────────────────────────
+// CLOZE  (30 題，10 段落 × 3 題)
+// ──────────────────────────────────────────────────
+cloze: [
+// === Passage 1: 公司通知 ===
+{
+  type:'cloze',
+  passage:`Dear All Staff,<br><br>We are pleased to __(1)__ that the company will be moving to a new office location next month. The new premises are <span class='blank'>__(2)__</span> located in the downtown business district, offering improved facilities for all employees. We ask that all staff __(3)__ their personal belongings and files to the new location during the designated moving weekend.`,
+  stem:'選出 (1) 的最佳答案：',
+  blank:1,
+  options:['announce','pronounce','denounce','renounce'],
+  answer:0,
+  exp:{
+    core:'"announce" 意為「宣布（好消息）」，固定用於 "pleased to announce"。denounce 是譴責，renounce 是放棄，pronounce 是宣告（較正式）。',
+    grammar:'"pleased to announce" 固定搭配；宣布正式消息',
+    phrase:'"be pleased to announce" 很高興宣布',
+    vocab:[{word:'announce',pos:'v.',level:'400+',meaning:'宣布',note:'announcement 公告（名詞）'}]
+  }
+},
+{
+  type:'cloze',
+  passage:`Dear All Staff,<br><br>We are pleased to announce that the company will be moving to a new office location next month. The new premises are <span class='blank'>__(2)__</span> located in the downtown business district, offering improved facilities for all employees. We ask that all staff __(3)__ their personal belongings and files to the new location during the designated moving weekend.`,
+  stem:'選出 (2) 的最佳答案：',
+  blank:2,
+  options:['conveniently','consequently','considerably','considerably'],
+  answer:0,
+  exp:{
+    core:'"conveniently located" 是固定搭配，意為「位置便利的」，是描述辦公室、商店地點的最常用形容詞副詞搭配。',
+    grammar:'"conveniently located" 固定搭配（地點描述）',
+    phrase:'"conveniently located" 位置便利；"downtown business district" 市中心商業區',
+    vocab:[{word:'conveniently',pos:'adv.',level:'500+',meaning:'方便地',note:'convenient 方便的（形容詞）'}]
+  }
+},
+{
+  type:'cloze',
+  passage:`Dear All Staff,<br><br>We are pleased to announce that the company will be moving to a new office location next month. The new premises are conveniently located in the downtown business district, offering improved facilities for all employees. We ask that all staff <span class='blank'>__(3)__</span> their personal belongings and files to the new location during the designated moving weekend.`,
+  stem:'選出 (3) 的最佳答案：',
+  blank:3,
+  options:['transfer','transport','translate','transmit'],
+  answer:0,
+  exp:{
+    core:'"transfer" 意為「轉移（物品、員工）」，與 personal belongings and files 搭配最合適。transport 是運輸（較多指交通運輸），translate 是翻譯。',
+    grammar:'"transfer belongings/documents" 轉移物品；語境推斷',
+    phrase:'"transfer to" 轉移至；"designated" 指定的',
+    vocab:[
+      {word:'transfer',pos:'v.',level:'500+',meaning:'轉移；調職',note:'transfer to 轉移到'},
+      {word:'designated',pos:'adj.',level:'600+',meaning:'指定的',note:'designate 指定（動詞）'},
+    ]
+  }
+},
+// === Passage 2: 工作申請信 ===
+{
+  type:'cloze',
+  passage:`I am writing to apply for the Marketing Manager position __(4)__ in your company's recent job posting. With over eight years of experience in brand management and digital marketing, I believe I am highly __(5)__ for this role. I have __(6)__ led campaigns that resulted in a 30% increase in brand awareness.`,
+  stem:'選出 (4) 的最佳答案：',
+  blank:4,
+  options:['advertised','advertising','advertisement','advertise'],
+  answer:0,
+  exp:{
+    core:'"advertised in your job posting" 表示「在招聘廣告中登出的職位」，past participle 作後置定語修飾 position。',
+    grammar:'過去分詞後置修飾名詞：position advertised in...',
+    phrase:'"job posting" 招聘公告；"advertised position" 廣告職位',
+    vocab:[{word:'advertise',pos:'v.',level:'400+',meaning:'廣告；宣傳',note:'advertisement 廣告（名詞）'}]
+  }
+},
+{
+  type:'cloze',
+  passage:`I am writing to apply for the Marketing Manager position advertised in your company's recent job posting. With over eight years of experience in brand management and digital marketing, I believe I am highly __(5)__ for this role. I have __(6)__ led campaigns that resulted in a 30% increase in brand awareness.`,
+  stem:'選出 (5) 的最佳答案：',
+  blank:5,
+  options:['qualified','quantified','clarified','certified'],
+  answer:0,
+  exp:{
+    core:'"highly qualified for a role" 是履歷/求職信中的固定搭配，表示「非常符合資格」。quantify 是量化，certify 是認證。',
+    grammar:'"be qualified for + 職位" 固定搭配',
+    phrase:'"highly qualified" 高度合格；"brand management" 品牌管理',
+    vocab:[{word:'qualified',pos:'adj.',level:'500+',meaning:'具備資格的',note:'be qualified for/to V'}]
+  }
+},
+{
+  type:'cloze',
+  passage:`I am writing to apply for the Marketing Manager position advertised in your company's recent job posting. With over eight years of experience in brand management and digital marketing, I believe I am highly qualified for this role. I have __(6)__ led campaigns that resulted in a 30% increase in brand awareness.`,
+  stem:'選出 (6) 的最佳答案：',
+  blank:6,
+  options:['successfully','successive','success','succeed'],
+  answer:0,
+  exp:{
+    core:'修飾動詞 led 需用副詞，successfully（成功地）是形容詞 successful 的副詞形式。successive 是「連續的」（形容詞），不能修飾動詞。',
+    grammar:'副詞修飾動詞：successful → successfully',
+    phrase:'"successfully led" 成功地帶領；"brand awareness" 品牌知名度',
+    vocab:[
+      {word:'successfully',pos:'adv.',level:'400+',meaning:'成功地',note:'successful 成功的（形容詞）'},
+      {word:'brand awareness',pos:'n.',level:'500+',meaning:'品牌知名度',note:'行銷必備詞組'},
+    ]
+  }
+},
+// === Passage 3: 商業報告 ===
+{
+  type:'cloze',
+  passage:`The third quarter financial results demonstrate a __(7)__ improvement in overall performance. Revenue grew by 22%, __(8)__ previous forecasts of 15%. The company attributes this success __(9)__ its aggressive expansion into new markets and effective cost-management strategies.`,
+  stem:'選出 (7) 的最佳答案：',
+  blank:7,
+  options:['significant','signify','significance','significantly'],
+  answer:0,
+  exp:{
+    core:'修飾名詞 improvement 需用形容詞，significant（顯著的）是正確選項。significantly 是副詞，signify 是動詞，significance 是名詞。',
+    grammar:'詞性辨析：signify（v.）→ significant（adj.）→ significance（n.）→ significantly（adv.）',
+    phrase:'"significant improvement" 顯著改善；"third quarter" 第三季度',
+    vocab:[{word:'significant',pos:'adj.',level:'500+',meaning:'顯著的、重要的',note:'significantly 顯著地（副詞）'}]
+  }
+},
+{
+  type:'cloze',
+  passage:`The third quarter financial results demonstrate a significant improvement in overall performance. Revenue grew by 22%, __(8)__ previous forecasts of 15%. The company attributes this success __(9)__ its aggressive expansion into new markets and effective cost-management strategies.`,
+  stem:'選出 (8) 的最佳答案：',
+  blank:8,
+  options:['surpassing','surprising','suppressing','suspending'],
+  answer:0,
+  exp:{
+    core:'"surpassing previous forecasts" 是分詞構句，意為「超越過去的預測」，surpass = exceed。此處 22% 超越了 15% 的預測。',
+    grammar:'現在分詞片語（分詞構句）：surpassing = which surpassed',
+    phrase:'"surpass forecasts" 超越預測；"previous" 先前的',
+    vocab:[{word:'surpass',pos:'v.',level:'700+',meaning:'超越、勝過',note:'= exceed；surpassing 現在分詞'}]
+  }
+},
+{
+  type:'cloze',
+  passage:`The third quarter financial results demonstrate a significant improvement in overall performance. Revenue grew by 22%, surpassing previous forecasts of 15%. The company attributes this success __(9)__ its aggressive expansion into new markets and effective cost-management strategies.`,
+  stem:'選出 (9) 的最佳答案：',
+  blank:9,
+  options:['to','for','from','with'],
+  answer:0,
+  exp:{
+    core:'"attribute sth to sth" 是固定搭配，意為「將某事歸因於……」，介系詞固定用 to。',
+    grammar:'"attribute A to B" 固定搭配（歸因）',
+    phrase:'"attribute success to" 將成功歸因於；"aggressive expansion" 積極擴張',
+    vocab:[
+      {word:'attribute',pos:'v.',level:'600+',meaning:'歸因、歸功',note:'attribute A to B 固定介系詞搭配'},
+      {word:'aggressive',pos:'adj.',level:'500+',meaning:'積極進取的；攻擊性的',note:'aggressive expansion 積極擴張'},
+    ]
+  }
+},
+// === Passage 4: 會議通知 ===
+{
+  type:'cloze',
+  passage:`Please be __(10)__ that the annual performance review meeting has been rescheduled. The meeting will now __(11)__ place on Friday, June 20th, in the main conference room. All department heads are __(12)__ to attend and present their team\'s quarterly updates.`,
+  stem:'選出 (10) 的最佳答案：',
+  blank:10,
+  options:['advised','notified','informed','told'],
+  answer:2,
+  exp:{
+    core:'"Please be informed that..." 是正式公文通知的固定句型，意為「請注意/特此告知」。"be notified that" 也常見，但 "be informed" 更書面正式。',
+    grammar:'"Please be informed that" 書面通知固定句型',
+    phrase:'"be informed that" 被告知…；"annual performance review" 年度績效審查',
+    vocab:[{word:'informed',pos:'adj.',level:'400+',meaning:'知情的；被告知的',note:'keep sb informed 保持知情'}]
+  }
+},
+{
+  type:'cloze',
+  passage:`Please be informed that the annual performance review meeting has been rescheduled. The meeting will now __(11)__ place on Friday, June 20th, in the main conference room. All department heads are __(12)__ to attend and present their team's quarterly updates.`,
+  stem:'選出 (11) 的最佳答案：',
+  blank:11,
+  options:['take','have','hold','make'],
+  answer:0,
+  exp:{
+    core:'"take place" 是「發生、舉行」的固定搭配，常用於活動、會議等。hold a meeting 也表示「舉行會議」，但此處結構已有 "The meeting will..." 作主詞，不適合再用 hold。',
+    grammar:'"take place" 固定搭配（事件發生）；= occur/happen/be held',
+    phrase:'"take place" 舉行、發生；"conference room" 會議室',
+    vocab:[{word:'take place',pos:'phr.',level:'400+',meaning:'發生、舉行',note:'無被動形式，固定搭配'}]
+  }
+},
+{
+  type:'cloze',
+  passage:`Please be informed that the annual performance review meeting has been rescheduled. The meeting will now take place on Friday, June 20th, in the main conference room. All department heads are __(12)__ to attend and present their team's quarterly updates.`,
+  stem:'選出 (12) 的最佳答案：',
+  blank:12,
+  options:['required','requested','reminded','rewarded'],
+  answer:0,
+  exp:{
+    core:'"be required to attend" 是強制性的正式要求，意為「必須出席」。required 比 requested 更強調強制性。',
+    grammar:'"be required to V" 被要求/必須；比 requested 更有強制性',
+    phrase:'"be required to" 被要求；"quarterly update" 季度更新',
+    vocab:[{word:'required',pos:'adj.',level:'400+',meaning:'必要的；被要求的',note:'requirement 要求（名詞）'}]
+  }
+},
+// === Passage 5: 客訴回覆 ===
+{
+  type:'cloze',
+  passage:`Thank you for contacting us __(13)__ your recent purchase. We sincerely apologize for the inconvenience you experienced. After __(14)__ your complaint, we have determined that a full refund is __(15)__. The refund will be processed within 5-7 business days.`,
+  stem:'選出 (13) 的最佳答案：',
+  blank:13,
+  options:['regarding','regarding to','regard','regards'],
+  answer:0,
+  exp:{
+    core:'"regarding" 是介系詞，意為「關於」，無需加 to。常見錯誤是加 regarding to，正確應為 regarding。',
+    grammar:'"regarding" = concerning = with regard to（介系詞，不加 to）',
+    phrase:'"regarding your purchase" 關於您的購買；客服信件常用詞',
+    vocab:[{word:'regarding',pos:'prep.',level:'500+',meaning:'關於',note:'= concerning；不加 to'}]
+  }
+},
+{
+  type:'cloze',
+  passage:`Thank you for contacting us regarding your recent purchase. We sincerely apologize for the inconvenience you experienced. After __(14)__ your complaint, we have determined that a full refund is __(15)__. The refund will be processed within 5-7 business days.`,
+  stem:'選出 (14) 的最佳答案：',
+  blank:14,
+  options:['reviewing','reviewing of','review','reviews'],
+  answer:0,
+  exp:{
+    core:'"After + V-ing" 是介系詞片語，after 後接動名詞（V-ing）。review your complaint = 審查您的投訴。',
+    grammar:'"After + V-ing" 介系詞片語',
+    phrase:'"after reviewing" 在審查之後；"complaint" 投訴',
+    vocab:[{word:'review',pos:'v.',level:'400+',meaning:'審查；回顧',note:'review a complaint 審查投訴'}]
+  }
+},
+{
+  type:'cloze',
+  passage:`Thank you for contacting us regarding your recent purchase. We sincerely apologize for the inconvenience you experienced. After reviewing your complaint, we have determined that a full refund is __(15)__. The refund will be processed within 5-7 business days.`,
+  stem:'選出 (15) 的最佳答案：',
+  blank:15,
+  options:['warranted','warded','wanted','warned'],
+  answer:0,
+  exp:{
+    core:'"warranted" 在此意為「有理由的、合理的」，"a full refund is warranted" = 全額退款是合理的/應給予的。',
+    grammar:'"be warranted" = be justified = be appropriate（合理的，有充分理由的）',
+    phrase:'"a full refund is warranted" 全額退款是合理的；"process a refund" 處理退款',
+    vocab:[
+      {word:'warranted',pos:'adj.',level:'700+',meaning:'合理的、有根據的',note:'warrant 保證；有理由（動詞）'},
+      {word:'refund',pos:'n./v.',level:'500+',meaning:'退款',note:'process a refund 處理退款'},
+    ]
+  }
+},
+],
+
+// ──────────────────────────────────────────────────
+// LISTENING  (35 題)
+// ──────────────────────────────────────────────────
+listening: [
+{
+  type:'listening',
+  audioTitle:'Part 1 — 照片描述',
+  transcript:'A man is sitting at a desk, typing on a computer. There are several documents scattered on the desk beside him.',
+  stem:'照片最可能描述哪個場景？',
+  options:['A man working at a computer','People having a meeting in a conference room','A woman giving a presentation','Workers eating in a cafeteria'],
+  answer:0,
+  exp:{
+    core:'對話中提到 "A man is sitting at a desk, typing on a computer"，明確為男性在電腦前工作的場景。',
+    grammar:'照片描述題：注意主語（誰）、動作（做什麼）、地點（在哪）',
+    phrase:'"scattered" 散落的；"documents" 文件',
+    vocab:[{word:'scatter',pos:'v.',level:'500+',meaning:'散落',note:'scattered documents 散落的文件'}]
+  }
+},
+{
+  type:'listening',
+  audioTitle:'Part 1 — 照片描述',
+  transcript:'Several people are gathered around a conference table. One person is standing and pointing at a whiteboard.',
+  stem:'照片最可能顯示什麼？',
+  options:['A meeting in progress','People waiting in line','Workers loading boxes','An empty office'],
+  answer:0,
+  exp:{
+    core:'對話描述 "people gathered around a conference table" 且有人在白板前發表，明確為會議進行中。',
+    grammar:'照片描述題：gathered around（聚集在…周圍）是關鍵片語',
+    phrase:'"in progress" 進行中；"whiteboard" 白板',
+    vocab:[{word:'gather',pos:'v.',level:'400+',meaning:'聚集',note:'gathering 聚會（名詞）'}]
+  }
+},
+{
+  type:'listening',
+  audioTitle:'Part 2 — 應答問題',
+  transcript:'Where is the nearest subway station?\nIt\'s about a five-minute walk from here.',
+  stem:'對問題 "Where is the nearest subway station?" 最合適的回應是？',
+  options:["It's about a five-minute walk from here.","Yes, I took the subway this morning.","The subway opens at 6 AM.","I prefer taking the bus."],
+  answer:0,
+  exp:{
+    core:'Where 問地點，正確回答應給出方向/距離，"about a five-minute walk from here" 最直接回應地點。',
+    grammar:'Where 疑問句回答：地點/方向/距離',
+    phrase:'"a five-minute walk" 步行五分鐘的距離；nearest 最近的',
+    vocab:[{word:'nearby',pos:'adj./adv.',level:'300+',meaning:'附近',note:'near + by；nearby vs near'}]
+  }
+},
+{
+  type:'listening',
+  audioTitle:'Part 2 — 應答問題',
+  transcript:'Could you send me the agenda for tomorrow\'s meeting?\nSure, I\'ll email it to you right away.',
+  stem:'對請求 "Could you send me the agenda?" 最適合的回應是？',
+  options:["Sure, I'll email it to you right away.","The meeting is at 9 AM.","I haven't attended many meetings.","The agenda was very detailed."],
+  answer:0,
+  exp:{
+    core:'對方請求寄送議程，最合理的回應是答應並表示立即處理。"right away" 表示立刻。',
+    grammar:'請求回應：Sure / Of course / Certainly + 具體行動',
+    phrase:'"agenda" 議程；"right away" 立刻',
+    vocab:[{word:'agenda',pos:'n.',level:'500+',meaning:'議程、待辦事項',note:'set/follow an agenda 設定/遵循議程'}]
+  }
+},
+{
+  type:'listening',
+  audioTitle:'Part 2 — 應答問題',
+  transcript:'When does the new product launch?\nIt\'s scheduled for the first week of October.',
+  stem:'對問題 "When does the new product launch?" 最佳回應是？',
+  options:["It's scheduled for the first week of October.","The product is very innovative.","Marketing handles the launch.","We have three new products."],
+  answer:0,
+  exp:{
+    core:'When 詢問時間，正確回答需給出時間資訊。"scheduled for" 表示預定在某時間。',
+    grammar:'When 疑問句回答：具體時間；be scheduled for 預定在…',
+    phrase:'"be scheduled for" 預定於；"first week of" …的第一週',
+    vocab:[{word:'launch',pos:'n./v.',level:'500+',meaning:'上市；發射',note:'product launch 新品上市'}]
+  }
+},
+{
+  type:'listening',
+  audioTitle:'Part 3 — 簡短對話',
+  transcript:'Man: I heard the regional sales conference has been moved to next month.\nWoman: Yes, the original date conflicted with the trade show.\nMan: That makes sense. Will it still be held in Chicago?\nWoman: No, they changed the location to Atlanta to reduce travel costs.',
+  stem:'對話中關於銷售會議，下列哪一項是正確的？',
+  options:['The location was changed to Atlanta.','The conference was cancelled.','The conference will still be in Chicago.','The conference is next week.'],
+  answer:0,
+  exp:{
+    core:'對話中女方明確說 "they changed the location to Atlanta"，故選 Atlanta 是正確的。',
+    grammar:'聽力細節題：注意地點、時間、原因等關鍵資訊',
+    phrase:'"conflict with" 與…衝突；"trade show" 商展',
+    vocab:[
+      {word:'conflict',pos:'v./n.',level:'500+',meaning:'衝突',note:'conflict with 與…衝突'},
+      {word:'trade show',pos:'n.',level:'500+',meaning:'商展、貿易展',note:'= trade fair'},
+    ]
+  }
+},
+{
+  type:'listening',
+  audioTitle:'Part 3 — 簡短對話',
+  transcript:'Woman: The printer is out of ink again. Did you order more?\nMan: I submitted the order last week, but it hasn\'t arrived yet.\nWoman: We have an important presentation tomorrow morning.\nMan: I\'ll call the supplier to see if they can expedite the delivery.',
+  stem:'男方打算採取什麼行動？',
+  options:['Call the supplier to speed up delivery.','Buy ink from a nearby store.','Postpone the presentation.','Replace the old printer.'],
+  answer:0,
+  exp:{
+    core:'男方說 "I\'ll call the supplier to see if they can expedite the delivery"，expedite = speed up 加快，故正確答案是聯繫供應商加快送貨。',
+    grammar:'"expedite" = speed up（加速）；注意計劃動作 will + V',
+    phrase:'"expedite delivery" 加急配送；"out of ink" 墨水用完',
+    vocab:[
+      {word:'expedite',pos:'v.',level:'700+',meaning:'加速、加快',note:'expedited shipping 快速運送'},
+      {word:'supplier',pos:'n.',level:'500+',meaning:'供應商',note:'supply 供應（動詞）'},
+    ]
+  }
+},
+{
+  type:'listening',
+  audioTitle:'Part 3 — 簡短對話',
+  transcript:'Man: Hi, I\'d like to make a reservation for two at 7 PM on Saturday.\nWoman: I\'m sorry, we\'re fully booked that evening. Would Friday work for you?\nMan: Actually, could we do Sunday instead? Saturday is a family event.\nWoman: Of course. I\'ll put you down for Sunday at 7 PM.',
+  stem:'最終預訂在何時？',
+  options:['Sunday at 7 PM','Friday at 7 PM','Saturday at 7 PM','Sunday at 8 PM'],
+  answer:0,
+  exp:{
+    core:'對話最後確認 "Sunday at 7 PM"，男方要求改到星期日，女方同意。',
+    grammar:'聽力細節追蹤：注意時間的變化（Saturday→Friday→Sunday）',
+    phrase:'"fully booked" 全部訂滿；"put sb down for" 替某人預訂',
+    vocab:[{word:'reservation',pos:'n.',level:'400+',meaning:'預訂',note:'make a reservation 預訂'}]
+  }
+},
+{
+  type:'listening',
+  audioTitle:'Part 4 — 獨白',
+  transcript:'Attention all passengers. The 3:45 PM train to downtown has been delayed by approximately 30 minutes due to a signal malfunction. We apologize for the inconvenience. Complimentary refreshments are available at the station café, and a customer service representative will be at Platform 3 to assist passengers with alternative arrangements.',
+  stem:'根據廣播，乘客可在哪裡獲得協助？',
+  options:['Platform 3','The station café','The information desk','The main entrance'],
+  answer:0,
+  exp:{
+    core:'廣播中說 "a customer service representative will be at Platform 3"，故協助在 Platform 3。',
+    grammar:'獨白細節題：注意地點、服務、原因',
+    phrase:'"signal malfunction" 信號故障；"complimentary" 免費的；"alternative arrangements" 替代安排',
+    vocab:[
+      {word:'malfunction',pos:'n./v.',level:'600+',meaning:'故障',note:'signal malfunction 信號故障'},
+      {word:'complimentary',pos:'adj.',level:'600+',meaning:'免費贈送的；讚美的',note:'complimentary refreshments 免費茶點'},
+    ]
+  }
+},
+{
+  type:'listening',
+  audioTitle:'Part 4 — 獨白',
+  transcript:'Good morning, everyone. Today we\'ll be reviewing the results from last quarter\'s customer satisfaction survey. Overall, 87% of respondents rated our service as excellent or very good. However, response time was flagged as an area for improvement, with 35% of customers reporting wait times longer than expected.',
+  stem:'哪個方面被認為需要改進？',
+  options:['Response time','Overall satisfaction','Product quality','Staff friendliness'],
+  answer:0,
+  exp:{
+    core:'獨白中說 "response time was flagged as an area for improvement"，明確指出需要改善的是 response time（回應時間）。',
+    grammar:'"flag as" 標記為；"area for improvement" 待改善項目',
+    phrase:'"customer satisfaction survey" 顧客滿意度調查；"flag as" 標記為',
+    vocab:[
+      {word:'respondent',pos:'n.',level:'600+',meaning:'受訪者',note:'respond 回應（動詞）'},
+      {word:'flag',pos:'v.',level:'600+',meaning:'標記；標示',note:'flag an issue 標記問題'},
+    ]
+  }
+},
+{
+  type:'listening',
+  audioTitle:'Part 4 — 電話訊息',
+  transcript:'Hi, this is David Chen from Westwood Enterprises. I\'m calling to confirm our meeting scheduled for Thursday at 2 PM. I\'d also like to discuss adding a brief product demonstration to the agenda, if possible. Please call me back at 555-0134 at your earliest convenience.',
+  stem:'David Chen 打電話的主要目的是？',
+  options:['To confirm a meeting and suggest adding an item to the agenda','To cancel an appointment','To request a product catalog','To introduce himself to the company'],
+  answer:0,
+  exp:{
+    core:'電話訊息中 David Chen 說 "calling to confirm our meeting" 並想 "discuss adding a brief product demonstration to the agenda"，故主要目的是確認會議並建議加入議程項目。',
+    grammar:'電話訊息題：注意主要目的（calling to confirm/request/inform）',
+    phrase:'"at your earliest convenience" 方便時盡早；"agenda" 議程',
+    vocab:[
+      {word:'confirm',pos:'v.',level:'400+',meaning:'確認',note:'confirmation 確認（名詞）'},
+      {word:'demonstration',pos:'n.',level:'500+',meaning:'示範',note:'demonstrate 示範（動詞）；demo 縮寫'},
+    ]
+  }
+},
+{
+  type:'listening',
+  audioTitle:'Part 2 — 應答問題',
+  transcript:'Why hasn\'t the quarterly report been submitted yet?\nThe accountant is still finalizing the figures.',
+  stem:'對問題 "Why hasn\'t the quarterly report been submitted?" 最合適的回應是？',
+  options:["The accountant is still finalizing the figures.","The report is 50 pages long.","I submitted it last week.","Reports are submitted monthly."],
+  answer:0,
+  exp:{
+    core:'Why 問原因，正確回答需給出原因。"still finalizing the figures" 表示數字尚未確認，是直接原因。',
+    grammar:'Why 疑問句回答：給出原因（because/still doing sth）',
+    phrase:'"finalize figures" 確認數字；"quarterly report" 季度報告',
+    vocab:[{word:'finalize',pos:'v.',level:'500+',meaning:'定稿、確認最終版本',note:'finalization 最終確認（名詞）'}]
+  }
+},
+{
+  type:'listening',
+  audioTitle:'Part 3 — 簡短對話',
+  transcript:'Woman: Did you see the email about the new benefits package?\nMan: Not yet. What changed?\nWoman: They\'re adding dental and vision coverage starting next year.\nMan: That\'s great news. I\'ve been waiting for that.',
+  stem:'關於新福利方案，下列何者正確？',
+  options:['It includes dental and vision coverage.','It reduces health insurance.','It starts this month.','It only applies to new employees.'],
+  answer:0,
+  exp:{
+    core:'女方說 "They\'re adding dental and vision coverage"，故新福利包含牙科和視力保險。',
+    grammar:'聽力細節題：注意 adding/including 等表示新增的動詞',
+    phrase:'"benefits package" 福利方案；"dental and vision coverage" 牙科和視力保險',
+    vocab:[
+      {word:'coverage',pos:'n.',level:'600+',meaning:'保險涵蓋範圍',note:'insurance coverage 保險涵蓋'},
+      {word:'benefits',pos:'n.',level:'400+',meaning:'福利',note:'employee benefits 員工福利'},
+    ]
+  }
+},
+{
+  type:'listening',
+  audioTitle:'Part 3 — 簡短對話',
+  transcript:'Man: I\'m trying to set up the projector for the boardroom presentation.\nWoman: Do you need any help? I set it up last time.\nMan: Actually, yes. I can\'t figure out how to connect the laptop.\nWoman: There should be an HDMI cable in the top drawer of the cabinet.',
+  stem:'女方建議男方在哪裡找 HDMI 線？',
+  options:['In the top drawer of the cabinet','On the shelf behind the projector','In the conference room closet','At the IT help desk'],
+  answer:0,
+  exp:{
+    core:'女方說 "There should be an HDMI cable in the top drawer of the cabinet"，明確指出位置。',
+    grammar:'聽力細節題：注意地點描述',
+    phrase:'"top drawer" 最上層抽屜；"figure out" 弄清楚、搞懂',
+    vocab:[
+      {word:'projector',pos:'n.',level:'400+',meaning:'投影機',note:'project 投影（動詞）'},
+      {word:'cabinet',pos:'n.',level:'400+',meaning:'櫃子',note:'filing cabinet 文件櫃'},
+    ]
+  }
+},
+{
+  type:'listening',
+  audioTitle:'Part 4 — 廣播公告',
+  transcript:'Attention shoppers. Our store will be closing in 30 minutes. Please bring your final selections to the register at this time. Also, don\'t forget that this weekend only, all clearance items are an additional 20% off. Thank you for shopping with us today, and we hope to see you again soon.',
+  stem:'本廣播中特別提到什麼優惠？',
+  options:['An extra 20% discount on clearance items this weekend','A free gift with every purchase','Double loyalty points today','Buy one get one free on selected items'],
+  answer:0,
+  exp:{
+    core:'廣播中說 "all clearance items are an additional 20% off"，故優惠是清倉商品額外打八折。',
+    grammar:'獨白優惠細節：注意 additional/extra + 折扣',
+    phrase:'"clearance items" 清倉商品；"an additional 20% off" 額外九折',
+    vocab:[
+      {word:'clearance',pos:'n.',level:'500+',meaning:'清倉；清除',note:'clearance sale 清倉銷售'},
+      {word:'register',pos:'n.',level:'400+',meaning:'收銀台',note:'cash register 收銀機'},
+    ]
+  }
+},
+{
+  type:'listening',
+  audioTitle:'Part 2 — 應答問題',
+  transcript:'Who is responsible for approving expense claims?\nThat would be the finance department.',
+  stem:'對問題 "Who is responsible for approving expense claims?" 最適合的回答是？',
+  options:["That would be the finance department.","Expenses need to be submitted monthly.","The form is in the HR office.","Yes, I filed my claim yesterday."],
+  answer:0,
+  exp:{
+    core:'Who 問責任人，正確回答應給出部門/人員。"That would be the finance department" 直接回答誰負責。',
+    grammar:'Who 疑問句回答：部門/人名；"that would be" 委婉表達',
+    phrase:'"expense claim" 費用申請；"approve" 批准',
+    vocab:[{word:'claim',pos:'n./v.',level:'500+',meaning:'申請；要求',note:'expense claim 費用申請'}]
+  }
+},
+{
+  type:'listening',
+  audioTitle:'Part 3 — 簡短對話',
+  transcript:'Woman: I\'m not sure I can finish the market analysis report by Friday.\nMan: What\'s holding you up?\nWoman: I\'m waiting on data from three regional offices.\nMan: I can follow up with them directly if that would help.',
+  stem:'什麼導致女方的工作延誤？',
+  options:['She is waiting for data from regional offices.','She lacks the necessary software.','The deadline was moved up.','Her computer is broken.'],
+  answer:0,
+  exp:{
+    core:'女方說 "I\'m waiting on data from three regional offices"，等待地區辦公室的數據導致延誤。',
+    grammar:'"what\'s holding you up?" 是什麼讓你拖延？；"follow up" 跟進',
+    phrase:'"hold up" 延誤；"follow up with" 跟進聯絡',
+    vocab:[
+      {word:'hold up',pos:'phr.v.',level:'500+',meaning:'延誤；延緩',note:'What\'s holding you up? 什麼讓你卡住？'},
+      {word:'regional office',pos:'n.',level:'500+',meaning:'地區辦公室',note:'regional 地區的'},
+    ]
+  }
+},
+{
+  type:'listening',
+  audioTitle:'Part 4 — 公司廣播',
+  transcript:'Good afternoon. This is an announcement for all staff. The parking lot on Level 2 will be closed for maintenance from Monday through Wednesday next week. During this period, staff are encouraged to use Level 3 or the overflow lot on Maple Street. We apologize for any inconvenience this may cause.',
+  stem:'停車場關閉的原因是什麼？',
+  options:['For maintenance work','Due to a special event','Because it is being replaced','Due to construction nearby'],
+  answer:0,
+  exp:{
+    core:'廣播說 "will be closed for maintenance"，明確原因是維護工作。',
+    grammar:'"for + 目的" 表示關閉原因',
+    phrase:'"for maintenance" 為了維護；"overflow lot" 備用停車場',
+    vocab:[
+      {word:'maintenance',pos:'n.',level:'500+',meaning:'維護、保養',note:'maintain 維護（動詞）'},
+      {word:'overflow',pos:'adj./n.',level:'600+',meaning:'溢出的；備用的',note:'overflow lot 備用停車場'},
+    ]
+  }
+},
+{
+  type:'listening',
+  audioTitle:'Part 2 — 應答問題',
+  transcript:'Have all the meeting rooms been booked for next week?\nI\'ll check the reservation system right now.',
+  stem:'對問題 "Have all the meeting rooms been booked?" 最合適的回應？',
+  options:["I'll check the reservation system right now.","The meeting rooms are on the third floor.","Meetings are held every Monday.","Yes, the rooms are very large."],
+  answer:0,
+  exp:{
+    core:'對方詢問是否全部預訂，最自然的回答是確認後再告知，"I\'ll check the reservation system right now" 最合適。',
+    grammar:'現在完成式問句（Have + p.p.）：回應為確認/行動',
+    phrase:'"reservation system" 預訂系統；"right now" 馬上',
+    vocab:[{word:'reservation',pos:'n.',level:'400+',meaning:'預訂、預約',note:'make/cancel a reservation'}]
+  }
+},
+{
+  type:'listening',
+  audioTitle:'Part 3 — 簡短對話',
+  transcript:'Man: Are you attending the digital marketing workshop on Thursday?\nWoman: I was planning to, but I have a client meeting that conflicts with it.\nMan: The session is being recorded. You could watch it later.\nWoman: That\'s perfect. Could you send me the link when it\'s available?',
+  stem:'女方為何無法出席工作坊？',
+  options:['She has a conflicting client meeting.','She is not interested in the topic.','She will be out of town.','The workshop is already full.'],
+  answer:0,
+  exp:{
+    core:'女方說 "I have a client meeting that conflicts with it"，明確指出是與客戶會議時間衝突。',
+    grammar:'"conflict with" 與…衝突（時間衝突）',
+    phrase:'"client meeting" 客戶會議；"session is being recorded" 課程被錄製',
+    vocab:[{word:'conflict',pos:'v.',level:'500+',meaning:'（時間）衝突',note:'conflict with a meeting 與會議時間衝突'}]
+  }
+},
+{
+  type:'listening',
+  audioTitle:'Part 4 — 語音訊息',
+  transcript:'Hello, this is Sarah from Meridian Consulting. I\'m calling about the proposal you sent last Tuesday. We\'ve reviewed it internally, and we\'re very interested in moving forward. However, we\'d like to discuss a few minor adjustments to the pricing structure before signing the contract. Could you schedule a call for sometime this week? I\'m available Tuesday and Thursday afternoons.',
+  stem:'Sarah 致電的目的是？',
+  options:['To discuss pricing adjustments before signing a contract','To reject the proposal','To request a new proposal','To confirm a meeting time'],
+  answer:0,
+  exp:{
+    core:'Sarah 說 "we\'d like to discuss a few minor adjustments to the pricing structure before signing the contract"，目的是在簽約前討論定價調整。',
+    grammar:'語音訊息目的題：calling about / would like to discuss + 主題',
+    phrase:'"pricing structure" 定價結構；"moving forward" 繼續推進；"minor adjustment" 小幅調整',
+    vocab:[
+      {word:'adjustment',pos:'n.',level:'600+',meaning:'調整',note:'adjust 調整（動詞）'},
+      {word:'pricing',pos:'n.',level:'500+',meaning:'定價',note:'pricing structure 定價結構'},
+    ]
+  }
+},
+{
+  type:'listening',
+  audioTitle:'Part 3 — 簡短對話',
+  transcript:'Woman: The system upgrade is scheduled to begin at midnight tonight.\nMan: Will all users be affected?\nWoman: Yes, the entire network will be down for approximately four hours.\nMan: I\'ll send a company-wide email to notify everyone.',
+  stem:'系統升級期間會發生什麼事？',
+  options:['The entire network will be unavailable.','Only some departments will be affected.','Users can still access email.','The upgrade will take one hour.'],
+  answer:0,
+  exp:{
+    core:'女方說 "the entire network will be down for approximately four hours"，表示整個網絡都會中斷。',
+    grammar:'"be down" 系統中斷；"entire" = all（全部的）',
+    phrase:'"system upgrade" 系統升級；"network down" 網絡中斷；"company-wide" 全公司的',
+    vocab:[
+      {word:'upgrade',pos:'n./v.',level:'400+',meaning:'升級',note:'system upgrade 系統升級'},
+      {word:'approximately',pos:'adv.',level:'500+',meaning:'大約',note:'= about/roughly'},
+    ]
+  }
+},
+{
+  type:'listening',
+  audioTitle:'Part 4 — 簡短說明',
+  transcript:'Welcome to the company orientation. Over the next two days, you\'ll be introduced to our departments, learn about our products, and meet your team leaders. Please note that your access badges will be issued at the end of today\'s session. Security protocols require that you wear your badge at all times while on company premises.',
+  stem:'哪個項目在今天課程結束後提供？',
+  options:['Access badges','Team leader introductions','Department tours','Product training'],
+  answer:0,
+  exp:{
+    core:'說明中說 "your access badges will be issued at the end of today\'s session"，明確說明識別證在今天課程結束後發放。',
+    grammar:'"will be issued at the end of" 在…結束時發放（未來被動）',
+    phrase:'"access badge" 識別證；"at all times" 隨時',
+    vocab:[
+      {word:'issue',pos:'v.',level:'500+',meaning:'發放；發行',note:'issue badges/documents 發放識別證/文件'},
+      {word:'premises',pos:'n.',level:'600+',meaning:'場所、廠房',note:'company premises 公司場所'},
+    ]
+  }
+},
+{
+  type:'listening',
+  audioTitle:'Part 2 — 應答問題',
+  transcript:'How long does the product certification process usually take?\nIt typically takes about three to four weeks.',
+  stem:'對問題 "How long does the certification process take?" 最適合的回應是？',
+  options:["It typically takes about three to four weeks.","Certification is required by law.","The process involves multiple steps.","Our products are certified."],
+  answer:0,
+  exp:{
+    core:'How long 問時間長度，正確回答應給出具體時間：three to four weeks。',
+    grammar:'How long 回答：時間長度（days/weeks/months）',
+    phrase:'"certification process" 認證流程；"typically" 通常',
+    vocab:[{word:'certification',pos:'n.',level:'600+',meaning:'認證',note:'certify 認證（動詞）'}]
+  }
+},
+{
+  type:'listening',
+  audioTitle:'Part 3 — 簡短對話',
+  transcript:'Man: We need to decide on the venue for the company retreat by tomorrow.\nWoman: I\'ve narrowed it down to two options: a mountain resort or a beachside hotel.\nMan: Which one is more affordable?\nWoman: The mountain resort is about 20% cheaper, but the beach location has better meeting facilities.',
+  stem:'山區度假村相比海邊飯店的優勢是什麼？',
+  options:["It's more affordable.","It has better meeting facilities.","It's closer to the office.","It has more rooms available."],
+  answer:0,
+  exp:{
+    core:'女方說 "The mountain resort is about 20% cheaper"，故山區度假村的優勢是更便宜/划算。',
+    grammar:'比較句型：is + 比較級 + than；對話中的優缺點比較',
+    phrase:'"narrow down" 縮小範圍；"company retreat" 公司員工旅遊/靜修；"affordable" 負擔得起的',
+    vocab:[
+      {word:'affordable',pos:'adj.',level:'500+',meaning:'負擔得起的、價格合理的',note:'afford 負擔得起（動詞）'},
+      {word:'retreat',pos:'n.',level:'600+',meaning:'靜修；員工旅行',note:'company retreat 公司員工旅遊'},
+    ]
+  }
+},
+{
+  type:'listening',
+  audioTitle:'Part 4 — 說明廣播',
+  transcript:'Ladies and gentlemen, thank you for attending the annual trade fair. We are pleased to announce that this year\'s event has attracted over 500 exhibitors from 40 countries. The exhibition hall will be open until 6 PM today. Tomorrow\'s keynote address will begin promptly at 9 AM in Hall A. Please check the event app for the complete schedule and floor map.',
+  stem:'明天的主題演講在何時開始？',
+  options:['At 9 AM','At 10 AM','At 6 PM','At 8 AM'],
+  answer:0,
+  exp:{
+    core:'廣播說 "Tomorrow\'s keynote address will begin promptly at 9 AM"，明確說明時間為早上 9 點。',
+    grammar:'"promptly at" 準時在…；"keynote address" 主題演講',
+    phrase:'"promptly" 準時地；"exhibitor" 參展商；"keynote address" 主題演講',
+    vocab:[
+      {word:'keynote',pos:'n.',level:'600+',meaning:'主題；基調',note:'keynote speech/address 主旨演講'},
+      {word:'exhibitor',pos:'n.',level:'600+',meaning:'參展商',note:'exhibit 展示（動詞）'},
+    ]
+  }
+},
+{
+  type:'listening',
+  audioTitle:'Part 3 — 簡短對話',
+  transcript:'Woman: I\'m concerned that we won\'t meet the production target for Q4.\nMan: What\'s the current shortfall?\nWoman: We\'re about 15% below target.\nMan: Let\'s arrange a strategy meeting with operations to address this.',
+  stem:'男方接下來打算做什麼？',
+  options:['Organize a strategy meeting with operations.','Contact customers about delays.','Hire additional staff.','Revise the production target.'],
+  answer:0,
+  exp:{
+    core:'男方說 "Let\'s arrange a strategy meeting with operations"，表示他的行動計劃是安排與生產部門的策略會議。',
+    grammar:'"Let\'s arrange/schedule" 表示計劃行動',
+    phrase:'"production target" 生產目標；"shortfall" 短缺；"Q4" 第四季度',
+    vocab:[
+      {word:'shortfall',pos:'n.',level:'700+',meaning:'短缺、不足',note:'production shortfall 生產不足'},
+      {word:'operations',pos:'n.',level:'500+',meaning:'運營、生產部門',note:'operations team 運營團隊'},
+    ]
+  }
+},
+{
+  type:'listening',
+  audioTitle:'Part 4 — 公告',
+  transcript:'This is a reminder for all research and development staff. The deadline for submitting your project proposals for the Innovation Grant Program has been extended by two weeks. The new deadline is November 15th. Proposals should be submitted electronically through the company\'s internal portal. Please contact Dr. Patel in the R&D department if you have any questions.',
+  stem:'Innovation Grant Program 的截止日期有什麼變化？',
+  options:["It's been extended by two weeks.","It's been moved earlier.","It's been cancelled.","It remains unchanged."],
+  answer:0,
+  exp:{
+    core:'廣播說 "The deadline...has been extended by two weeks"，明確截止日期延長了兩週。',
+    grammar:'"extend a deadline" 延長截止日期；"by two weeks" 延長兩週',
+    phrase:'"Innovation Grant Program" 創新補助計劃；"internal portal" 內部入口網站',
+    vocab:[
+      {word:'extend',pos:'v.',level:'500+',meaning:'延長；擴展',note:'extend a deadline 延長截止日期'},
+      {word:'portal',pos:'n.',level:'500+',meaning:'入口網站；門戶',note:'internal portal 內部系統入口'},
+    ]
+  }
+},
+],
+
+// ──────────────────────────────────────────────────
+// READING / PASSAGE  (30 題)
+// ──────────────────────────────────────────────────
+reading: [
+{
+  type:'reading',
+  passage:`<strong>Greenleaf Technologies – Press Release</strong><br><br>
+San Francisco, CA — Greenleaf Technologies announced today that it has entered into a strategic partnership with EcoSolutions Inc. to co-develop next-generation solar panel technology. The collaboration will combine Greenleaf's expertise in semiconductor design with EcoSolutions' advanced materials research.<br><br>
+According to CEO Marcus Webb, the partnership aims to reduce solar panel production costs by 40% while increasing efficiency by 25% within three years. "This partnership represents a significant leap forward in our mission to make clean energy accessible to everyone," Webb stated.<br><br>
+The joint venture will be headquartered in Austin, Texas, and is expected to create over 300 jobs in the region.`,
+  stem:'根據新聞稿，這個合作的主要目標是什麼？',
+  options:['To reduce production costs and improve solar panel efficiency','To open new offices in California','To acquire EcoSolutions Inc.','To develop semiconductor products for computers'],
+  answer:0,
+  exp:{
+    core:'文章中說 "aims to reduce solar panel production costs by 40% while increasing efficiency by 25%"，明確指出合作目標。',
+    grammar:'閱讀細節題：注意 aims to / goal is to 等表示目的的片語',
+    phrase:'"strategic partnership" 策略夥伴關係；"joint venture" 合資企業',
+    vocab:[
+      {word:'efficiency',pos:'n.',level:'500+',meaning:'效率',note:'efficient 有效率的（形容詞）'},
+      {word:'semiconductor',pos:'n.',level:'700+',meaning:'半導體',note:'高科技必備詞'},
+    ]
+  }
+},
+{
+  type:'reading',
+  passage:`<strong>Greenleaf Technologies – Press Release</strong><br><br>
+San Francisco, CA — Greenleaf Technologies announced today that it has entered into a strategic partnership with EcoSolutions Inc. to co-develop next-generation solar panel technology. The collaboration will combine Greenleaf's expertise in semiconductor design with EcoSolutions' advanced materials research.<br><br>
+According to CEO Marcus Webb, the partnership aims to reduce solar panel production costs by 40% while increasing efficiency by 25% within three years. "This partnership represents a significant leap forward in our mission to make clean energy accessible to everyone," Webb stated.<br><br>
+The joint venture will be headquartered in Austin, Texas, and is expected to create over 300 jobs in the region.`,
+  stem:'合資企業的總部設在哪裡？',
+  options:['Austin, Texas','San Francisco, CA','EcoSolutions headquarters','New York City'],
+  answer:0,
+  exp:{
+    core:'文章最後段落說 "The joint venture will be headquartered in Austin, Texas"，明確指出總部位置。',
+    grammar:'閱讀細節題：注意地名；headquartered = 以某地為總部',
+    phrase:'"be headquartered in" 總部設在；"joint venture" 合資企業',
+    vocab:[{word:'headquartered',pos:'v.',level:'500+',meaning:'設立總部',note:'headquarters 總部（名詞，HQ）'}]
+  }
+},
+{
+  type:'reading',
+  passage:`<strong>Memorandum</strong><br>
+To: All Department Managers<br>
+From: HR Director, Linda Park<br>
+Subject: Updated Remote Work Policy<br><br>
+Effective June 1, all full-time employees will be eligible to work remotely for up to two days per week. Employees must submit a remote work request form to their direct supervisor at least five business days in advance. Requests are subject to managerial approval and operational requirements.<br><br>
+Employees working remotely are expected to be reachable during core business hours (9 AM – 4 PM) and must attend all scheduled meetings via video conference. This policy will be reviewed after six months and updated as necessary.`,
+  stem:'員工需要在多久前提交遠端工作申請？',
+  options:['At least five business days in advance','Two weeks before the requested date','One month before','The day before'],
+  answer:0,
+  exp:{
+    core:'備忘錄中說 "must submit a remote work request form...at least five business days in advance"。',
+    grammar:'閱讀細節題：at least + 時間段 + in advance',
+    phrase:'"in advance" 提前；"business days" 工作天',
+    vocab:[{word:'eligible',pos:'adj.',level:'600+',meaning:'符合資格的',note:'be eligible for/to V'}]
+  }
+},
+{
+  type:'reading',
+  passage:`<strong>Memorandum</strong><br>
+To: All Department Managers<br>
+From: HR Director, Linda Park<br>
+Subject: Updated Remote Work Policy<br><br>
+Effective June 1, all full-time employees will be eligible to work remotely for up to two days per week. Employees must submit a remote work request form to their direct supervisor at least five business days in advance. Requests are subject to managerial approval and operational requirements.<br><br>
+Employees working remotely are expected to be reachable during core business hours (9 AM – 4 PM) and must attend all scheduled meetings via video conference. This policy will be reviewed after six months and updated as necessary.`,
+  stem:'遠端工作的員工必須遵守哪個規定？',
+  options:['Be reachable during core business hours','Work only on Mondays and Fridays','Not attend any in-person meetings','Submit daily work reports'],
+  answer:0,
+  exp:{
+    core:'文件說 "Employees working remotely are expected to be reachable during core business hours (9 AM – 4 PM)"。',
+    grammar:'"be expected to" 被要求；"core business hours" 核心工作時間',
+    phrase:'"be reachable" 可聯繫到；"core business hours" 核心工時',
+    vocab:[{word:'reachable',pos:'adj.',level:'500+',meaning:'可聯繫到的',note:'reach 聯繫（動詞）'}]
+  }
+},
+{
+  type:'reading',
+  passage:`<strong>Notice: Upcoming Office Renovation</strong><br><br>
+The management team wishes to inform all staff that the main office will undergo significant renovations from July 15 to August 30. During this period, the design, legal, and finance teams will be temporarily relocated to Building C on the east campus. The renovation will include new flooring, updated electrical systems, and the installation of energy-efficient lighting throughout the building.<br><br>
+Staff members requiring parking during this period should apply for a temporary parking permit from the facilities team. For any queries, please contact facilities@globalcorp.com.`,
+  stem:'哪些部門將被臨時搬遷？',
+  options:['Design, legal, and finance teams','All staff','Marketing and sales teams','Only the management team'],
+  answer:0,
+  exp:{
+    core:'通知說 "design, legal, and finance teams will be temporarily relocated"，三個部門被明確列出。',
+    grammar:'閱讀細節：注意 relocated/moved to + 地點',
+    phrase:'"temporarily relocated" 臨時遷移；"east campus" 東區園區',
+    vocab:[{word:'relocate',pos:'v.',level:'600+',meaning:'遷移',note:'relocation 搬遷（名詞）'}]
+  }
+},
+{
+  type:'reading',
+  passage:`<strong>Notice: Upcoming Office Renovation</strong><br><br>
+The management team wishes to inform all staff that the main office will undergo significant renovations from July 15 to August 30. During this period, the design, legal, and finance teams will be temporarily relocated to Building C on the east campus. The renovation will include new flooring, updated electrical systems, and the installation of energy-efficient lighting throughout the building.<br><br>
+Staff members requiring parking during this period should apply for a temporary parking permit from the facilities team. For any queries, please contact facilities@globalcorp.com.`,
+  stem:'需要停車的員工應如何處理？',
+  options:['Apply for a temporary parking permit from the facilities team','Contact the management team directly','Find parking on the street','Use public transportation'],
+  answer:0,
+  exp:{
+    core:'通知說 "should apply for a temporary parking permit from the facilities team"，明確指示停車解決方式。',
+    grammar:'"should apply for" 應該申請；指示語氣',
+    phrase:'"parking permit" 停車許可；"facilities team" 設施團隊',
+    vocab:[{word:'permit',pos:'n.',level:'500+',meaning:'許可證',note:'parking permit 停車許可證'}]
+  }
+},
+{
+  type:'reading',
+  passage:`<strong>Customer Feedback – Extracted from Annual Survey Report</strong><br><br>
+This year's survey of 2,400 customers revealed overall satisfaction levels of 78%, up 5% from the previous year. The top-rated category was product quality, with 91% of respondents expressing satisfaction. Customer service received a rating of 83%, while delivery speed scored 74%. The lowest-rated area was the company's online ordering system, which received a satisfaction score of only 62%, largely due to checkout difficulties and limited payment options.<br><br>
+The report recommends prioritizing improvements to the digital platform to address these shortcomings.`,
+  stem:'顧客滿意度最低的是哪個方面？',
+  options:['The online ordering system','Product quality','Customer service','Delivery speed'],
+  answer:0,
+  exp:{
+    core:'文章說 "The lowest-rated area was the company\'s online ordering system, which received a satisfaction score of only 62%"。',
+    grammar:'閱讀推斷：superlative（最高級）識別；lowest-rated = 評分最低',
+    phrase:'"lowest-rated" 評分最低；"digital platform" 數位平台',
+    vocab:[
+      {word:'shortcoming',pos:'n.',level:'600+',meaning:'缺點、不足',note:'= weakness/drawback'},
+      {word:'prioritize',pos:'v.',level:'600+',meaning:'優先處理',note:'priority 優先事項（名詞）'},
+    ]
+  }
+},
+{
+  type:'reading',
+  passage:`<strong>Customer Feedback – Extracted from Annual Survey Report</strong><br><br>
+This year's survey of 2,400 customers revealed overall satisfaction levels of 78%, up 5% from the previous year. The top-rated category was product quality, with 91% of respondents expressing satisfaction. Customer service received a rating of 83%, while delivery speed scored 74%. The lowest-rated area was the company's online ordering system, which received a satisfaction score of only 62%, largely due to checkout difficulties and limited payment options.<br><br>
+The report recommends prioritizing improvements to the digital platform to address these shortcomings.`,
+  stem:'報告中提到線上訂購系統問題的原因是什麼？',
+  options:['Checkout difficulties and limited payment options','Poor product selection','Slow website loading speed','Lack of customer reviews'],
+  answer:0,
+  exp:{
+    core:'文章說 "largely due to checkout difficulties and limited payment options"，明確指出原因。',
+    grammar:'"largely due to" 主要由於；原因副詞片語',
+    phrase:'"checkout difficulties" 結帳困難；"payment options" 付款方式',
+    vocab:[{word:'largely',pos:'adv.',level:'500+',meaning:'主要地、很大程度上',note:'= mainly/primarily'}]
+  }
+},
+{
+  type:'reading',
+  passage:`<strong>Email</strong><br>
+From: James Harper &lt;j.harper@swiftlogistics.com&gt;<br>
+To: Procurement Team<br>
+Subject: Revised Delivery Schedule<br><br>
+Dear Team,<br><br>
+I am writing to inform you of a change to our delivery schedule for the upcoming quarter. Due to increased demand and supplier constraints, we will be adjusting delivery frequencies for certain product lines. Starting next month, deliveries for Category A products will shift from weekly to bi-weekly. This change is necessary to maintain our quality standards and allow suppliers adequate processing time.<br><br>
+Customers will be notified of these changes one week in advance. Please update your records accordingly and reach out to me if you have any questions.`,
+  stem:'Category A 產品的配送頻率將如何改變？',
+  options:['From weekly to bi-weekly','From monthly to weekly','From bi-weekly to weekly','From daily to weekly'],
+  answer:0,
+  exp:{
+    core:'信件說 "deliveries for Category A products will shift from weekly to bi-weekly"。bi-weekly = 每兩週一次。',
+    grammar:'"shift from A to B" 從A轉移到B；"bi-weekly" = every two weeks',
+    phrase:'"bi-weekly" 每兩週；"delivery frequency" 配送頻率',
+    vocab:[
+      {word:'bi-weekly',pos:'adj.',level:'600+',meaning:'每兩週（或每週兩次）',note:'prefix bi- 表示兩/雙'},
+      {word:'frequency',pos:'n.',level:'500+',meaning:'頻率',note:'frequent 頻繁的（形容詞）'},
+    ]
+  }
+},
+{
+  type:'reading',
+  passage:`<strong>Email</strong><br>
+From: James Harper &lt;j.harper@swiftlogistics.com&gt;<br>
+To: Procurement Team<br>
+Subject: Revised Delivery Schedule<br><br>
+Dear Team,<br><br>
+I am writing to inform you of a change to our delivery schedule for the upcoming quarter. Due to increased demand and supplier constraints, we will be adjusting delivery frequencies for certain product lines. Starting next month, deliveries for Category A products will shift from weekly to bi-weekly. This change is necessary to maintain our quality standards and allow suppliers adequate processing time.<br><br>
+Customers will be notified of these changes one week in advance. Please update your records accordingly and reach out to me if you have any questions.`,
+  stem:'顧客將在多久前收到配送變更通知？',
+  options:['One week in advance','Two weeks in advance','One month before','The day of the change'],
+  answer:0,
+  exp:{
+    core:'信件說 "Customers will be notified of these changes one week in advance"。',
+    grammar:'"one week in advance" 提前一週；in advance = beforehand',
+    phrase:'"notify of" 通知…；"in advance" 提前',
+    vocab:[{word:'notify',pos:'v.',level:'500+',meaning:'通知',note:'notification 通知（名詞）'}]
+  }
+},
+{
+  type:'reading',
+  passage:`<strong>Job Advertisement</strong><br><br>
+<strong>Senior Financial Analyst – GlobalFin Ltd.</strong><br><br>
+We are seeking an experienced Senior Financial Analyst to join our growing team. The successful candidate will be responsible for financial modeling, budget forecasting, and preparing quarterly reports for executive management.<br><br>
+<strong>Requirements:</strong><br>
+• Bachelor's degree in Finance, Accounting, or a related field<br>
+• Minimum 5 years of experience in financial analysis<br>
+• Proficiency in Excel and financial modeling tools<br>
+• CFA certification preferred<br><br>
+<strong>Salary:</strong> NT$80,000–NT$100,000/month<br>
+Applications close: March 31. Send resumes to careers@globalfin.com`,
+  stem:'哪一項資格對於這個職位是「偏好但非必要」的？',
+  options:['CFA certification','Bachelor\'s degree in Finance','5 years of experience','Excel proficiency'],
+  answer:0,
+  exp:{
+    core:'職缺說明中 "CFA certification preferred" 表示「偏好但非必要」，其他項目均無 preferred 標示，為必要條件。',
+    grammar:'"preferred" vs "required"：preferred 偏好非強制；required 必要',
+    phrase:'"preferred" 偏好；"CFA certification" 特許金融分析師認證',
+    vocab:[
+      {word:'preferred',pos:'adj.',level:'500+',meaning:'偏好的、優先考慮的',note:'prefer 偏好（動詞）'},
+      {word:'proficiency',pos:'n.',level:'600+',meaning:'熟練、精通',note:'proficient in 精通（形容詞）'},
+    ]
+  }
+},
+{
+  type:'reading',
+  passage:`<strong>Job Advertisement</strong><br><br>
+<strong>Senior Financial Analyst – GlobalFin Ltd.</strong><br><br>
+We are seeking an experienced Senior Financial Analyst to join our growing team. The successful candidate will be responsible for financial modeling, budget forecasting, and preparing quarterly reports for executive management.<br><br>
+<strong>Requirements:</strong><br>
+• Bachelor's degree in Finance, Accounting, or a related field<br>
+• Minimum 5 years of experience in financial analysis<br>
+• Proficiency in Excel and financial modeling tools<br>
+• CFA certification preferred<br><br>
+<strong>Salary:</strong> NT$80,000–NT$100,000/month<br>
+Applications close: March 31. Send resumes to careers@globalfin.com`,
+  stem:'這個職位的主要工作職責之一是什麼？',
+  options:['Financial modeling and budget forecasting','Managing a sales team','Developing marketing campaigns','Overseeing production schedules'],
+  answer:0,
+  exp:{
+    core:'職缺說明說 "responsible for financial modeling, budget forecasting, and preparing quarterly reports"，明確列出主要職責。',
+    grammar:'"be responsible for + V-ing" 負責做某事',
+    phrase:'"financial modeling" 財務建模；"budget forecasting" 預算預測',
+    vocab:[{word:'forecasting',pos:'n.',level:'600+',meaning:'預測',note:'forecast 預測（動詞/名詞）'}]
+  }
+},
+{
+  type:'reading',
+  passage:`<strong>Internal Policy Update – Travel and Entertainment</strong><br><br>
+Effective immediately, all business travel exceeding $500 must be pre-approved by the department head and the finance director. Employees should submit travel requests at least ten business days before the scheduled departure date using the updated form on the company intranet.<br><br>
+Entertainment expenses of more than $200 per person require a receipt and written justification. All expense reports must be submitted within 30 days of the travel or entertainment date. Late submissions will require written approval from the CFO.`,
+  stem:'根據此政策，超過多少金額的出差需要預先批准？',
+  options:['$500','$200','$1,000','$300'],
+  answer:0,
+  exp:{
+    core:'政策說 "all business travel exceeding $500 must be pre-approved"，明確金額為 $500。',
+    grammar:'"exceeding" 超過（現在分詞作後置修飾）；"must be pre-approved" 必須預先批准',
+    phrase:'"pre-approved" 預先批准；"finance director" 財務長',
+    vocab:[{word:'exceed',pos:'v.',level:'600+',meaning:'超過',note:'exceeding $500 超過 500 美元（現在分詞）'}]
+  }
+},
+{
+  type:'reading',
+  passage:`<strong>Internal Policy Update – Travel and Entertainment</strong><br><br>
+Effective immediately, all business travel exceeding $500 must be pre-approved by the department head and the finance director. Employees should submit travel requests at least ten business days before the scheduled departure date using the updated form on the company intranet.<br><br>
+Entertainment expenses of more than $200 per person require a receipt and written justification. All expense reports must be submitted within 30 days of the travel or entertainment date. Late submissions will require written approval from the CFO.`,
+  stem:'逾期提交費用報告需要什麼？',
+  options:['Written approval from the CFO','Double the original amount','A receipt and justification','Approval from the department head'],
+  answer:0,
+  exp:{
+    core:'政策說 "Late submissions will require written approval from the CFO"，逾期提交需要 CFO 書面批准。',
+    grammar:'"late submission" 逾期提交；"will require" 將需要',
+    phrase:'"late submission" 逾期提交；"CFO" 財務長（Chief Financial Officer）',
+    vocab:[
+      {word:'submission',pos:'n.',level:'500+',meaning:'提交、呈遞',note:'submit 提交（動詞）'},
+      {word:'justification',pos:'n.',level:'600+',meaning:'理由、正當性',note:'justify 提供理由（動詞）'},
+    ]
+  }
+},
+{
+  type:'reading',
+  passage:`<strong>Article: Trends in Remote Work</strong><br><br>
+The COVID-19 pandemic fundamentally transformed workplace norms, accelerating the adoption of remote work across industries. A recent survey by WorkForce Analytics found that 68% of knowledge workers now prefer a hybrid work model, combining remote and in-office days.<br><br>
+Companies that have embraced flexible work arrangements report higher employee satisfaction scores and lower turnover rates. However, challenges remain. Collaboration and innovation can suffer when teams lack regular face-to-face interaction. As a result, many organizations are now investing in collaboration technology and redesigning physical office spaces to encourage creative teamwork.`,
+  stem:'根據文章，許多公司為了應對遠距工作的挑戰正在採取什麼措施？',
+  options:['Investing in collaboration technology and redesigning office spaces','Requiring all employees to return to the office full-time','Reducing the size of their workforce','Eliminating remote work options entirely'],
+  answer:0,
+  exp:{
+    core:'文章最後說 "many organizations are now investing in collaboration technology and redesigning physical office spaces"。',
+    grammar:'閱讀推斷：因果關係；challenges → response（應對措施）',
+    phrase:'"collaboration technology" 協作技術；"turnover rate" 離職率',
+    vocab:[
+      {word:'turnover',pos:'n.',level:'600+',meaning:'離職率；營業額',note:'employee turnover 員工離職率'},
+      {word:'hybrid',pos:'adj.',level:'500+',meaning:'混合的',note:'hybrid work model 混合工作模式'},
+    ]
+  }
+},
+{
+  type:'reading',
+  passage:`<strong>Article: Trends in Remote Work</strong><br><br>
+The COVID-19 pandemic fundamentally transformed workplace norms, accelerating the adoption of remote work across industries. A recent survey by WorkForce Analytics found that 68% of knowledge workers now prefer a hybrid work model, combining remote and in-office days.<br><br>
+Companies that have embraced flexible work arrangements report higher employee satisfaction scores and lower turnover rates. However, challenges remain. Collaboration and innovation can suffer when teams lack regular face-to-face interaction. As a result, many organizations are now investing in collaboration technology and redesigning physical office spaces to encourage creative teamwork.`,
+  stem:'哪個百分比的知識工作者偏好混合工作模式？',
+  options:['68%','52%','75%','81%'],
+  answer:0,
+  exp:{
+    core:'文章說 "68% of knowledge workers now prefer a hybrid work model"。',
+    grammar:'數字細節題：注意文中提到的百分比',
+    phrase:'"knowledge worker" 知識工作者；"hybrid work model" 混合工作模式',
+    vocab:[{word:'hybrid',pos:'adj.',level:'500+',meaning:'混合的',note:'hybrid vehicle 油電混合車'}]
+  }
+},
+{
+  type:'reading',
+  passage:`<strong>Letter of Recommendation</strong><br><br>
+I am writing in strong support of Ms. Angela Torres for the Senior Project Manager position. During her four years at Nexus Solutions, Angela consistently demonstrated exceptional leadership skills and an ability to deliver projects on time and within budget.<br><br>
+One of her most notable achievements was leading the company's ERP system implementation, which reduced operational costs by 18% and improved cross-departmental communication. She possesses excellent stakeholder management skills and is highly regarded by colleagues and clients alike.<br><br>
+I recommend her without reservation and am confident she will be a tremendous asset to your organization.`,
+  stem:'Angela Torres 在 Nexus Solutions 工作多少年？',
+  options:['Four years','Three years','Five years','Two years'],
+  answer:0,
+  exp:{
+    core:'信件說 "During her four years at Nexus Solutions"，明確說明四年。',
+    grammar:'細節題：注意時間數字',
+    phrase:'"letter of recommendation" 推薦信；"on time and within budget" 按時在預算內',
+    vocab:[{word:'recommendation',pos:'n.',level:'500+',meaning:'推薦',note:'recommend 推薦（動詞）'}]
+  }
+},
+{
+  type:'reading',
+  passage:`<strong>Letter of Recommendation</strong><br><br>
+I am writing in strong support of Ms. Angela Torres for the Senior Project Manager position. During her four years at Nexus Solutions, Angela consistently demonstrated exceptional leadership skills and an ability to deliver projects on time and within budget.<br><br>
+One of her most notable achievements was leading the company's ERP system implementation, which reduced operational costs by 18% and improved cross-departmental communication. She possesses excellent stakeholder management skills and is highly regarded by colleagues and clients alike.<br><br>
+I recommend her without reservation and am confident she will be a tremendous asset to your organization.`,
+  stem:'ERP 系統實施帶來了什麼效益？',
+  options:['Reduced operational costs by 18% and improved communication','Increased revenue by 18%','Reduced the number of employees by 18%','Improved product quality by 18%'],
+  answer:0,
+  exp:{
+    core:'文章說 "ERP system implementation, which reduced operational costs by 18% and improved cross-departmental communication"。',
+    grammar:'閱讀細節：which 關係子句說明 ERP 的效益',
+    phrase:'"operational costs" 運營成本；"cross-departmental" 跨部門的',
+    vocab:[
+      {word:'operational',pos:'adj.',level:'600+',meaning:'運營的、操作的',note:'operational costs 運營成本'},
+      {word:'asset',pos:'n.',level:'500+',meaning:'資產；人才',note:'be an asset to 對…是寶貴資產'},
+    ]
+  }
+},
+{
+  type:'reading',
+  passage:`<strong>Company Newsletter – Q3 Highlights</strong><br><br>
+Congratulations to the sales team for achieving 120% of their quarterly target! This exceptional performance is attributed to the launch of our new Premium Plus product line and the successful expansion into three new markets: Brazil, Poland, and Vietnam.<br><br>
+On the sustainability front, we are proud to report that our manufacturing facilities have achieved a 30% reduction in carbon emissions compared to last year. We remain committed to reaching carbon neutrality by 2030.<br><br>
+Looking ahead, Q4 plans include a major technology upgrade to our e-commerce platform and the opening of two new regional offices in Southeast Asia.`,
+  stem:'銷售團隊達成了季度目標的多少百分比？',
+  options:['120%','100%','150%','90%'],
+  answer:0,
+  exp:{
+    core:'通訊說 "achieving 120% of their quarterly target"，明確說明達成了 120%。',
+    grammar:'數字細節題；"achieve X% of a target" 達到目標的X%',
+    phrase:'"quarterly target" 季度目標；"exceptional performance" 傑出表現',
+    vocab:[{word:'exceptional',pos:'adj.',level:'600+',meaning:'傑出的、超常的',note:'exception 例外（名詞）'}]
+  }
+},
+{
+  type:'reading',
+  passage:`<strong>Company Newsletter – Q3 Highlights</strong><br><br>
+Congratulations to the sales team for achieving 120% of their quarterly target! This exceptional performance is attributed to the launch of our new Premium Plus product line and the successful expansion into three new markets: Brazil, Poland, and Vietnam.<br><br>
+On the sustainability front, we are proud to report that our manufacturing facilities have achieved a 30% reduction in carbon emissions compared to last year. We remain committed to reaching carbon neutrality by 2030.<br><br>
+Looking ahead, Q4 plans include a major technology upgrade to our e-commerce platform and the opening of two new regional offices in Southeast Asia.`,
+  stem:'公司的永續發展目標是什麼？',
+  options:['Reach carbon neutrality by 2030','Reduce emissions by 50% next year','Close manufacturing plants','Switch to renewable energy by 2025'],
+  answer:0,
+  exp:{
+    core:'通訊說 "We remain committed to reaching carbon neutrality by 2030"，明確說明 2030 年達到碳中和的目標。',
+    grammar:'"be committed to V-ing" 致力於；"carbon neutrality" 碳中和',
+    phrase:'"carbon neutrality" 碳中和；"carbon emissions" 碳排放',
+    vocab:[
+      {word:'neutrality',pos:'n.',level:'700+',meaning:'中立；中性',note:'carbon neutrality 碳中和'},
+      {word:'emission',pos:'n.',level:'600+',meaning:'排放（物）',note:'carbon emissions 碳排放'},
+    ]
+  }
+},
+],
+
+// ──────────────────────────────────────────────────
+// PASSAGE reading (25 題)
+// ──────────────────────────────────────────────────
+passage: [
+{
+  type:'passage',
+  passage:`<strong>Article: The Rise of E-Commerce Logistics</strong><br><br>
+The explosive growth of online shopping has placed unprecedented pressure on logistics networks worldwide. In 2023, global e-commerce sales surpassed $5.8 trillion, creating an enormous demand for faster, more reliable delivery services. Companies like FedEx, DHL, and Amazon Logistics are investing billions in automation and drone technology to meet this demand.<br><br>
+Last-mile delivery—the final step in the shipping process from a distribution center to the customer's doorstep—has emerged as the most challenging and costly phase. It accounts for 53% of total shipping costs. To address this challenge, many companies are experimenting with autonomous vehicles, smart lockers, and crowdsourced delivery platforms.<br><br>
+Sustainability has also become a key consideration. With millions of delivery vehicles on the road daily, the carbon footprint of e-commerce logistics is significant. Several leading companies have announced plans to transition their fleets to electric vehicles by 2030, and some are exploring zero-emission delivery methods such as cargo bikes in urban areas.`,
+  stem:'根據文章，"last-mile delivery" 面臨的主要挑戰是什麼？',
+  options:['It is the most expensive and difficult phase of shipping','It requires the most workers','It is only possible in urban areas','It takes the longest time to complete'],
+  answer:0,
+  exp:{
+    core:'文章說 "the most challenging and costly phase. It accounts for 53% of total shipping costs"，說明最後一哩路是最貴且最困難的。',
+    grammar:'"last-mile delivery" 最後一哩路；"account for" 占…比例',
+    phrase:'"last-mile delivery" 最後一哩配送；"distribution center" 配送中心',
+    vocab:[
+      {word:'unprecedented',pos:'adj.',level:'700+',meaning:'前所未有的',note:'un-（否定）+ precedent（先例）'},
+      {word:'autonomous',pos:'adj.',level:'700+',meaning:'自動的；自主的',note:'autonomous vehicle 自動駕駛車輛'},
+    ]
+  }
+},
+{
+  type:'passage',
+  passage:`<strong>Article: The Rise of E-Commerce Logistics</strong><br><br>
+The explosive growth of online shopping has placed unprecedented pressure on logistics networks worldwide. In 2023, global e-commerce sales surpassed $5.8 trillion, creating an enormous demand for faster, more reliable delivery services. Companies like FedEx, DHL, and Amazon Logistics are investing billions in automation and drone technology to meet this demand.<br><br>
+Last-mile delivery—the final step in the shipping process from a distribution center to the customer's doorstep—has emerged as the most challenging and costly phase. It accounts for 53% of total shipping costs. To address this challenge, many companies are experimenting with autonomous vehicles, smart lockers, and crowdsourced delivery platforms.<br><br>
+Sustainability has also become a key consideration. With millions of delivery vehicles on the road daily, the carbon footprint of e-commerce logistics is significant. Several leading companies have announced plans to transition their fleets to electric vehicles by 2030, and some are exploring zero-emission delivery methods such as cargo bikes in urban areas.`,
+  stem:'文章中提到哪種永續配送解決方案？',
+  options:['Cargo bikes in urban areas','Using ships for all deliveries','Reducing the number of deliveries','Switching to train delivery systems'],
+  answer:0,
+  exp:{
+    core:'文章說 "exploring zero-emission delivery methods such as cargo bikes in urban areas"，明確提到貨物腳踏車。',
+    grammar:'例子識別：such as + 例子（cargo bikes）',
+    phrase:'"zero-emission" 零排放；"cargo bike" 貨物腳踏車',
+    vocab:[
+      {word:'carbon footprint',pos:'n.',level:'600+',meaning:'碳足跡',note:'環保必備詞彙'},
+      {word:'fleet',pos:'n.',level:'600+',meaning:'車隊；艦隊',note:'electric fleet 電動車隊'},
+    ]
+  }
+},
+{
+  type:'passage',
+  passage:`<strong>Article: The Rise of E-Commerce Logistics</strong><br><br>
+The explosive growth of online shopping has placed unprecedented pressure on logistics networks worldwide. In 2023, global e-commerce sales surpassed $5.8 trillion, creating an enormous demand for faster, more reliable delivery services. Companies like FedEx, DHL, and Amazon Logistics are investing billions in automation and drone technology to meet this demand.<br><br>
+Last-mile delivery—the final step in the shipping process from a distribution center to the customer's doorstep—has emerged as the most challenging and costly phase. It accounts for 53% of total shipping costs. To address this challenge, many companies are experimenting with autonomous vehicles, smart lockers, and crowdsourced delivery platforms.<br><br>
+Sustainability has also become a key consideration. With millions of delivery vehicles on the road daily, the carbon footprint of e-commerce logistics is significant. Several leading companies have announced plans to transition their fleets to electric vehicles by 2030, and some are exploring zero-emission delivery methods such as cargo bikes in urban areas.`,
+  stem:'根據文章，公司宣布計劃在何時將車隊轉換為電動車？',
+  options:['By 2030','By 2025','By 2035','By 2028'],
+  answer:0,
+  exp:{
+    core:'文章說 "plans to transition their fleets to electric vehicles by 2030"。',
+    grammar:'"by + 年份" 表示截止日期；transition to = switch to（轉換到）',
+    phrase:'"transition to" 轉換到；"electric vehicle" 電動車',
+    vocab:[{word:'transition',pos:'n./v.',level:'600+',meaning:'轉換、過渡',note:'transition to EV 轉換到電動車'}]
+  }
+},
+{
+  type:'passage',
+  passage:`<strong>Business Article: The Impact of AI on Human Resources</strong><br><br>
+Artificial intelligence is rapidly transforming human resources departments around the world. From automating resume screening to predicting employee turnover, AI tools are helping organizations make faster and more data-driven decisions.<br><br>
+One of the most significant applications is in talent acquisition. AI-powered recruiting platforms can analyze thousands of resumes in seconds, identify top candidates based on specific criteria, and even assess cultural fit through language analysis. However, critics argue that these systems may perpetuate biases embedded in historical hiring data.<br><br>
+Employee engagement is another area benefiting from AI. Real-time sentiment analysis tools can monitor workplace morale by analyzing internal communications and survey responses. Companies using these tools report being able to identify disengagement early and intervene before top talent leaves.`,
+  stem:'文章中 AI 在人才招募上的應用為何受到批評？',
+  options:['It may perpetuate biases from historical hiring data','It is too expensive for most companies','It takes longer than manual screening','It cannot assess cultural fit'],
+  answer:0,
+  exp:{
+    core:'文章說 "critics argue that these systems may perpetuate biases embedded in historical hiring data"。',
+    grammar:'"perpetuate biases" 延續偏見；"historical hiring data" 歷史招聘數據',
+    phrase:'"perpetuate" 使持續；"embedded in" 嵌入在…中',
+    vocab:[
+      {word:'perpetuate',pos:'v.',level:'800+',meaning:'使持續、使永久化',note:'高分詞彙；perpetual 永久的（形容詞）'},
+      {word:'bias',pos:'n.',level:'600+',meaning:'偏見、偏差',note:'biased 有偏見的（形容詞）'},
+    ]
+  }
+},
+{
+  type:'passage',
+  passage:`<strong>Business Article: The Impact of AI on Human Resources</strong><br><br>
+Artificial intelligence is rapidly transforming human resources departments around the world. From automating resume screening to predicting employee turnover, AI tools are helping organizations make faster and more data-driven decisions.<br><br>
+One of the most significant applications is in talent acquisition. AI-powered recruiting platforms can analyze thousands of resumes in seconds, identify top candidates based on specific criteria, and even assess cultural fit through language analysis. However, critics argue that these systems may perpetuate biases embedded in historical hiring data.<br><br>
+Employee engagement is another area benefiting from AI. Real-time sentiment analysis tools can monitor workplace morale by analyzing internal communications and survey responses. Companies using these tools report being able to identify disengagement early and intervene before top talent leaves.`,
+  stem:'企業如何使用即時情緒分析工具？',
+  options:['To monitor morale and identify disengagement early','To automate salary negotiations','To replace human HR managers','To track employee attendance'],
+  answer:0,
+  exp:{
+    core:'文章說 "Real-time sentiment analysis tools can monitor workplace morale...identify disengagement early and intervene before top talent leaves"。',
+    grammar:'"sentiment analysis" 情緒分析；monitor + 受詞（監控…）',
+    phrase:'"workplace morale" 職場士氣；"disengagement" 脫離感、不投入',
+    vocab:[
+      {word:'sentiment',pos:'n.',level:'700+',meaning:'情感、情緒',note:'sentiment analysis 情緒分析'},
+      {word:'morale',pos:'n.',level:'600+',meaning:'士氣、鬥志',note:'workplace morale 職場士氣'},
+    ]
+  }
+},
+{
+  type:'passage',
+  passage:`<strong>Letter: Request for Proposal</strong><br><br>
+Dear Mr. Nakamura,<br><br>
+Following our initial meeting last week, we would like to formally request a proposal from your firm for the redesign of our corporate website. Our primary goals are to improve user experience, increase mobile responsiveness, and integrate our new customer portal.<br><br>
+The project timeline we have in mind is approximately 16 weeks from contract signing. We require a detailed breakdown of costs, a project timeline with key milestones, and references from similar projects completed within the last three years.<br><br>
+Please submit your proposal by April 10th. We are evaluating proposals from three firms, and a decision will be made by April 25th. Should you have any questions, please do not hesitate to contact me directly at s.chen@globalcorp.com.<br><br>
+Sincerely,<br>Sarah Chen`,
+  stem:'這封信的主要目的是什麼？',
+  options:['To request a proposal for a website redesign','To confirm a meeting schedule','To provide feedback on a previous proposal','To announce a new project launch'],
+  answer:0,
+  exp:{
+    core:'信件說 "we would like to formally request a proposal from your firm for the redesign of our corporate website"，明確說明目的是請求提案。',
+    grammar:'"Request for Proposal (RFP)" 提案徵集；"formally request" 正式請求',
+    phrase:'"Request for Proposal" RFP 提案邀請；"mobile responsiveness" 行動裝置適應性',
+    vocab:[
+      {word:'proposal',pos:'n.',level:'500+',meaning:'提案',note:'submit/receive a proposal 提交/收到提案'},
+      {word:'milestone',pos:'n.',level:'600+',meaning:'里程碑',note:'key milestones 關鍵里程碑'},
+    ]
+  }
+},
+{
+  type:'passage',
+  passage:`<strong>Letter: Request for Proposal</strong><br><br>
+Dear Mr. Nakamura,<br><br>
+Following our initial meeting last week, we would like to formally request a proposal from your firm for the redesign of our corporate website. Our primary goals are to improve user experience, increase mobile responsiveness, and integrate our new customer portal.<br><br>
+The project timeline we have in mind is approximately 16 weeks from contract signing. We require a detailed breakdown of costs, a project timeline with key milestones, and references from similar projects completed within the last three years.<br><br>
+Please submit your proposal by April 10th. We are evaluating proposals from three firms, and a decision will be made by April 25th. Should you have any questions, please do not hesitate to contact me directly at s.chen@globalcorp.com.<br><br>
+Sincerely,<br>Sarah Chen`,
+  stem:'提案需包含哪些必要項目？',
+  options:['Cost breakdown, project timeline, and references','Sample website designs','A list of current clients','Staff resumes and qualifications'],
+  answer:0,
+  exp:{
+    core:'信件說 "We require a detailed breakdown of costs, a project timeline with key milestones, and references"。',
+    grammar:'"require" 要求；三個 and 連接的列表',
+    phrase:'"breakdown of costs" 費用明細；"references" 參考/推薦案例',
+    vocab:[{word:'breakdown',pos:'n.',level:'500+',meaning:'明細；故障',note:'cost breakdown 費用明細'}]
+  }
+},
+{
+  type:'passage',
+  passage:`<strong>Article: Flexible Work Arrangements and Productivity</strong><br><br>
+Research conducted by Stanford University found that remote workers were 13% more productive than their in-office counterparts. The study attributed this increase to fewer interruptions, shorter commutes, and higher job satisfaction among remote employees.<br><br>
+However, recent follow-up studies suggest a more nuanced picture. While productivity for individual tasks often improves, collaborative work and creative problem-solving may suffer without in-person interaction. A 2023 report by McKinsey & Company found that teams with entirely remote setups reported a 20% decrease in spontaneous collaboration compared to hybrid teams.<br><br>
+These findings suggest that the ideal arrangement may be a hybrid model, allowing employees flexibility while ensuring adequate opportunities for in-person collaboration.`,
+  stem:'史丹佛大學研究中，遠距工作者提升生產力的原因是什麼？',
+  options:['Fewer interruptions, shorter commutes, and higher job satisfaction','Better technology tools','More flexible working hours','Lower workplace stress'],
+  answer:0,
+  exp:{
+    core:'文章說 "The study attributed this increase to fewer interruptions, shorter commutes, and higher job satisfaction"。',
+    grammar:'"attribute A to B" 將A歸因於B；三個原因並列',
+    phrase:'"fewer interruptions" 更少干擾；"commute" 通勤',
+    vocab:[
+      {word:'commute',pos:'n./v.',level:'500+',meaning:'通勤',note:'commuter 通勤者（名詞）'},
+      {word:'spontaneous',pos:'adj.',level:'700+',meaning:'自發的、即興的',note:'spontaneous collaboration 自發性協作'},
+    ]
+  }
+},
+{
+  type:'passage',
+  passage:`<strong>Article: Flexible Work Arrangements and Productivity</strong><br><br>
+Research conducted by Stanford University found that remote workers were 13% more productive than their in-office counterparts. The study attributed this increase to fewer interruptions, shorter commutes, and higher job satisfaction among remote employees.<br><br>
+However, recent follow-up studies suggest a more nuanced picture. While productivity for individual tasks often improves, collaborative work and creative problem-solving may suffer without in-person interaction. A 2023 report by McKinsey & Company found that teams with entirely remote setups reported a 20% decrease in spontaneous collaboration compared to hybrid teams.<br><br>
+These findings suggest that the ideal arrangement may be a hybrid model, allowing employees flexibility while ensuring adequate opportunities for in-person collaboration.`,
+  stem:'根據麥肯錫報告，完全遠距團隊相比混合團隊有何不足？',
+  options:['20% decrease in spontaneous collaboration','13% lower productivity','Higher employee turnover rates','Less use of technology'],
+  answer:0,
+  exp:{
+    core:'文章說 "teams with entirely remote setups reported a 20% decrease in spontaneous collaboration compared to hybrid teams"。',
+    grammar:'數字比較：X% decrease/increase in + 名詞',
+    phrase:'"spontaneous collaboration" 自發合作；"hybrid teams" 混合工作團隊',
+    vocab:[{word:'nuanced',pos:'adj.',level:'800+',meaning:'細膩的、有細微差別的',note:'nuance 細微差別（名詞）'}]
+  }
+},
+{
+  type:'passage',
+  passage:`<strong>Advertisement: TechVision Business Summit 2025</strong><br><br>
+Join us for the premier technology and business event of the year! TechVision Business Summit 2025 will be held at the Taipei International Convention Center from September 15–17.<br><br>
+This three-day event features over 80 keynote speakers, 200+ exhibitor booths, and exclusive networking sessions. Topics include artificial intelligence in business, sustainable technology, global supply chain innovations, and digital transformation strategies.<br><br>
+<strong>Registration Options:</strong><br>
+• Standard Pass: NT$3,000 (access to all sessions and exhibitor floor)<br>
+• VIP Pass: NT$6,500 (includes premium seating, networking dinners, and workshop access)<br>
+• Group Discount: 15% off for groups of 5 or more<br><br>
+Register before August 31 to receive an early bird discount of 20%. For more information, visit techvisionsummit.com.`,
+  stem:'早鳥折扣的截止日期是何時？',
+  options:['August 31','September 1','September 15','July 31'],
+  answer:0,
+  exp:{
+    core:'廣告說 "Register before August 31 to receive an early bird discount of 20%"，截止日期為 8月31日。',
+    grammar:'"before + 日期" 截止日期；early bird = 早鳥（提早購買）',
+    phrase:'"early bird discount" 早鳥折扣；"register before" 在…前報名',
+    vocab:[{word:'summit',pos:'n.',level:'500+',meaning:'峰會；頂點',note:'business summit 商業峰會'}]
+  }
+},
+{
+  type:'passage',
+  passage:`<strong>Advertisement: TechVision Business Summit 2025</strong><br><br>
+Join us for the premier technology and business event of the year! TechVision Business Summit 2025 will be held at the Taipei International Convention Center from September 15–17.<br><br>
+This three-day event features over 80 keynote speakers, 200+ exhibitor booths, and exclusive networking sessions. Topics include artificial intelligence in business, sustainable technology, global supply chain innovations, and digital transformation strategies.<br><br>
+<strong>Registration Options:</strong><br>
+• Standard Pass: NT$3,000 (access to all sessions and exhibitor floor)<br>
+• VIP Pass: NT$6,500 (includes premium seating, networking dinners, and workshop access)<br>
+• Group Discount: 15% off for groups of 5 or more<br><br>
+Register before August 31 to receive an early bird discount of 20%. For more information, visit techvisionsummit.com.`,
+  stem:'VIP 票包含哪些好處？',
+  options:['Premium seating, networking dinners, and workshop access','Only access to keynote sessions','Access to all exhibitor booths','Free hotel accommodation'],
+  answer:0,
+  exp:{
+    core:'廣告說 "VIP Pass: NT$6,500 (includes premium seating, networking dinners, and workshop access)"。',
+    grammar:'細節閱讀：括號中的說明；includes + 列表',
+    phrase:'"networking dinners" 交流晚宴；"workshop access" 工作坊入場',
+    vocab:[{word:'exclusive',pos:'adj.',level:'500+',meaning:'獨家的、專屬的',note:'exclusive session 專屬場次'}]
+  }
+},
+{
+  type:'passage',
+  passage:`<strong>Internal Memo: New Performance Management System</strong><br><br>
+To: All Staff<br>
+From: HR Director<br><br>
+We are excited to announce the rollout of our new performance management platform, PerformMax, beginning next quarter. This system will replace the current annual review process with a continuous feedback model that supports ongoing professional development.<br><br>
+Key features include: quarterly goal setting, 360-degree feedback from peers and managers, real-time performance tracking, and an integrated learning management system with access to over 500 training modules.<br><br>
+All managers will attend a mandatory two-hour training session on PerformMax during the week of March 10. Employees will receive access to the system beginning April 1, along with step-by-step onboarding guides. Please direct any questions to hr@globaltech.com.`,
+  stem:'PerformMax 將如何改變現有的績效管理？',
+  options:['Replace annual reviews with a continuous feedback model','Reduce the number of performance reviews','Add more managers to the team','Introduce a new salary structure'],
+  answer:0,
+  exp:{
+    core:'備忘錄說 "replace the current annual review process with a continuous feedback model"。',
+    grammar:'"replace A with B" 用B取代A',
+    phrase:'"continuous feedback model" 持續回饋模式；"360-degree feedback" 360度回饋',
+    vocab:[
+      {word:'rollout',pos:'n.',level:'600+',meaning:'推出、上線',note:'system rollout 系統上線'},
+      {word:'onboarding',pos:'n.',level:'500+',meaning:'新員工培訓',note:'onboarding guide 培訓指南'},
+    ]
+  }
+},
+{
+  type:'passage',
+  passage:`<strong>Internal Memo: New Performance Management System</strong><br><br>
+To: All Staff<br>
+From: HR Director<br><br>
+We are excited to announce the rollout of our new performance management platform, PerformMax, beginning next quarter. This system will replace the current annual review process with a continuous feedback model that supports ongoing professional development.<br><br>
+Key features include: quarterly goal setting, 360-degree feedback from peers and managers, real-time performance tracking, and an integrated learning management system with access to over 500 training modules.<br><br>
+All managers will attend a mandatory two-hour training session on PerformMax during the week of March 10. Employees will receive access to the system beginning April 1, along with step-by-step onboarding guides. Please direct any questions to hr@globaltech.com.`,
+  stem:'主管需要參加哪些關於 PerformMax 的培訓？',
+  options:['A mandatory two-hour training session during March 10 week','An optional online webinar','A full-day workshop in April','A self-paced online course'],
+  answer:0,
+  exp:{
+    core:'備忘錄說 "All managers will attend a mandatory two-hour training session on PerformMax during the week of March 10"。',
+    grammar:'"mandatory" 強制的（必須出席）；vs optional（可選）',
+    phrase:'"mandatory training" 強制培訓；"during the week of" 在…的那週',
+    vocab:[{word:'mandatory',pos:'adj.',level:'600+',meaning:'強制的',note:'= compulsory；強制性培訓'}]
+  }
+},
+],
+
+};
+
+// ═══════════════════════════════════════════════════
+//  APP STATE
+// ═══════════════════════════════════════════════════
+const state = {
+  totalXP: parseInt(localStorage.getItem('toeic_xp') || '0'),
+  totalCorrect: parseInt(localStorage.getItem('toeic_correct') || '0'),
+  totalWrong: parseInt(localStorage.getItem('toeic_wrong') || '0'),
+  streak: parseInt(localStorage.getItem('toeic_streak') || '0'),
+  catDone: JSON.parse(localStorage.getItem('toeic_catdone') || '{}'),
+  currentCat: null,
+  currentQs: [],
+  currentIdx: 0,
+  sessionCorrect: 0,
+  sessionWrong: 0,
+  sessionXP: 0,
+  answered: false,
+};
+
+const CAT_INFO = {
+  grammar:  { label:'文法', icon:'📐', color:'var(--blue)', fill:'#388bfd' },
+  vocab:    { label:'詞彙', icon:'🔤', color:'var(--purple)', fill:'#a371f7' },
+  reading:  { label:'閱讀理解', icon:'📖', color:'var(--green)', fill:'#3fb950' },
+  listening:{ label:'聽力', icon:'🎧', color:'var(--gold)', fill:'#f0b429' },
+  cloze:    { label:'克漏字', icon:'✏️', color:'var(--orange)', fill:'#f78166' },
+  passage:  { label:'文章閱讀', icon:'📄', color:'var(--red)', fill:'#f85149' },
+};
+
+// ═══════════════════════════════════════════════════
+//  SAVE / LOAD
+// ═══════════════════════════════════════════════════
+function save() {
+  localStorage.setItem('toeic_xp', state.totalXP);
+  localStorage.setItem('toeic_correct', state.totalCorrect);
+  localStorage.setItem('toeic_wrong', state.totalWrong);
+  localStorage.setItem('toeic_streak', state.streak);
+  localStorage.setItem('toeic_catdone', JSON.stringify(state.catDone));
+}
+
+// ═══════════════════════════════════════════════════
+//  RENDER HELPERS
+// ═══════════════════════════════════════════════════
+function updateTopBar() {
+  document.getElementById('tb-correct').textContent = state.totalCorrect;
+  document.getElementById('tb-wrong').textContent = state.totalWrong;
+  document.getElementById('tb-xp').textContent = state.totalXP;
+}
+
+function renderDashboard() {
+  document.getElementById('stat-xp').textContent = state.totalXP;
+  document.getElementById('stat-done').textContent = state.totalCorrect + state.totalWrong;
+  const total = state.totalCorrect + state.totalWrong;
+  document.getElementById('stat-acc').textContent = total ? Math.round(state.totalCorrect / total * 100) + '%' : '—';
+  document.getElementById('stat-streak').textContent = state.streak;
+
+  // Progress bars
+  const pg = document.getElementById('cat-progress');
+  pg.innerHTML = '';
+  for (const [cat, info] of Object.entries(CAT_INFO)) {
+    const done = state.catDone[cat] || 0;
+    const total = QUESTIONS[cat].length;
+    const pct = total ? Math.round(done / total * 100) : 0;
+    pg.innerHTML += `
+      <div class="prog-row">
+        <div class="prog-name">${info.icon} ${info.label}</div>
+        <div class="prog-track"><div class="prog-fill" style="width:${pct}%;background:${info.fill}"></div></div>
+        <div class="prog-pct">${pct}%</div>
+      </div>`;
+  }
+
+  // Cat cards
+  const cc = document.getElementById('cat-cards');
+  cc.innerHTML = '';
+  for (const [cat, info] of Object.entries(CAT_INFO)) {
+    const done = state.catDone[cat] || 0;
+    const total = QUESTIONS[cat].length;
+    cc.innerHTML += `
+      <button class="cat-card" onclick="startCategory('${cat}')">
+        <div class="cat-card-icon">${info.icon}</div>
+        <div class="cat-card-title">${info.label}</div>
+        <div class="cat-card-sub">共 ${total} 題</div>
+        <div class="cat-card-meta">
+          <span class="meta-tag" style="color:${info.fill}">完成 ${done}/${total}</span>
+        </div>
+      </button>`;
+  }
+}
+
+// ═══════════════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════════════
+function showView(id) {
+  ['dashboard','question-view','result-view'].forEach(v => {
+    document.getElementById(v).style.display = v === id ? 'block' : 'none';
+  });
+}
+
+function showDashboard() {
+  renderDashboard();
+  showView('dashboard');
+  updateTopBar();
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('sb-home').classList.add('active');
+}
+
+function startCategory(cat) {
+  state.currentCat = cat;
+  if (cat === 'all') {
+    state.currentQs = Object.values(QUESTIONS).flat().sort(() => Math.random() - .5).slice(0,20);
+    document.getElementById('qv-title').textContent = '🎯 全題型混合練習';
+  } else {
+    state.currentQs = [...QUESTIONS[cat]].sort(() => Math.random() - .5).slice(0,15);
+    document.getElementById('qv-title').textContent = `${CAT_INFO[cat].icon} ${CAT_INFO[cat].label}`;
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+    const sb = document.getElementById(`sb-${cat}`);
+    if (sb) sb.classList.add('active');
+  }
+  state.currentIdx = 0;
+  state.sessionCorrect = 0;
+  state.sessionWrong = 0;
+  state.sessionXP = 0;
+  state.answered = false;
+  showView('question-view');
+  document.getElementById('retry-btn').onclick = () => startCategory(cat);
+  renderQuestion();
+}
+
+// ═══════════════════════════════════════════════════
+//  QUESTION RENDER
+// ═══════════════════════════════════════════════════
+function renderQuestion() {
+  const q = state.currentQs[state.currentIdx];
+  const idx = state.currentIdx;
+  const total = state.currentQs.length;
+  state.answered = false;
+
+  document.getElementById('q-num').textContent = idx + 1;
+  document.getElementById('q-total').textContent = total;
+  document.getElementById('q-progress-fill').style.width = (idx / total * 100) + '%';
+  document.getElementById('q-score-badge').textContent = `+${state.sessionXP} XP`;
+
+  const typeBadge = {
+    grammar:'badge-grammar', vocab:'badge-vocab', reading:'badge-reading',
+    listening:'badge-listening', cloze:'badge-cloze', passage:'badge-passage'
+  }[q.type] || 'badge-grammar';
+
+  const typeLabel = { grammar:'文法', vocab:'詞彙', reading:'閱讀', listening:'聽力', cloze:'克漏字', passage:'文章' }[q.type] || '';
+
+  let audioHtml = '';
+  if (q.type === 'listening') {
+    const waveH = Array.from({length:20}, () => {
+      const h = 8 + Math.random() * 20;
+      return `<div class="wave-bar" style="height:${h}px"></div>`;
+    }).join('');
+    audioHtml = `
+    <div class="audio-sim">
+      <button class="play-btn" onclick="toggleTranscript(this)">▶</button>
+      <div class="audio-info">
+        <div class="audio-title">🎧 ${q.audioTitle}</div>
+        <div class="audio-wave">${waveH}</div>
+        <div class="audio-transcript" id="transcript-box">📝 Script: ${q.transcript}</div>
+      </div>
+    </div>`;
+  }
+
+  let passageHtml = '';
+  if (q.passage) {
+    passageHtml = `<div class="q-passage">${q.passage}</div>`;
+  }
+
+  const opts = q.options.map((o, i) => {
+    const letters = ['A','B','C','D'];
+    return `<button class="option-btn" onclick="selectAnswer(${i}, this)" id="opt-${i}">
+      <div class="opt-letter">${letters[i]}</div>
+      <div>${o}</div>
+    </button>`;
+  }).join('');
+
+  document.getElementById('q-body').innerHTML = `
+    <div class="question-card">
+      <div class="q-meta">
+        <span class="q-type-badge ${typeBadge}">${typeLabel}</span>
+        <span class="q-num">第 ${idx+1} 題</span>
+      </div>
+      ${audioHtml}
+      ${passageHtml}
+      <div class="q-stem">${q.stem}</div>
+      <div class="options" id="options-box">${opts}</div>
+    </div>
+    <div class="explanation" id="exp-box"></div>
+    <button class="next-btn" id="next-btn" onclick="nextQuestion()" disabled>
+      ${idx + 1 >= total ? '查看結果 →' : '下一題 →'}
+    </button>
+  `;
+}
+
+function toggleTranscript(btn) {
+  const t = document.getElementById('transcript-box');
+  if (t.classList.contains('show')) {
+    t.classList.remove('show');
+    btn.textContent = '▶';
+  } else {
+    t.classList.add('show');
+    btn.innerHTML = '⏸';
+  }
+}
+
+function selectAnswer(idx, btn) {
+  if (state.answered) return;
+  state.answered = true;
+
+  const q = state.currentQs[state.currentIdx];
+  const correct = q.answer;
+  const isCorrect = idx === correct;
+
+  // Highlight options
+  document.querySelectorAll('.option-btn').forEach((b, i) => {
+    b.classList.add('disabled');
+    if (i === correct) b.classList.add('correct');
+    else if (i === idx && !isCorrect) b.classList.add('wrong');
+  });
+
+  // Score update
+  if (isCorrect) {
+    state.sessionCorrect++;
+    state.totalCorrect++;
+    state.streak++;
+    const xp = 10 + Math.min(state.streak * 2, 20);
+    state.sessionXP += xp;
+    state.totalXP += xp;
+    document.getElementById('q-score-badge').textContent = `+${state.sessionXP} XP`;
+  } else {
+    state.sessionWrong++;
+    state.totalWrong++;
+    state.streak = 0;
+  }
+
+  // Track cat progress
+  if (state.currentCat && state.currentCat !== 'all') {
+    state.catDone[state.currentCat] = (state.catDone[state.currentCat] || 0) + 1;
+  }
+
+  save();
+  updateTopBar();
+  showExplanation(q, isCorrect);
+  document.getElementById('next-btn').disabled = false;
+}
+
+function showExplanation(q, isCorrect) {
+  const exp = q.exp;
+  const vocabCards = (exp.vocab || []).map(v => `
+    <div class="vocab-card">
+      <div><span class="vocab-word">${v.word}</span><span class="vocab-pos">${v.pos}</span><span class="vocab-level">[${v.level}]</span></div>
+      <div class="vocab-meaning">${v.meaning}</div>
+      ${v.note ? `<div class="vocab-note">💡 ${v.note}</div>` : ''}
+    </div>
+  `).join('');
+
+  document.getElementById('exp-box').innerHTML = `
+    <div class="exp-title">${isCorrect ? '✅' : '❌'} 詳細解析</div>
+    <div class="exp-section">
+      <div class="exp-label">📌 解題重點</div>
+      <div class="exp-content">${exp.core}</div>
+    </div>
+    <div class="exp-section">
+      <div class="exp-label">📐 文法重點</div>
+      <div class="exp-content">${exp.grammar}</div>
+    </div>
+    <div class="exp-section">
+      <div class="exp-label">🔗 片語用法</div>
+      <div class="exp-content">${exp.phrase}</div>
+    </div>
+    ${vocabCards ? `<div class="exp-section"><div class="exp-label">📚 關鍵單字（含分數級別）</div><div class="vocab-cards">${vocabCards}</div></div>` : ''}
+  `;
+  document.getElementById('exp-box').classList.add('show');
+}
+
+function nextQuestion() {
+  state.currentIdx++;
+  if (state.currentIdx >= state.currentQs.length) {
+    showResult();
+  } else {
+    renderQuestion();
+    document.getElementById('q-body').scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+}
+
+function showResult() {
+  const total = state.currentQs.length;
+  const pct = Math.round(state.sessionCorrect / total * 100);
+
+  const titles = ['加油，繼續練習！💪','還不錯哦！📈','表現很好！🌟','非常優秀！🏆','滿分！TOEIC 達人！🎉'];
+  const t = pct < 40 ? 0 : pct < 60 ? 1 : pct < 75 ? 2 : pct < 90 ? 3 : 4;
+
+  document.getElementById('result-circle').style.setProperty('--pct', pct + '%');
+  document.getElementById('result-pct').textContent = pct + '%';
+  document.getElementById('result-title').textContent = titles[t];
+  document.getElementById('result-sub').textContent = `完成 ${total} 題，獲得 ${state.sessionXP} XP`;
+  document.getElementById('res-correct').textContent = state.sessionCorrect;
+  document.getElementById('res-wrong').textContent = state.sessionWrong;
+  document.getElementById('res-xp').textContent = '+' + state.sessionXP;
+
+  showView('result-view');
+  updateTopBar();
+}
+
+// ═══════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════
+showDashboard();
+</script>
+</body>
+</html>
