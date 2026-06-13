@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic English Quiz Engine</title>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --dark-color: #2c3e50;
+            --light-color: #f8f9fa;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #eef2f3;
+            color: var(--dark-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .quiz-container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 700px;
+            padding: 30px;
+            box-sizing: border-box;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--light-color);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .score-badge {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .difficulty-badge {
+            background-color: #f39c12;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+        }
+
+        .question-box {
+            margin-bottom: 25px;
+        }
+
+        .type-tag {
+            display: inline-block;
+            background-color: #95a5a6;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .passage {
+            background-color: var(--light-color);
+            padding: 15px;
+            border-left: 4px solid var(--primary-color);
+            border-radius: 4px;
+            margin-bottom: 15px;
+            line-height: 1.6;
+            font-style: italic;
+        }
+
+        .question-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background-color: white;
+            border: 2px solid #dcdde1;
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background-color: #f5f6fa;
+            border-color: var(--primary-color);
+        }
+
+        .option-btn.selected {
+            background-color: #e3edf9;
+            border-color: var(--primary-color);
+        }
+
+        .option-btn.correct {
+            background-color: #d4edda;
+            border-color: var(--success-color);
+            color: #155724;
+        }
+
+        .option-btn.wrong {
+            background-color: #f8d7da;
+            border-color: var(--danger-color);
+            color: #721c24;
+        }
+
+        .control-panel {
+            margin-top: 25px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .action-btn {
+            background-color: var(--dark-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .action-btn:hover {
+            background-color: #34495e;
+        }
+
+        .game-over {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .game-over h2 {
+            color: var(--danger-color);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        /* Cloze fill-in layout helpers */
+        .cloze-select {
+            padding: 4px 8px;
+            margin: 0 5px;
+            font-size: 1rem;
+            border: 2px solid var(--primary-color);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container" id="quiz-app">
+    </div>
+
+<script>
+/**
+ * DATABASE STRUCTURE & TYPES EXPLANATION (Add your questions here)
+ * * Types available:
+ * 1. 'single-choice-grammar' (單選文法)
+ * 2. 'multiple-choice-grammar' (多選文法)
+ * 3. 'translation' (翻譯)
+ * 4. 'cloze-words' (文章挖空選詞 - 適用單字片語)
+ * 5. 'cloze-letters' (文章挖空選字 - 適用文法字尾/字首/單純拼字)
+ * 6. 'reading-comprehension' (閱讀並選擇)
+ * 7. 'vocabulary-synonym' (閱讀後文章中哪個字意思與某單字相同)
+ * * Difficulty Levels: 'Easy' (Scores < 15), 'Medium' (Scores 15-30), 'Hard' (Scores > 30)
+ */
+
+const QUESTION_BANK = {
+    Easy: [
+        {
+            id: "E001",
+            type: "single-choice-grammar",
+            question: "Choose the correct verb form: She ________ to school every day.",
+            options: ["go", "goes", "going", "gone"],
+            answer: [1] // Index of 'goes'
+        },
+        {
+            id: "E002",
+            type: "translation",
+            question: "Translate to English: '這是一本書。'",
+            options: ["This is a book.", "That was books.", "These are book.", "This are a book."],
+            answer: [0]
+        }
+    ],
+    Medium: [
+        {
+            id: "M001",
+            type: "multiple-choice-grammar",
+            question: "Select ALL options that correctly complete the conditional sentence: If I ________ more time, I would travel around the world.",
+            options: ["had", "were to have", "have", "would have"],
+            answer: [0, 1] // Multiple answers allowed
+        },
+        {
+            id: "M002",
+            type: "cloze-words",
+            passage: "Yesterday, Jack went to the market to [1] some fresh vegetables. On his way back, he accidentally [2] his wallet.",
+            question: "Select the correct pair of words to fill blanks [1] and [2] respectively:",
+            options: [
+                "buy / lost",
+                "bought / lose",
+                "buying / losing",
+                "buy / dropped"
+            ],
+            answer: [0]
+        },
+        {
+            id: "M003",
+            type: "cloze-letters",
+            passage: "The scientist made an unprec[1]edented discovery that completely revo[2]utionized the field of biology.",
+            question: "Identify the missing letters for blanks [1] and [2]:",
+            options: [
+                "[1]: ed ; [2]: l",
+                "[1]: od ; [2]: r",
+                "[1]: id ; [2]: l",
+                "[1]: ad ; [2]: v"
+            ],
+            answer: [0]
+        }
+    ],
+    Hard: [
+        {
+            id: "H001",
+            type: "reading-comprehension",
+            passage: "Quantum computing represents a paradigm shift in computation. Unlike classical computers that use bits as the basic unit of information (0s and 1s), quantum computers leverage qubits. Qubits can exist in a state of superposition, meaning they can represent both a 0 and a 1 simultaneously, drastically expanding processing power.",
+            question: "According to the text, what allows quantum computers to process data faster than classical ones?",
+            options: [
+                "They use larger physical microchips.",
+                "The capability of qubits to exist in superposition.",
+                "They rely on traditional binary sequences of 0s and 1s.",
+                "They exclude the use of software algorithms."
+            ],
+            answer: [1]
+        },
+        {
+            id: "H002",
+            type: "vocabulary-synonym",
+            passage: "The torrential rain caused catastrophic damage to the coastal village, leaving many homes completely inundated and forcing hundreds of residents to evacuate immediately.",
+            question: "Which word in the passage has the closest meaning to 'flooded'?",
+            options: ["torrential", "catastrophic", "inundated", "evacuate"],
+            answer: [2]
+        }
+    ]
+};
+
+// State Variables
+let currentScore = 5;
+let currentQuestion = null;
+let selectedIndices = [];
+let isSubmitted = false;
+
+const appContainer = document.getElementById('quiz-app');
+
+// Initialize Game
+function initGame() {
+    currentScore = 5;
+    nextQuestion();
+}
+
+// Determine difficulty based on current score
+function getDifficulty(score) {
+    if (score < 15) return 'Easy';
+    if (score <= 30) return 'Medium';
+    return 'Hard';
+}
+
+// Fetch a random question based on dynamic difficulty
+function nextQuestion() {
+    if (currentScore <= 0) {
+        renderGameOver();
+        return;
+    }
+
+    const diff = getDifficulty(currentScore);
+    const pool = QUESTION_BANK[diff];
+
+    if (!pool || pool.length === 0) {
+        // Fallback if a specific difficulty pool is empty
+        renderNoMoreQuestions();
+        return;
+    }
+
+    // Pick random question from selected difficulty pool
+    const randomIndex = Math.floor(Math.random() * pool.length);
+    currentQuestion = pool[randomIndex];
+    
+    // Reset selection state
+    selectedIndices = [];
+    isSubmitted = false;
+
+    renderQuestion(diff);
+}
+
+// Render Core Quiz UI
+function renderQuestion(difficulty) {
+    let passageHtml = '';
+    if (currentQuestion.passage) {
+        passageHtml = `<div class="passage">${currentQuestion.passage}</div>`;
+    }
+
+    let typeLabel = currentQuestion.type.replace(/-/g, ' ');
+
+    let optionsHtml = '';
+    currentQuestion.options.forEach((option, index) => {
+        optionsHtml += `
+            <button class="option-btn" onclick="handleOptionClick(${index})" id="opt-${index}">
+                ${option}
+            </button>
+        `;
+    });
+
+    appContainer.innerHTML = `
+        <div class="header">
+            <div>
+                <span class="difficulty-badge">${difficulty} Level</span>
+            </div>
+            <div class="score-badge">Score: ${currentScore}</div>
+        </div>
+        <div class="question-box">
+            <span class="type-tag">${typeLabel}</span>
+            ${passageHtml}
+            <div class="question-text">${currentQuestion.question}</div>
+            <div class="options-container">
+                ${optionsHtml}
+            </div>
+        </div>
+        <div class="control-panel">
+            <button class="action-btn" id="action-btn" onclick="handleSubmit()">Submit Answer</button>
+        </div>
+    `;
+}
+
+// Handle User Selections
+function handleOptionClick(index) {
+    if (isSubmitted) return;
+
+    const isMultiple = currentQuestion.type === 'multiple-choice-grammar';
+
+    if (isMultiple) {
+        const idxOf = selectedIndices.indexOf(index);
+        if (idxOf > -1) {
+            selectedIndices.splice(idxOf, 1);
+            document.getElementById(`opt-${index}`).classList.remove('selected');
+        } else {
+            selectedIndices.push(index);
+            document.getElementById(`opt-${index}`).classList.add('selected');
+        }
+    } else {
+        // Single choice handling
+        selectedIndices = [index];
+        const allButtons = document.querySelectorAll('.option-btn');
+        allButtons.forEach(btn => btn.classList.remove('selected'));
+        document.getElementById(`opt-${index}`).classList.add('selected');
+    }
+}
+
+// Validation & Score calculation logic
+function handleSubmit() {
+    if (isSubmitted) {
+        nextQuestion();
+        return;
+    }
+
+    if (selectedIndices.length === 0) {
+        alert("Please select an answer first!");
+        return;
+    }
+
+    isSubmitted = true;
+    
+    // Sort answers for safe array comparison
+    const correctAnswers = [...currentQuestion.answer].sort();
+    const userAnswers = [...selectedIndices].sort();
+    
+    // Check if user configuration matches answers completely
+    const isCorrect = correctAnswers.length === userAnswers.length && 
+                      correctAnswers.every((val, index) => val === userAnswers[index]);
+
+    // Update UI elements to reflect right/wrong statuses
+    currentQuestion.options.forEach((_, index) => {
+        const btn = document.getElementById(`opt-${index}`);
+        btn.disabled = true; // Lock choice buttons
+        
+        if (correctAnswers.includes(index)) {
+            btn.classList.add('correct');
+        } else if (userAnswers.includes(index)) {
+            btn.classList.add('wrong');
+        }
+    });
+
+    // Score adjustments
+    if (isCorrect) {
+        currentScore += 2;
+        document.querySelector('.score-badge').style.backgroundColor = 'var(--success-color)';
+    } else {
+        currentScore -= 4;
+        document.querySelector('.score-badge').style.backgroundColor = 'var(--danger-color)';
+    }
+
+    // Refresh Score text immediately inside UI
+    document.querySelector('.score-badge').innerText = `Score: ${currentScore}`;
+
+    // Update Action Button state
+    const actionBtn = document.getElementById('action-btn');
+    if (currentScore <= 0) {
+        actionBtn.innerText = "See Results";
+    } else {
+        actionBtn.innerText = "Next Question";
+    }
+}
+
+// Game Over view
+function renderGameOver() {
+    appContainer.innerHTML = `
+        <div class="game-over">
+            <h2>Game Over!</h2>
+            <p>Your score hit 0 or lower.</p>
+            <div class="score-badge" style="display:inline-block; margin: 20px 0; background-color: var(--danger-color)">Final Score: ${currentScore}</div>
+            <div>
+                <button class="action-btn" onclick="initGame()">Try Again</button>
+            </div>
+        </div>
+    `;
+}
+
+// Fallback logic view
+function renderNoMoreQuestions() {
+    appContainer.innerHTML = `
+        <div class="game-over">
+            <h2>Impressive!</h2>
+            <p>You outran the current test framework database pool!</p>
+            <div class="score-badge" style="display:inline-block; margin: 20px 0;">Final Score: ${currentScore}</div>
+            <div>
+                <button class="action-btn" onclick="initGame()">Restart Game</button>
+            </div>
+        </div>
+    `;
+}
+
+// Initial Launch
+initGame();
+</script>
+</body>
+</html>
