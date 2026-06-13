@@ -1,479 +1,767 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>All-in-One Quiz Engine & Inserter</title>
-    <style>
-        :root {
-            --primary-color: #4a90e2;
-            --success-color: #2ecc71;
-            --danger-color: #e74c3c;
-            --dark-color: #2c3e50;
-            --light-color: #f8f9fa;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz Injector — 題目注入工具</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;700&display=swap');
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #eef2f3;
-            color: var(--dark-color);
-            margin: 0;
-            padding: 20px;
-        }
+  :root {
+    --bg: #0d0f14;
+    --surface: #161923;
+    --surface2: #1e2433;
+    --border: #252d3d;
+    --accent: #4f8ef7;
+    --accent2: #a78bfa;
+    --gold: #f4c94a;
+    --green: #34d399;
+    --red: #f87171;
+    --orange: #fb923c;
+    --text: #e4e9f5;
+    --muted: #6b7a9e;
+    --mono: 'DM Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; }
 
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
+  /* HEADER */
+  header {
+    padding: 18px 32px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--bg); position: sticky; top: 0; z-index: 50;
+  }
+  .logo { font-family: var(--mono); font-size: 1rem; color: var(--text); }
+  .logo span { color: var(--accent2); }
+  .step-bar { display: flex; gap: 6px; align-items: center; }
+  .step { display: flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 0.72rem; color: var(--muted); }
+  .step .num { width: 22px; height: 22px; border-radius: 50%; background: var(--border); display: flex; align-items: center; justify-content: center; font-size: 0.65rem; transition: all .2s; }
+  .step.done .num { background: var(--green); color: #0d0f14; }
+  .step.active .num { background: var(--accent); color: #fff; box-shadow: 0 0 8px rgba(79,142,247,.4); }
+  .step-sep { color: var(--border); font-size: 0.7rem; }
 
-        /* Input Setup Panel */
-        .setup-panel {
-            background-color: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            padding: 25px;
-            margin-bottom: 25px;
-        }
+  /* LAYOUT */
+  .layout { display: grid; grid-template-columns: 340px 1fr; min-height: calc(100vh - 61px); }
 
-        .setup-panel h2 {
-            margin-top: 0;
-            color: var(--dark-color);
-        }
+  /* LEFT: STEP PANELS */
+  .left { border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
 
-        textarea {
-            width: 100%;
-            height: 150px;
-            padding: 12px;
-            box-sizing: border-box;
-            border: 2px solid #dcdde1;
-            border-radius: 6px;
-            font-family: monospace;
-            font-size: 0.95rem;
-            resize: vertical;
-            margin-bottom: 15px;
-        }
+  .panel { padding: 24px; border-bottom: 1px solid var(--border); }
+  .panel-title { font-family: var(--mono); font-size: 0.65rem; text-transform: uppercase; letter-spacing: 2px; color: var(--muted); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+  .panel-title .pt-num { width: 18px; height: 18px; border-radius: 4px; background: var(--accent); color: #fff; font-size: 0.6rem; display: flex; align-items: center; justify-content: center; }
 
-        /* Quiz Game Play Interface */
-        .quiz-container {
-            background-color: white;
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-            padding: 30px;
-            box-sizing: border-box;
-            display: none; /* Hidden until questions loaded */
-        }
+  /* HTML PASTE AREA */
+  .paste-zone {
+    width: 100%;
+    min-height: 140px;
+    background: var(--surface2);
+    border: 1px dashed var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    resize: vertical;
+    outline: none;
+    line-height: 1.5;
+    transition: border .2s;
+  }
+  .paste-zone:focus { border-color: var(--accent); border-style: solid; }
+  .paste-zone.valid { border-color: var(--green); border-style: solid; }
+  .paste-zone.invalid { border-color: var(--red); border-style: solid; }
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid var(--light-color);
-            padding-bottom: 15px;
-            margin-bottom: 20px;
-        }
+  .status-badge {
+    margin-top: 8px;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    padding: 4px 10px;
+    border-radius: 5px;
+    display: inline-block;
+  }
+  .status-badge.ok { background: rgba(52,211,153,.15); color: var(--green); }
+  .status-badge.err { background: rgba(248,113,113,.12); color: var(--red); }
+  .status-badge.idle { background: var(--surface2); color: var(--muted); }
 
-        .score-badge {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 1.1rem;
-        }
+  /* FORM FIELDS */
+  label { font-size: 0.78rem; color: var(--muted); display: block; margin-bottom: 5px; margin-top: 12px; }
+  label span { color: var(--red); }
+  input[type=text], select, textarea {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 12px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    outline: none;
+    transition: border .15s;
+    line-height: 1.5;
+  }
+  input[type=text]:focus, select:focus, textarea:focus { border-color: var(--accent); }
+  select option { background: var(--surface2); }
+  textarea { resize: vertical; min-height: 56px; }
 
-        .difficulty-badge {
-            background-color: #f39c12;
-            color: white;
-            padding: 5px 12px;
-            border-radius: 15px;
-            font-size: 0.9rem;
-        }
+  .opt-row { display: flex; gap: 6px; margin-bottom: 6px; align-items: center; }
+  .opt-row .opt-letter { font-family: var(--mono); font-size: 0.7rem; color: var(--muted); width: 16px; flex-shrink: 0; }
+  .opt-row input { flex: 1; }
+  .opt-row .radio-wrap { display: flex; align-items: center; gap: 4px; }
+  .opt-row input[type=radio] { accent-color: var(--green); width: auto; }
 
-        .question-box {
-            margin-bottom: 25px;
-        }
+  .q-list { flex: 1; overflow-y: auto; padding: 16px; }
+  .q-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 0.78rem;
+    animation: pop .2s ease;
+  }
+  @keyframes pop { from { opacity:0; transform:scale(.97); } to { opacity:1; transform:scale(1); } }
+  .q-item .qi-tag { font-family: var(--mono); font-size: 0.65rem; padding: 2px 7px; border-radius: 4px; background: var(--surface2); color: var(--muted); flex-shrink: 0; }
+  .q-item .qi-text { flex: 1; color: #c4ceea; line-height: 1.5; }
+  .q-item .qi-del { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 0.9rem; padding: 0 2px; flex-shrink: 0; }
+  .q-item .qi-del:hover { color: var(--red); }
 
-        .type-tag {
-            display: inline-block;
-            background-color: #95a5a6;
-            color: white;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            margin-bottom: 10px;
-        }
+  /* BUTTONS */
+  .btn { padding: 9px 18px; border-radius: 8px; font-family: var(--sans); font-size: 0.82rem; font-weight: 500; cursor: pointer; border: none; transition: all .15s; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: #6fa0f9; }
+  .btn-primary:disabled { background: var(--border); color: var(--muted); cursor: default; }
+  .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--muted); }
+  .btn-ghost:hover { border-color: var(--muted); color: var(--text); }
+  .btn-green { background: var(--green); color: #0d0f14; }
+  .btn-green:hover { background: #5fe8b0; }
+  .btn-purple { background: var(--accent2); color: #fff; }
+  .btn-purple:hover { background: #c4a9fc; }
+  .btn-sm { padding: 6px 12px; font-size: 0.75rem; }
 
-        .passage {
-            background-color: var(--light-color);
-            padding: 15px;
-            border-left: 4px solid var(--primary-color);
-            border-radius: 4px;
-            margin-bottom: 15px;
-            line-height: 1.6;
-            font-style: italic;
-        }
+  /* RIGHT: OUTPUT */
+  .right { display: flex; flex-direction: column; overflow: hidden; }
 
-        .question-text {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 15px;
-        }
+  .output-toolbar {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .output-toolbar .info { font-size: 0.8rem; color: var(--muted); margin-left: auto; font-family: var(--mono); }
 
-        .options-container {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
+  .output-area {
+    flex: 1;
+    overflow: auto;
+    padding: 20px 24px;
+  }
 
-        .option-btn {
-            background-color: white;
-            border: 2px solid #dcdde1;
-            border-radius: 8px;
-            padding: 12px 20px;
-            font-size: 1rem;
-            cursor: pointer;
-            text-align: left;
-            transition: all 0.2s ease;
-        }
+  .code-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  .code-block .cb-header {
+    padding: 10px 16px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+  }
+  .cb-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .code-block pre {
+    flex: 1;
+    overflow: auto;
+    padding: 16px;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    line-height: 1.6;
+    color: #a0c4ff;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
 
-        .option-btn:hover:not(:disabled) {
-            background-color: #f5f6fa;
-            border-color: var(--primary-color);
-        }
+  .placeholder-msg {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--muted);
+    font-size: 0.85rem;
+    gap: 10px;
+    text-align: center;
+    padding: 40px;
+  }
+  .placeholder-msg .big { font-size: 3rem; }
 
-        .option-btn.selected {
-            background-color: #e3edf9;
-            border-color: var(--primary-color);
-        }
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 28px; left: 50%;
+    transform: translateX(-50%);
+    background: var(--surface2);
+    border: 1px solid var(--accent);
+    color: var(--text);
+    padding: 10px 22px;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    z-index: 999;
+    animation: slideUp .2s ease;
+  }
+  @keyframes slideUp { from { opacity:0; transform: translate(-50%, 10px); } to { opacity:1; transform: translate(-50%, 0); } }
 
-        .option-btn.correct {
-            background-color: #d4edda;
-            border-color: var(--success-color);
-            color: #155724;
-        }
+  /* DIFF HIGHLIGHT */
+  .diff-added { color: var(--green); }
+  .diff-normal { color: #6b7a9e; }
 
-        .option-btn.wrong {
-            background-color: #f8d7da;
-            border-color: var(--danger-color);
-            color: #721c24;
-        }
+  /* COUNT BADGE */
+  .count-badge { background: var(--accent2); color: #fff; border-radius: 99px; padding: 1px 8px; font-family: var(--mono); font-size: 0.65rem; font-weight: 500; }
 
-        .control-panel {
-            margin-top: 25px;
-            display: flex;
-            justify-content: flex-end;
-        }
+  /* PASSAGE SECTION */
+  .passage-section {
+    background: rgba(167,139,250,.06);
+    border: 1px solid rgba(167,139,250,.2);
+    border-radius: 10px;
+    padding: 12px;
+    margin-top: 12px;
+    display: none;
+  }
+  .passage-section.show { display: block; }
 
-        .action-btn {
-            background-color: var(--dark-color);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 6px;
-            font-size: 1rem;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        .action-btn:hover {
-            background-color: #34495e;
-        }
-
-        .game-over {
-            text-align: center;
-            padding: 40px 20px;
-        }
-
-        .game-over h2 {
-            color: var(--danger-color);
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-        }
-    </style>
+  @media (max-width: 800px) {
+    .layout { grid-template-columns: 1fr; }
+    .right { display: none; }
+  }
+</style>
 </head>
 <body>
 
-<div class="container">
-    <div class="setup-panel" id="setup-panel">
-        <h2>1. Paste Your Raw Questions Here</h2>
-        <p style="font-size:0.9rem; color:#7f8c8d; margin-top:-5px;">格式提示：使用 &lt;題目&gt;&lt;選項們&gt;交替，並在正確答案後方標記 (V)</p>
-        <textarea id="raw-input" placeholder="<Choose the correct verb form: He ________ to school everyday.><A. go&#10;B. goes (V)&#10;C. going&#10;D. gone>"></textarea>
-        <button class="action-btn" style="background-color: var(--success-color);" onclick="loadQuestionsIntoEngine()">Load & Start Quiz</button>
+<header>
+  <div class="logo">Quiz <span>Injector</span></div>
+  <div class="step-bar">
+    <div class="step active" id="step1"><span class="num">1</span><span>貼上 HTML</span></div>
+    <span class="step-sep">›</span>
+    <div class="step" id="step2"><span class="num">2</span><span>填寫題目</span></div>
+    <span class="step-sep">›</span>
+    <div class="step" id="step3"><span class="num">3</span><span>產出 HTML</span></div>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- LEFT -->
+  <div class="left">
+
+    <!-- STEP 1: Paste HTML -->
+    <div class="panel" id="panel-step1">
+      <div class="panel-title"><span class="pt-num">1</span> 貼入舊版 HTML</div>
+      <textarea class="paste-zone" id="html-input" placeholder="將 english-quiz-framework.html 的完整內容貼在這裡…" oninput="validateHTML(this)"></textarea>
+      <div class="status-badge idle" id="html-status">等待貼上…</div>
     </div>
 
-    <div class="quiz-container" id="quiz-app"></div>
+    <!-- STEP 2: Add Question -->
+    <div class="panel" id="panel-step2" style="overflow-y:auto; flex:1;">
+      <div class="panel-title"><span class="pt-num">2</span> 新增題目 <span class="count-badge" id="q-count">0</span></div>
+
+      <!-- Type selector -->
+      <label>題型 <span>*</span></label>
+      <select id="q-type" onchange="onTypeChange()">
+        <option value="vocab">📚 Vocabulary（字彙）</option>
+        <option value="grammar">⚙️ Grammar（文法）</option>
+        <option value="cloze">📝 Cloze Test（克漏字）</option>
+        <option value="reading">📖 Reading（閱讀理解）</option>
+        <option value="error">🔍 Error Correction（錯誤改正）</option>
+      </select>
+
+      <!-- Passage (for cloze/reading) -->
+      <div class="passage-section" id="passage-section">
+        <label>段落標題（Reading 用）</label>
+        <input type="text" id="p-title" placeholder="The Science of Sleep">
+        <label>段落內文 <span>*</span></label>
+        <textarea id="p-text" rows="4" placeholder="在此貼上段落內文。克漏字請在空格處寫 (1) (2) 等標記…"></textarea>
+      </div>
+
+      <!-- Question text -->
+      <label>題目文字 <span>*</span></label>
+      <textarea id="q-text" rows="2" placeholder="The scientist made a significant _____ in research."></textarea>
+
+      <!-- Options -->
+      <label>選項 A–D <span>*</span>（點選正確答案的圓點）</label>
+      <div id="opts-area">
+        <div class="opt-row"><span class="opt-letter">A</span><input type="text" class="opt-input" placeholder="選項 A"><div class="radio-wrap"><input type="radio" name="ans" value="0"> ✓</div></div>
+        <div class="opt-row"><span class="opt-letter">B</span><input type="text" class="opt-input" placeholder="選項 B"><div class="radio-wrap"><input type="radio" name="ans" value="1"> ✓</div></div>
+        <div class="opt-row"><span class="opt-letter">C</span><input type="text" class="opt-input" placeholder="選項 C"><div class="radio-wrap"><input type="radio" name="ans" value="2"> ✓</div></div>
+        <div class="opt-row"><span class="opt-letter">D</span><input type="text" class="opt-input" placeholder="選項 D"><div class="radio-wrap"><input type="radio" name="ans" value="3"> ✓</div></div>
+      </div>
+
+      <!-- Explanation -->
+      <label>簡短詳解（exp）<span>*</span> <small style="color:var(--muted)">— 一行摘要，可用 &lt;strong&gt;</small></label>
+      <input type="text" id="q-exp" placeholder="&lt;strong&gt;breakthrough&lt;/strong&gt;（突破）是正確答案。">
+
+      <label>完整解析（expDetail）<span>*</span></label>
+      <textarea id="q-expdetail" rows="3" placeholder="詳細說明為何選此答案，比較各選項差異…"></textarea>
+
+      <label>規則記憶（rule）<span>*</span></label>
+      <input type="text" id="q-rule" placeholder="學習「break + 介係詞」的複合名詞…">
+
+      <div style="display:flex; gap:8px; margin-top:16px;">
+        <button class="btn btn-purple" onclick="addQuestion()" style="flex:1;">＋ 加入題目</button>
+        <button class="btn btn-ghost btn-sm" onclick="clearForm()">清空</button>
+      </div>
+
+      <!-- Queued questions list -->
+      <div style="margin-top:16px; border-top:1px solid var(--border); padding-top:12px;">
+        <div style="font-family:var(--mono); font-size:0.65rem; text-transform:uppercase; letter-spacing:2px; color:var(--muted); margin-bottom:8px);">待注入題目</div>
+        <div id="q-preview-list" style="margin-top:8px; max-height:220px; overflow-y:auto;">
+          <div style="color:var(--muted); font-size:0.78rem; text-align:center; padding:16px 0;" id="empty-hint">尚未加入任何題目</div>
+        </div>
+      </div>
+
+      <div style="margin-top:12px; display:flex; gap:8px;">
+        <button class="btn btn-green" onclick="injectAndGenerate()" style="flex:1;" id="inject-btn" disabled>🔧 注入並產出新 HTML</button>
+      </div>
+      <div style="margin-top:8px; font-size:0.73rem; color:var(--muted); line-height:1.5;">
+        ⚠️ 需先貼入舊 HTML 且至少加入 1 道題目才能產出。
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT: OUTPUT -->
+  <div class="right">
+    <div class="output-toolbar" id="toolbar">
+      <span style="font-size:0.85rem; color:var(--muted);">輸出預覽</span>
+      <button class="btn btn-primary" id="copy-btn" onclick="copyOutput()" disabled>📋 複製全部 HTML</button>
+      <button class="btn btn-ghost btn-sm" id="dl-btn" onclick="downloadOutput()" disabled>⬇ 下載 .html</button>
+      <span class="info" id="output-info">—</span>
+    </div>
+    <div class="output-area">
+      <div class="code-block" id="code-block">
+        <div class="cb-header">
+          <span class="cb-dot" style="background:#f87171"></span>
+          <span class="cb-dot" style="background:#f4c94a"></span>
+          <span class="cb-dot" style="background:#34d399"></span>
+          <span style="margin-left:6px;">english-quiz-framework-new.html</span>
+        </div>
+        <div id="output-pre" class="placeholder-msg">
+          <div class="big">🧩</div>
+          <div>貼入舊 HTML，新增題目後<br>點「注入並產出」即可在此預覽</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <script>
-// Dynamic Database object updated on-the-fly
-let QUESTION_BANK = {
-    Easy: [],
-    Medium: [],
-    Hard: []
+// ── STATE ──────────────────────────────────────────────────────────────
+let pendingQuestions = [];   // questions to inject
+let outputHTML = '';         // final generated HTML
+let htmlValid = false;
+
+const TAG_COLORS = {
+  vocab: '#60a5fa', grammar: '#a78bfa',
+  cloze: '#fb923c', reading: '#34d399', error: '#f87171'
+};
+const TAG_LABELS = {
+  vocab: 'Vocab', grammar: 'Grammar',
+  cloze: 'Cloze', reading: 'Reading', error: 'Error'
 };
 
-// Game State Engine
-let currentScore = 5;
-let currentQuestion = null;
-let selectedIndices = [];
-let isSubmitted = false;
+// ── VALIDATE HTML INPUT ────────────────────────────────────────────────
+function validateHTML(el) {
+  const val = el.value.trim();
+  const statusEl = document.getElementById('html-status');
 
-const appContainer = document.getElementById('quiz-app');
-const setupPanel = document.getElementById('setup-panel');
+  if (!val) {
+    el.className = 'paste-zone';
+    statusEl.className = 'status-badge idle';
+    statusEl.textContent = '等待貼上…';
+    htmlValid = false;
+    updateInjectBtn();
+    return;
+  }
 
-// Core Parser Logic inside JavaScript
-function parseRawQuestionsText(text) {
-    // Regular expression to catch blocks between < >
-    const regex = /<([\s\S]*?)>/g;
-    let matches = [];
-    let match;
-    
-    while ((match = regex.exec(text)) !== null) {
-        matches.push(match[1].trim());
+  const hasBank = val.includes('const QUESTION_BANK') || val.includes('QUESTION_BANK');
+  const hasVocab = val.includes('vocab:');
+  const hasHTML = val.includes('<!DOCTYPE html') || val.includes('<html');
+
+  if (hasBank && hasVocab && hasHTML) {
+    el.className = 'paste-zone valid';
+    statusEl.className = 'status-badge ok';
+    statusEl.textContent = '✓ 偵測到有效的 English Mastery Lab HTML';
+    htmlValid = true;
+    setStep(2);
+  } else if (hasHTML && !hasBank) {
+    el.className = 'paste-zone invalid';
+    statusEl.className = 'status-badge err';
+    statusEl.textContent = '✗ 這不像是 English Mastery Lab 的 HTML（找不到 QUESTION_BANK）';
+    htmlValid = false;
+  } else {
+    el.className = 'paste-zone invalid';
+    statusEl.className = 'status-badge err';
+    statusEl.textContent = '✗ 無法識別此內容，請貼入完整 HTML';
+    htmlValid = false;
+  }
+  updateInjectBtn();
+}
+
+// ── TYPE CHANGE ────────────────────────────────────────────────────────
+function onTypeChange() {
+  const type = document.getElementById('q-type').value;
+  const ps = document.getElementById('passage-section');
+  if (type === 'cloze' || type === 'reading') {
+    ps.classList.add('show');
+  } else {
+    ps.classList.remove('show');
+  }
+}
+
+// ── ADD QUESTION ───────────────────────────────────────────────────────
+function addQuestion() {
+  const type = document.getElementById('q-type').value;
+  const qText = document.getElementById('q-text').value.trim();
+  const optEls = document.querySelectorAll('.opt-input');
+  const opts = Array.from(optEls).map(e => e.value.trim());
+  const ansEl = document.querySelector('input[name=ans]:checked');
+  const exp = document.getElementById('q-exp').value.trim();
+  const expDetail = document.getElementById('q-expdetail').value.trim();
+  const rule = document.getElementById('q-rule').value.trim();
+  const pText = document.getElementById('p-text').value.trim();
+  const pTitle = document.getElementById('p-title').value.trim();
+
+  // Validation
+  const errors = [];
+  if (!qText) errors.push('題目文字');
+  if (opts.some(o => !o)) errors.push('四個選項');
+  if (!ansEl) errors.push('正確答案（請點選圓點）');
+  if (!exp) errors.push('簡短詳解');
+  if (!expDetail) errors.push('完整解析');
+  if (!rule) errors.push('規則記憶');
+  if ((type === 'cloze' || type === 'reading') && !pText) errors.push('段落內文');
+
+  if (errors.length) {
+    showToast('請填寫：' + errors.join('、'));
+    return;
+  }
+
+  const q = {
+    type: 'mc',
+    tag: type,
+    q: qText,
+    opts: opts,
+    ans: parseInt(ansEl.value),
+    exp: exp,
+    expDetail: expDetail,
+    rule: rule,
+  };
+
+  // For passage types, attach passage data
+  if ((type === 'cloze' || type === 'reading') && pText) {
+    q._passageText = pText;
+    q._passageTitle = pTitle || '';
+  }
+
+  pendingQuestions.push(q);
+  renderPendingList();
+  clearForm();
+  showToast('✓ 題目已加入！共 ' + pendingQuestions.length + ' 題待注入');
+  updateInjectBtn();
+  setStep(2);
+}
+
+// ── RENDER PENDING LIST ────────────────────────────────────────────────
+function renderPendingList() {
+  const list = document.getElementById('q-preview-list');
+  document.getElementById('q-count').textContent = pendingQuestions.length;
+
+  if (!pendingQuestions.length) {
+    list.innerHTML = '<div style="color:var(--muted); font-size:0.78rem; text-align:center; padding:16px 0;">尚未加入任何題目</div>';
+    return;
+  }
+
+  list.innerHTML = pendingQuestions.map((q, i) => `
+    <div class="q-item">
+      <span class="qi-tag" style="color:${TAG_COLORS[q.tag]}">${TAG_LABELS[q.tag]}</span>
+      <span class="qi-text">${escHtml(q.q.slice(0, 55))}${q.q.length > 55 ? '…' : ''}</span>
+      <button class="qi-del" onclick="removeQ(${i})" title="刪除">✕</button>
+    </div>
+  `).join('');
+}
+
+function removeQ(i) {
+  pendingQuestions.splice(i, 1);
+  renderPendingList();
+  updateInjectBtn();
+}
+
+// ── CLEAR FORM ─────────────────────────────────────────────────────────
+function clearForm() {
+  document.getElementById('q-text').value = '';
+  document.querySelectorAll('.opt-input').forEach(e => e.value = '');
+  document.querySelectorAll('input[name=ans]').forEach(r => r.checked = false);
+  document.getElementById('q-exp').value = '';
+  document.getElementById('q-expdetail').value = '';
+  document.getElementById('q-rule').value = '';
+  document.getElementById('p-text').value = '';
+  document.getElementById('p-title').value = '';
+}
+
+// ── INJECT & GENERATE ──────────────────────────────────────────────────
+function injectAndGenerate() {
+  if (!htmlValid || !pendingQuestions.length) return;
+
+  const sourceHTML = document.getElementById('html-input').value;
+
+  // Parse out the QUESTION_BANK object from source
+  // Find "const QUESTION_BANK = {" ... "};" block
+  const bankStart = sourceHTML.indexOf('const QUESTION_BANK = {');
+  if (bankStart === -1) { showToast('找不到 QUESTION_BANK'); return; }
+
+  // Find matching closing brace
+  let depth = 0, i = bankStart;
+  let inStr = false, strChar = '';
+  let bankEnd = -1;
+  while (i < sourceHTML.length) {
+    const ch = sourceHTML[i];
+    if (inStr) {
+      if (ch === '\\') { i += 2; continue; }
+      if (ch === strChar) inStr = false;
+    } else {
+      if (ch === '"' || ch === "'" || ch === '`') { inStr = true; strChar = ch; }
+      else if (ch === '{') depth++;
+      else if (ch === '}') { depth--; if (depth === 0) { bankEnd = i; break; } }
     }
+    i++;
+  }
 
-    let loadedQuestions = [];
+  if (bankEnd === -1) { showToast('無法解析 QUESTION_BANK 邊界'); return; }
 
-    for (let i = 0; i < matches.length; i += 2) {
-        if (!matches[i+1]) break;
+  const bankStr = sourceHTML.slice(bankStart, bankEnd + 1);
 
-        let questionContent = matches[i];
-        let optionsContent = matches[i+1];
+  // Eval the bank object safely
+  let bank;
+  try {
+    const evalStr = bankStr.replace('const QUESTION_BANK = ', '');
+    bank = Function('"use strict"; return (' + evalStr + ')')();
+  } catch(e) {
+    showToast('解析題庫失敗：' + e.message);
+    return;
+  }
 
-        let qData = {
-            id: "Q_" + (100 + (i / 2 + 1)),
-            type: "single-choice-grammar",
-            question: "",
-            options: [],
-            answer: []
+  // Group new questions by tag
+  // For passage-type questions, group into passage entries
+  const passageGroups = {}; // tag -> { text, title, questions[] }
+
+  for (const q of pendingQuestions) {
+    const { _passageText, _passageTitle, ...cleanQ } = q;
+
+    if (_passageText) {
+      // Passage type: group by passage text
+      const key = q.tag + '::' + _passageText.slice(0, 40);
+      if (!passageGroups[key]) {
+        passageGroups[key] = {
+          tag: q.tag,
+          passageText: _passageText,
+          passageTitle: _passageTitle,
+          questions: []
         };
-
-        // Separate potential Passages
-        let lines = questionContent.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-        if (lines.length > 1 && (lines[0].includes('[') || lines[0].length > 65)) {
-            qData.passage = lines[0];
-            qData.question = lines.slice(1).join(' ');
-        } else {
-            qData.question = lines.join(' ');
-        }
-
-        // Process options lines
-        let optLines = optionsContent.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-        
-        optLines.forEach((optLine, idx) => {
-            // Strip index markers like A. 1) etc.
-            let cleanOpt = optLine.replace(/^[A-Z0-9\s\.\-\)]+/i, '').trim();
-
-            if (cleanOpt.includes("(V)") || cleanOpt.toLowerCase().includes("correct")) {
-                cleanOpt = cleanOpt.replace("(V)", "").replace("(correct)", "").replace("(Correct)", "").trim();
-                qData.answer.push(idx);
-            }
-            qData.options.push(cleanOpt);
-        });
-
-        // Dynamic Taxonomy Identification
-        if (qData.answer.length > 1) {
-            qData.type = "multiple-choice-grammar";
-        } else if (qData.passage) {
-            let lowerQ = qData.question.toLowerCase();
-            if (lowerQ.includes("meaning to") || lowerQ.includes("synonym")) {
-                qData.type = "vocabulary-synonym";
-            } else if (qData.passage.includes('[') && qData.options[0].length < 5) {
-                qData.type = "cloze-letters";
-            } else if (qData.passage.includes('[')) {
-                qData.type = "cloze-words";
-            } else {
-                qData.type = "reading-comprehension";
-            }
-        } else if (/[\u4e00-\u9fa5]/.test(qData.question)) {
-            qData.type = "translation";
-        }
-
-        loadedQuestions.push(qData);
-    }
-    return loadedQuestions;
-}
-
-// Ingest text area string and allocate difficulty
-function loadQuestionsIntoEngine() {
-    const textData = document.getElementById('raw-input').value;
-    const parsedList = parseRawQuestionsText(textData);
-
-    if (parsedList.length === 0) {
-        alert("No valid <Question><Options> blocks found. Please check your text format.");
-        return;
-    }
-
-    // Wipe old pool clean
-    QUESTION_BANK = { Easy: [], Medium: [], Hard: [] };
-
-    // Progressive Difficulty Allocation (Distribute uniformly across difficulties for testing)
-    parsedList.forEach((q, index) => {
-        if (index % 3 === 0) {
-            q.id = "E" + String(index).padStart(3, '0');
-            QUESTION_BANK.Easy.push(q);
-        } else if (index % 3 === 1) {
-            q.id = "M" + String(index).padStart(3, '0');
-            QUESTION_BANK.Medium.push(q);
-        } else {
-            q.id = "H" + String(index).padStart(3, '0');
-            QUESTION_BANK.Hard.push(q);
-        }
-    });
-
-    // Toggle visible panels
-    setupPanel.style.display = 'none';
-    appContainer.style.display = 'block';
-
-    initGame();
-}
-
-function initGame() {
-    currentScore = 5;
-    nextQuestion();
-}
-
-function getDifficulty(score) {
-    if (score < 15) return 'Easy';
-    if (score <= 30) return 'Medium';
-    return 'Hard';
-}
-
-function nextQuestion() {
-    if (currentScore <= 0) {
-        renderGameOver();
-        return;
-    }
-
-    const diff = getDifficulty(currentScore);
-    let pool = QUESTION_BANK[diff];
-
-    // Fallback scaling to other pools if one difficulty dries up
-    if (!pool || pool.length === 0) {
-        pool = [...QUESTION_BANK.Easy, ...QUESTION_BANK.Medium, ...QUESTION_BANK.Hard];
-    }
-
-    if (pool.length === 0) {
-        renderNoMoreQuestions();
-        return;
-    }
-
-    const randomIndex = Math.floor(Math.random() * pool.length);
-    currentQuestion = pool[randomIndex];
-    
-    selectedIndices = [];
-    isSubmitted = false;
-
-    renderQuestion(diff);
-}
-
-function renderQuestion(difficulty) {
-    let passageHtml = currentQuestion.passage ? `<div class="passage">${currentQuestion.passage}</div>` : '';
-    let typeLabel = currentQuestion.type.replace(/-/g, ' ');
-
-    let optionsHtml = '';
-    currentQuestion.options.forEach((option, index) => {
-        optionsHtml += `
-            <button class="option-btn" onclick="handleOptionClick(${index})" id="opt-${index}">
-                ${option}
-            </button>
-        `;
-    });
-
-    appContainer.innerHTML = `
-        <div class="header">
-            <div><span class="difficulty-badge">${difficulty} Level</span></div>
-            <div class="score-badge">Score: ${currentScore}</div>
-        </div>
-        <div class="question-box">
-            <span class="type-tag">${typeLabel}</span>
-            ${passageHtml}
-            <div class="question-text">${currentQuestion.question}</div>
-            <div class="options-container">${optionsHtml}</div>
-        </div>
-        <div class="control-panel">
-            <button class="action-btn" id="action-btn" onclick="handleSubmit()">Submit Answer</button>
-        </div>
-    `;
-}
-
-function handleOptionClick(index) {
-    if (isSubmitted) return;
-
-    if (currentQuestion.type === 'multiple-choice-grammar') {
-        const idxOf = selectedIndices.indexOf(index);
-        if (idxOf > -1) {
-            selectedIndices.splice(idxOf, 1);
-            document.getElementById(`opt-${index}`).classList.remove('selected');
-        } else {
-            selectedIndices.push(index);
-            document.getElementById(`opt-${index}`).classList.add('selected');
-        }
+      }
+      passageGroups[key].questions.push(cleanQ);
     } else {
-        selectedIndices = [index];
-        document.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected'));
-        document.getElementById(`opt-${index}`).classList.add('selected');
+      // Regular MC: push directly
+      if (!bank[q.tag]) bank[q.tag] = [];
+      bank[q.tag].push(cleanQ);
     }
-}
+  }
 
-function handleSubmit() {
-    if (isSubmitted) {
-        nextQuestion();
-        return;
-    }
+  // Handle passage groups
+  for (const key of Object.keys(passageGroups)) {
+    const pg = passageGroups[key];
+    const tag = pg.tag;
+    if (!bank[tag]) bank[tag] = [];
 
-    if (selectedIndices.length === 0) {
-        alert("Please select an answer first!");
-        return;
-    }
-
-    isSubmitted = true;
-    const correctAnswers = [...currentQuestion.answer].sort();
-    const userAnswers = [...selectedIndices].sort();
-    
-    const isCorrect = correctAnswers.length === userAnswers.length && 
-                      correctAnswers.every((val, index) => val === userAnswers[index]);
-
-    currentQuestion.options.forEach((_, index) => {
-        const btn = document.getElementById(`opt-${index}`);
-        btn.disabled = true;
-        if (correctAnswers.includes(index)) btn.classList.add('correct');
-        else if (userAnswers.includes(index)) btn.classList.add('wrong');
-    });
-
-    if (isCorrect) {
-        currentScore += 2;
-        document.querySelector('.score-badge').style.backgroundColor = 'var(--success-color)';
+    const passageEntry = {
+      type: 'passage',
+      questions: pg.questions
+    };
+    if (tag === 'reading') {
+      passageEntry.title = pg.passageTitle;
+      passageEntry.text = pg.passageText;
     } else {
-        currentScore -= 4;
-        document.querySelector('.score-badge').style.backgroundColor = 'var(--danger-color)';
+      passageEntry.passage = pg.passageText;
     }
+    bank[tag].push(passageEntry);
+  }
 
-    document.querySelector('.score-badge').innerText = `Score: ${currentScore}`;
-    document.getElementById('action-btn').innerText = currentScore <= 0 ? "See Results" : "Next Question";
+  // Serialize bank back to JS string
+  const newBankStr = 'const QUESTION_BANK = ' + serializeBank(bank);
+
+  // Replace in source
+  const newHTML = sourceHTML.slice(0, bankStart) + newBankStr + sourceHTML.slice(bankEnd + 1);
+
+  outputHTML = newHTML;
+
+  // Display in code block
+  const preEl = document.getElementById('output-pre');
+  preEl.className = ''; // remove placeholder class
+  preEl.style.cssText = 'flex:1; overflow:auto; padding:16px; font-family:var(--mono); font-size:0.7rem; line-height:1.6; color:#a0c4ff; white-space:pre-wrap; word-break:break-all;';
+
+  // Show a truncated diff view
+  const preview = buildPreview(newHTML, pendingQuestions.length);
+  preEl.innerHTML = preview;
+
+  // Update toolbar
+  document.getElementById('copy-btn').disabled = false;
+  document.getElementById('dl-btn').disabled = false;
+  const added = pendingQuestions.reduce((acc, q) => {
+    acc[q.tag] = (acc[q.tag] || 0) + 1;
+    return acc;
+  }, {});
+  const summary = Object.entries(added).map(([k,v]) => `${TAG_LABELS[k]} +${v}`).join(' · ');
+  document.getElementById('output-info').textContent = `已注入 ${pendingQuestions.length} 題 (${summary}) · ${(newHTML.length/1024).toFixed(1)} KB`;
+
+  setStep(3);
+  showToast('✅ 新 HTML 已產出！請複製或下載。');
 }
 
-function renderGameOver() {
-    appContainer.innerHTML = `
-        <div class="game-over">
-            <h2>Game Over!</h2>
-            <p>Your score hit 0 or lower.</p>
-            <div class="score-badge" style="display:inline-block; margin: 20px 0; background-color: var(--danger-color)">Final Score: ${currentScore}</div>
-            <div><button class="action-btn" onclick="location.reload()">Load New Questions</button></div>
-        </div>
-    `;
+// ── SERIALIZE BANK ─────────────────────────────────────────────────────
+function serializeBank(bank) {
+  function escStr(s) {
+    if (typeof s !== 'string') return JSON.stringify(s);
+    // Use single quotes, escape internal single quotes
+    return "'" + s.replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, '\\n') + "'";
+  }
+
+  function serializeQ(q) {
+    const lines = [];
+    lines.push('      q: ' + escStr(q.q));
+    lines.push('      type: ' + escStr(q.type || 'mc'));
+    lines.push('      opts: [' + (q.opts || []).map(escStr).join(',') + ']');
+    lines.push('      ans: ' + q.ans);
+    lines.push('      tag: ' + escStr(q.tag));
+    lines.push('      exp: ' + escStr(q.exp || ''));
+    lines.push('      expDetail: ' + escStr(q.expDetail || ''));
+    lines.push('      rule: ' + escStr(q.rule || ''));
+    return '    {\n' + lines.join(',\n') + '\n    }';
+  }
+
+  function serializeEntry(entry) {
+    if (entry.type === 'passage') {
+      const qsStr = (entry.questions || []).map(q => {
+        const lines = [];
+        lines.push('          q: ' + escStr(q.q));
+        lines.push('          opts: [' + (q.opts || []).map(escStr).join(',') + ']');
+        lines.push('          ans: ' + q.ans);
+        lines.push('          tag: ' + escStr(q.tag));
+        lines.push('          exp: ' + escStr(q.exp || ''));
+        lines.push('          expDetail: ' + escStr(q.expDetail || ''));
+        lines.push('          rule: ' + escStr(q.rule || ''));
+        return '        {\n' + lines.join(',\n') + '\n        }';
+      }).join(',\n');
+
+      const fields = [];
+      fields.push('      type: \'passage\'');
+      if (entry.title) fields.push('      title: ' + escStr(entry.title));
+      if (entry.text) fields.push('      text: ' + escStr(entry.text));
+      if (entry.passage) fields.push('      passage: ' + escStr(entry.passage));
+      fields.push('      questions: [\n' + qsStr + '\n      ]');
+      return '    {\n' + fields.join(',\n') + '\n    }';
+    } else {
+      return serializeQ(entry);
+    }
+  }
+
+  const sections = [];
+  for (const [key, arr] of Object.entries(bank)) {
+    const items = arr.map(serializeEntry).join(',\n');
+    sections.push('  ' + key + ': [\n' + items + '\n  ]');
+  }
+  return '{\n' + sections.join(',\n\n') + '\n}';
 }
 
-function renderNoMoreQuestions() {
-    appContainer.innerHTML = `
-        <div class="game-over">
-            <h2>All Cleared!</h2>
-            <p>You answered all loaded questions correctly!</p>
-            <div class="score-badge" style="display:inline-block; margin: 20px 0;">Final Score: ${currentScore}</div>
-            <div><button class="action-btn" onclick="location.reload()">Load New Questions</button></div>
-        </div>
-    `;
+// ── BUILD PREVIEW ──────────────────────────────────────────────────────
+function buildPreview(html, addedCount) {
+  // Show a highlighted snippet around the QUESTION_BANK area
+  const bankIdx = html.indexOf('const QUESTION_BANK');
+  const snippet = html.slice(Math.max(0, bankIdx - 200), bankIdx + 600);
+
+  const topLines = html.slice(0, 400).replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const bankSnip = snippet.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+  return `<span class="diff-normal">… (${html.length} 字元 · 前 400 字元) …\n\n${topLines}\n\n</span><span style="color:var(--muted)">… (略過 CSS 與 HTML 結構) …\n\n</span><span class="diff-added">// ✅ 已注入 ${addedCount} 道新題目\n</span><span class="diff-normal">${bankSnip}\n…（點「複製全部 HTML」取得完整內容）</span>`;
+}
+
+// ── COPY OUTPUT ────────────────────────────────────────────────────────
+async function copyOutput() {
+  if (!outputHTML) return;
+  try {
+    await navigator.clipboard.writeText(outputHTML);
+    showToast('✅ 已複製完整 HTML！貼到文字編輯器存成 .html 即可。');
+  } catch(e) {
+    // Fallback
+    const ta = document.createElement('textarea');
+    ta.value = outputHTML;
+    ta.style.cssText = 'position:fixed;top:-9999px;';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    ta.remove();
+    showToast('✅ 已複製！（舊版瀏覽器模式）');
+  }
+}
+
+// ── DOWNLOAD OUTPUT ────────────────────────────────────────────────────
+function downloadOutput() {
+  if (!outputHTML) return;
+  const blob = new Blob([outputHTML], { type: 'text/html;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'english-quiz-framework-new.html';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('⬇ 下載中…');
+}
+
+// ── HELPERS ────────────────────────────────────────────────────────────
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function updateInjectBtn() {
+  document.getElementById('inject-btn').disabled = !(htmlValid && pendingQuestions.length > 0);
+}
+
+function setStep(n) {
+  for (let i = 1; i <= 3; i++) {
+    const el = document.getElementById('step' + i);
+    el.className = 'step' + (i < n ? ' done' : i === n ? ' active' : '');
+  }
+}
+
+function showToast(msg) {
+  const existing = document.querySelector('.toast');
+  if (existing) existing.remove();
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2800);
 }
 </script>
 </body>
