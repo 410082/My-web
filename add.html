@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All-in-One Quiz Engine & Inserter</title>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --dark-color: #2c3e50;
+            --light-color: #f8f9fa;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #eef2f3;
+            color: var(--dark-color);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Input Setup Panel */
+        .setup-panel {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+
+        .setup-panel h2 {
+            margin-top: 0;
+            color: var(--dark-color);
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 12px;
+            box-sizing: border-box;
+            border: 2px solid #dcdde1;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 0.95rem;
+            resize: vertical;
+            margin-bottom: 15px;
+        }
+
+        /* Quiz Game Play Interface */
+        .quiz-container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            padding: 30px;
+            box-sizing: border-box;
+            display: none; /* Hidden until questions loaded */
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--light-color);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .score-badge {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .difficulty-badge {
+            background-color: #f39c12;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+        }
+
+        .question-box {
+            margin-bottom: 25px;
+        }
+
+        .type-tag {
+            display: inline-block;
+            background-color: #95a5a6;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .passage {
+            background-color: var(--light-color);
+            padding: 15px;
+            border-left: 4px solid var(--primary-color);
+            border-radius: 4px;
+            margin-bottom: 15px;
+            line-height: 1.6;
+            font-style: italic;
+        }
+
+        .question-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background-color: white;
+            border: 2px solid #dcdde1;
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s ease;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background-color: #f5f6fa;
+            border-color: var(--primary-color);
+        }
+
+        .option-btn.selected {
+            background-color: #e3edf9;
+            border-color: var(--primary-color);
+        }
+
+        .option-btn.correct {
+            background-color: #d4edda;
+            border-color: var(--success-color);
+            color: #155724;
+        }
+
+        .option-btn.wrong {
+            background-color: #f8d7da;
+            border-color: var(--danger-color);
+            color: #721c24;
+        }
+
+        .control-panel {
+            margin-top: 25px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .action-btn {
+            background-color: var(--dark-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .action-btn:hover {
+            background-color: #34495e;
+        }
+
+        .game-over {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .game-over h2 {
+            color: var(--danger-color);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="setup-panel" id="setup-panel">
+        <h2>1. Paste Your Raw Questions Here</h2>
+        <p style="font-size:0.9rem; color:#7f8c8d; margin-top:-5px;">格式提示：使用 &lt;題目&gt;&lt;選項們&gt;交替，並在正確答案後方標記 (V)</p>
+        <textarea id="raw-input" placeholder="<Choose the correct verb form: He ________ to school everyday.><A. go&#10;B. goes (V)&#10;C. going&#10;D. gone>"></textarea>
+        <button class="action-btn" style="background-color: var(--success-color);" onclick="loadQuestionsIntoEngine()">Load & Start Quiz</button>
+    </div>
+
+    <div class="quiz-container" id="quiz-app"></div>
+</div>
+
+<script>
+// Dynamic Database object updated on-the-fly
+let QUESTION_BANK = {
+    Easy: [],
+    Medium: [],
+    Hard: []
+};
+
+// Game State Engine
+let currentScore = 5;
+let currentQuestion = null;
+let selectedIndices = [];
+let isSubmitted = false;
+
+const appContainer = document.getElementById('quiz-app');
+const setupPanel = document.getElementById('setup-panel');
+
+// Core Parser Logic inside JavaScript
+function parseRawQuestionsText(text) {
+    // Regular expression to catch blocks between < >
+    const regex = /<([\s\S]*?)>/g;
+    let matches = [];
+    let match;
+    
+    while ((match = regex.exec(text)) !== null) {
+        matches.push(match[1].trim());
+    }
+
+    let loadedQuestions = [];
+
+    for (let i = 0; i < matches.length; i += 2) {
+        if (!matches[i+1]) break;
+
+        let questionContent = matches[i];
+        let optionsContent = matches[i+1];
+
+        let qData = {
+            id: "Q_" + (100 + (i / 2 + 1)),
+            type: "single-choice-grammar",
+            question: "",
+            options: [],
+            answer: []
+        };
+
+        // Separate potential Passages
+        let lines = questionContent.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+        if (lines.length > 1 && (lines[0].includes('[') || lines[0].length > 65)) {
+            qData.passage = lines[0];
+            qData.question = lines.slice(1).join(' ');
+        } else {
+            qData.question = lines.join(' ');
+        }
+
+        // Process options lines
+        let optLines = optionsContent.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+        
+        optLines.forEach((optLine, idx) => {
+            // Strip index markers like A. 1) etc.
+            let cleanOpt = optLine.replace(/^[A-Z0-9\s\.\-\)]+/i, '').trim();
+
+            if (cleanOpt.includes("(V)") || cleanOpt.toLowerCase().includes("correct")) {
+                cleanOpt = cleanOpt.replace("(V)", "").replace("(correct)", "").replace("(Correct)", "").trim();
+                qData.answer.push(idx);
+            }
+            qData.options.push(cleanOpt);
+        });
+
+        // Dynamic Taxonomy Identification
+        if (qData.answer.length > 1) {
+            qData.type = "multiple-choice-grammar";
+        } else if (qData.passage) {
+            let lowerQ = qData.question.toLowerCase();
+            if (lowerQ.includes("meaning to") || lowerQ.includes("synonym")) {
+                qData.type = "vocabulary-synonym";
+            } else if (qData.passage.includes('[') && qData.options[0].length < 5) {
+                qData.type = "cloze-letters";
+            } else if (qData.passage.includes('[')) {
+                qData.type = "cloze-words";
+            } else {
+                qData.type = "reading-comprehension";
+            }
+        } else if (/[\u4e00-\u9fa5]/.test(qData.question)) {
+            qData.type = "translation";
+        }
+
+        loadedQuestions.push(qData);
+    }
+    return loadedQuestions;
+}
+
+// Ingest text area string and allocate difficulty
+function loadQuestionsIntoEngine() {
+    const textData = document.getElementById('raw-input').value;
+    const parsedList = parseRawQuestionsText(textData);
+
+    if (parsedList.length === 0) {
+        alert("No valid <Question><Options> blocks found. Please check your text format.");
+        return;
+    }
+
+    // Wipe old pool clean
+    QUESTION_BANK = { Easy: [], Medium: [], Hard: [] };
+
+    // Progressive Difficulty Allocation (Distribute uniformly across difficulties for testing)
+    parsedList.forEach((q, index) => {
+        if (index % 3 === 0) {
+            q.id = "E" + String(index).padStart(3, '0');
+            QUESTION_BANK.Easy.push(q);
+        } else if (index % 3 === 1) {
+            q.id = "M" + String(index).padStart(3, '0');
+            QUESTION_BANK.Medium.push(q);
+        } else {
+            q.id = "H" + String(index).padStart(3, '0');
+            QUESTION_BANK.Hard.push(q);
+        }
+    });
+
+    // Toggle visible panels
+    setupPanel.style.display = 'none';
+    appContainer.style.display = 'block';
+
+    initGame();
+}
+
+function initGame() {
+    currentScore = 5;
+    nextQuestion();
+}
+
+function getDifficulty(score) {
+    if (score < 15) return 'Easy';
+    if (score <= 30) return 'Medium';
+    return 'Hard';
+}
+
+function nextQuestion() {
+    if (currentScore <= 0) {
+        renderGameOver();
+        return;
+    }
+
+    const diff = getDifficulty(currentScore);
+    let pool = QUESTION_BANK[diff];
+
+    // Fallback scaling to other pools if one difficulty dries up
+    if (!pool || pool.length === 0) {
+        pool = [...QUESTION_BANK.Easy, ...QUESTION_BANK.Medium, ...QUESTION_BANK.Hard];
+    }
+
+    if (pool.length === 0) {
+        renderNoMoreQuestions();
+        return;
+    }
+
+    const randomIndex = Math.floor(Math.random() * pool.length);
+    currentQuestion = pool[randomIndex];
+    
+    selectedIndices = [];
+    isSubmitted = false;
+
+    renderQuestion(diff);
+}
+
+function renderQuestion(difficulty) {
+    let passageHtml = currentQuestion.passage ? `<div class="passage">${currentQuestion.passage}</div>` : '';
+    let typeLabel = currentQuestion.type.replace(/-/g, ' ');
+
+    let optionsHtml = '';
+    currentQuestion.options.forEach((option, index) => {
+        optionsHtml += `
+            <button class="option-btn" onclick="handleOptionClick(${index})" id="opt-${index}">
+                ${option}
+            </button>
+        `;
+    });
+
+    appContainer.innerHTML = `
+        <div class="header">
+            <div><span class="difficulty-badge">${difficulty} Level</span></div>
+            <div class="score-badge">Score: ${currentScore}</div>
+        </div>
+        <div class="question-box">
+            <span class="type-tag">${typeLabel}</span>
+            ${passageHtml}
+            <div class="question-text">${currentQuestion.question}</div>
+            <div class="options-container">${optionsHtml}</div>
+        </div>
+        <div class="control-panel">
+            <button class="action-btn" id="action-btn" onclick="handleSubmit()">Submit Answer</button>
+        </div>
+    `;
+}
+
+function handleOptionClick(index) {
+    if (isSubmitted) return;
+
+    if (currentQuestion.type === 'multiple-choice-grammar') {
+        const idxOf = selectedIndices.indexOf(index);
+        if (idxOf > -1) {
+            selectedIndices.splice(idxOf, 1);
+            document.getElementById(`opt-${index}`).classList.remove('selected');
+        } else {
+            selectedIndices.push(index);
+            document.getElementById(`opt-${index}`).classList.add('selected');
+        }
+    } else {
+        selectedIndices = [index];
+        document.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected'));
+        document.getElementById(`opt-${index}`).classList.add('selected');
+    }
+}
+
+function handleSubmit() {
+    if (isSubmitted) {
+        nextQuestion();
+        return;
+    }
+
+    if (selectedIndices.length === 0) {
+        alert("Please select an answer first!");
+        return;
+    }
+
+    isSubmitted = true;
+    const correctAnswers = [...currentQuestion.answer].sort();
+    const userAnswers = [...selectedIndices].sort();
+    
+    const isCorrect = correctAnswers.length === userAnswers.length && 
+                      correctAnswers.every((val, index) => val === userAnswers[index]);
+
+    currentQuestion.options.forEach((_, index) => {
+        const btn = document.getElementById(`opt-${index}`);
+        btn.disabled = true;
+        if (correctAnswers.includes(index)) btn.classList.add('correct');
+        else if (userAnswers.includes(index)) btn.classList.add('wrong');
+    });
+
+    if (isCorrect) {
+        currentScore += 2;
+        document.querySelector('.score-badge').style.backgroundColor = 'var(--success-color)';
+    } else {
+        currentScore -= 4;
+        document.querySelector('.score-badge').style.backgroundColor = 'var(--danger-color)';
+    }
+
+    document.querySelector('.score-badge').innerText = `Score: ${currentScore}`;
+    document.getElementById('action-btn').innerText = currentScore <= 0 ? "See Results" : "Next Question";
+}
+
+function renderGameOver() {
+    appContainer.innerHTML = `
+        <div class="game-over">
+            <h2>Game Over!</h2>
+            <p>Your score hit 0 or lower.</p>
+            <div class="score-badge" style="display:inline-block; margin: 20px 0; background-color: var(--danger-color)">Final Score: ${currentScore}</div>
+            <div><button class="action-btn" onclick="location.reload()">Load New Questions</button></div>
+        </div>
+    `;
+}
+
+function renderNoMoreQuestions() {
+    appContainer.innerHTML = `
+        <div class="game-over">
+            <h2>All Cleared!</h2>
+            <p>You answered all loaded questions correctly!</p>
+            <div class="score-badge" style="display:inline-block; margin: 20px 0;">Final Score: ${currentScore}</div>
+            <div><button class="action-btn" onclick="location.reload()">Load New Questions</button></div>
+        </div>
+    `;
+}
+</script>
+</body>
+</html>
