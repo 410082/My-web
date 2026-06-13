@@ -1,473 +1,1348 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic English Quiz Engine</title>
-    <style>
-        :root {
-            --primary-color: #4a90e2;
-            --success-color: #2ecc71;
-            --danger-color: #e74c3c;
-            --dark-color: #2c3e50;
-            --light-color: #f8f9fa;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>English Mastery Lab</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,300&family=Playfair+Display:wght@700&display=swap');
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #eef2f3;
-            color: var(--dark-color);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
+  :root {
+    --bg: #0d0f14;
+    --surface: #161923;
+    --surface2: #1e2433;
+    --border: #252d3d;
+    --accent: #4f8ef7;
+    --accent2: #a78bfa;
+    --gold: #f4c94a;
+    --green: #34d399;
+    --red: #f87171;
+    --orange: #fb923c;
+    --text: #e4e9f5;
+    --muted: #6b7a9e;
+    --mono: 'DM Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+    --display: 'Playfair Display', serif;
+  }
 
-        .quiz-container {
-            background-color: white;
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-            width: 100%;
-            max-width: 700px;
-            padding: 30px;
-            box-sizing: border-box;
-        }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid var(--light-color);
-            padding-bottom: 15px;
-            margin-bottom: 20px;
-        }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
 
-        .score-badge {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 1.1rem;
-        }
+  /* ── HEADER ── */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 100;
+    backdrop-filter: blur(8px);
+  }
 
-        .difficulty-badge {
-            background-color: #f39c12;
-            color: white;
-            padding: 5px 12px;
-            border-radius: 15px;
-            font-size: 0.9rem;
-        }
+  .logo {
+    font-family: var(--display);
+    font-size: 1.4rem;
+    color: var(--text);
+    letter-spacing: -0.5px;
+  }
+  .logo span { color: var(--accent); }
 
-        .question-box {
-            margin-bottom: 25px;
-        }
+  .header-stats {
+    display: flex;
+    gap: 24px;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+  .header-stats .val { color: var(--text); font-weight: 500; }
 
-        .type-tag {
-            display: inline-block;
-            background-color: #95a5a6;
-            color: white;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            margin-bottom: 10px;
-        }
+  /* ── LAYOUT ── */
+  .layout {
+    display: grid;
+    grid-template-columns: 260px 1fr 280px;
+    min-height: calc(100vh - 65px);
+  }
 
-        .passage {
-            background-color: var(--light-color);
-            padding: 15px;
-            border-left: 4px solid var(--primary-color);
-            border-radius: 4px;
-            margin-bottom: 15px;
-            line-height: 1.6;
-            font-style: italic;
-        }
+  /* ── LEFT PANEL: Module Selector ── */
+  .left-panel {
+    border-right: 1px solid var(--border);
+    padding: 24px 16px;
+    overflow-y: auto;
+  }
 
-        .question-text {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 15px;
-        }
+  .panel-label {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--muted);
+    padding: 0 8px;
+    margin-bottom: 12px;
+  }
 
-        .options-container {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
+  .module-card {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.18s;
+    position: relative;
+  }
+  .module-card:hover { border-color: var(--accent); background: var(--surface); }
+  .module-card.active {
+    border-color: var(--accent);
+    background: linear-gradient(135deg, rgba(79,142,247,0.12), rgba(167,139,250,0.06));
+  }
+  .module-card .m-name {
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+  .module-card .m-meta {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+  }
+  .module-card .m-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--border);
+  }
+  .module-card.active .m-badge { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+  .module-card .m-bar {
+    height: 2px;
+    background: var(--border);
+    border-radius: 99px;
+    margin-top: 8px;
+    overflow: hidden;
+  }
+  .module-card .m-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transition: width 0.4s ease;
+  }
 
-        .option-btn {
-            background-color: white;
-            border: 2px solid #dcdde1;
-            border-radius: 8px;
-            padding: 12px 20px;
-            font-size: 1rem;
-            cursor: pointer;
-            text-align: left;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-        }
+  .section-gap { height: 20px; }
 
-        .option-btn:hover:not(:disabled) {
-            background-color: #f5f6fa;
-            border-color: var(--primary-color);
-        }
+  /* ── MAIN: Quiz Area ── */
+  .main-panel {
+    padding: 32px 40px;
+    overflow-y: auto;
+  }
 
-        .option-btn.selected {
-            background-color: #e3edf9;
-            border-color: var(--primary-color);
-        }
+  .quiz-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+  }
+  .quiz-title { font-family: var(--display); font-size: 1.6rem; }
+  .quiz-meta { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
 
-        .option-btn.correct {
-            background-color: #d4edda;
-            border-color: var(--success-color);
-            color: #155724;
-        }
+  .progress-bar-wrap {
+    background: var(--border);
+    border-radius: 99px;
+    height: 4px;
+    margin-bottom: 32px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transition: width 0.4s ease;
+  }
 
-        .option-btn.wrong {
-            background-color: #f8d7da;
-            border-color: var(--danger-color);
-            color: #721c24;
-        }
+  /* ── QUESTION CARD ── */
+  .q-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 20px;
+    animation: fadeSlide 0.25s ease;
+  }
+  @keyframes fadeSlide { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
 
-        .control-panel {
-            margin-top: 25px;
-            display: flex;
-            justify-content: flex-end;
-        }
+  .q-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 3px 10px;
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+  .q-tag .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+  }
 
-        .action-btn {
-            background-color: var(--dark-color);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 6px;
-            font-size: 1rem;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background 0.2s;
-        }
+  .q-text {
+    font-size: 1.08rem;
+    font-weight: 400;
+    line-height: 1.7;
+    margin-bottom: 22px;
+    color: var(--text);
+  }
+  .q-text .blank {
+    display: inline-block;
+    border-bottom: 2px solid var(--accent);
+    min-width: 80px;
+    text-align: center;
+    color: var(--accent);
+    font-weight: 600;
+    font-family: var(--mono);
+    padding: 0 6px;
+  }
 
-        .action-btn:hover {
-            background-color: #34495e;
-        }
+  /* OPTIONS */
+  .options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .options.single-col { grid-template-columns: 1fr; }
 
-        .game-over {
-            text-align: center;
-            padding: 40px 20px;
-        }
+  .opt-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 0.88rem;
+    cursor: pointer;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.15s;
+  }
+  .opt-btn:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: rgba(79,142,247,0.08);
+  }
+  .opt-btn .opt-label {
+    width: 24px; height: 24px;
+    border-radius: 6px;
+    background: var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    font-weight: 500;
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+  .opt-btn.selected { border-color: var(--accent); background: rgba(79,142,247,0.12); }
+  .opt-btn.selected .opt-label { background: var(--accent); color: #fff; }
+  .opt-btn.correct { border-color: var(--green); background: rgba(52,211,153,0.1); }
+  .opt-btn.correct .opt-label { background: var(--green); color: #0d0f14; }
+  .opt-btn.wrong { border-color: var(--red); background: rgba(248,113,113,0.08); }
+  .opt-btn.wrong .opt-label { background: var(--red); color: #fff; }
+  .opt-btn:disabled { cursor: default; }
 
-        .game-over h2 {
-            color: var(--danger-color);
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-        }
+  /* Short answer */
+  .short-input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 0.9rem;
+    outline: none;
+    transition: border 0.15s;
+  }
+  .short-input:focus { border-color: var(--accent); }
 
-        /* Cloze fill-in layout helpers */
-        .cloze-select {
-            padding: 4px 8px;
-            margin: 0 5px;
-            font-size: 1rem;
-            border: 2px solid var(--primary-color);
-            border-radius: 4px;
-        }
-    </style>
+  /* ── EXPLANATION BOX ── */
+  .explanation {
+    background: linear-gradient(135deg, rgba(79,142,247,0.07), rgba(167,139,250,0.04));
+    border: 1px solid rgba(79,142,247,0.3);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-top: 16px;
+    animation: fadeSlide 0.25s ease;
+    display: none;
+  }
+  .explanation.show { display: block; }
+  .explanation .exp-head {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .explanation .exp-body { font-size: 0.88rem; line-height: 1.75; color: #c4ceea; }
+  .explanation .exp-body strong { color: var(--gold); font-weight: 500; }
+  .explanation .exp-rule {
+    margin-top: 12px;
+    padding: 10px 14px;
+    background: var(--surface2);
+    border-radius: 8px;
+    border-left: 3px solid var(--gold);
+    font-size: 0.82rem;
+    color: var(--muted);
+  }
+  .explanation .exp-rule b { color: var(--text); }
+
+  /* ── QUIZ CONTROLS ── */
+  .quiz-controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+    align-items: center;
+  }
+  .btn {
+    padding: 10px 22px;
+    border-radius: 9px;
+    font-family: var(--sans);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+  }
+  .btn-primary:hover { background: #6fa0f9; }
+  .btn-ghost {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { color: var(--text); border-color: var(--muted); }
+  .btn-gold {
+    background: var(--gold);
+    color: #0d0f14;
+  }
+  .btn-gold:hover { background: #f7d56a; }
+
+  .q-counter {
+    margin-left: auto;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+
+  /* ── RIGHT PANEL: Analysis ── */
+  .right-panel {
+    border-left: 1px solid var(--border);
+    padding: 24px 16px;
+    overflow-y: auto;
+  }
+
+  /* SCORE RING */
+  .score-ring-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 20px;
+  }
+  .ring-svg { filter: drop-shadow(0 0 12px rgba(79,142,247,0.3)); }
+  .ring-text {
+    text-align: center;
+    margin-top: 10px;
+  }
+  .ring-pct {
+    font-family: var(--display);
+    font-size: 2rem;
+    line-height: 1;
+  }
+  .ring-label { font-family: var(--mono); font-size: 0.68rem; color: var(--muted); margin-top: 3px; }
+
+  /* WEAKNESS BARS */
+  .weakness-row {
+    margin-bottom: 14px;
+  }
+  .weakness-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    margin-bottom: 5px;
+  }
+  .weakness-name { color: var(--text); }
+  .weakness-pct { font-family: var(--mono); font-size: 0.75rem; color: var(--muted); }
+  .w-bar {
+    height: 6px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .w-fill {
+    height: 100%;
+    border-radius: 99px;
+    transition: width 0.6s ease;
+  }
+  .level-strong .w-fill { background: var(--green); }
+  .level-ok .w-fill { background: var(--gold); }
+  .level-weak .w-fill { background: var(--orange); }
+  .level-danger .w-fill { background: var(--red); }
+
+  /* SUGGESTION TAGS */
+  .suggestion-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    margin-top: 8px;
+  }
+  .suggestion-box .s-head {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .suggestion-box .s-item {
+    font-size: 0.8rem;
+    color: #a0aec8;
+    padding: 5px 0;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  .suggestion-box .s-item:last-child { border-bottom: none; }
+  .suggestion-box .s-icon { color: var(--accent2); flex-shrink: 0; margin-top: 2px; }
+
+  /* HISTORY LOG */
+  .history-entry {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+  .history-entry .h-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .history-entry .h-type { color: var(--text); font-size: 0.75rem; }
+
+  /* RESULT SCREEN */
+  #result-screen {
+    display: none;
+    text-align: center;
+    padding: 40px 0;
+  }
+  .result-grade {
+    font-family: var(--display);
+    font-size: 5rem;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .result-label { font-size: 0.9rem; color: var(--muted); margin-bottom: 24px; }
+  .result-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .result-stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+  }
+  .result-stat .rs-val {
+    font-family: var(--mono);
+    font-size: 1.5rem;
+    font-weight: 500;
+  }
+  .result-stat .rs-key { font-size: 0.72rem; color: var(--muted); margin-top: 4px; }
+
+  /* SETUP SCREEN */
+  #setup-screen { padding: 0; }
+  .setup-hero {
+    background: linear-gradient(135deg, rgba(79,142,247,0.1), rgba(167,139,250,0.06));
+    border: 1px solid rgba(79,142,247,0.25);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 24px;
+    text-align: center;
+  }
+  .setup-hero h2 { font-family: var(--display); font-size: 1.4rem; margin-bottom: 6px; }
+  .setup-hero p { color: var(--muted); font-size: 0.85rem; }
+
+  .type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+  .type-toggle {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.84rem;
+  }
+  .type-toggle:hover { border-color: var(--accent2); }
+  .type-toggle.on {
+    border-color: var(--accent2);
+    background: rgba(167,139,250,0.1);
+  }
+  .type-toggle .t-icon {
+    font-size: 1.3rem;
+    width: 36px;
+    text-align: center;
+  }
+  .type-toggle .t-name { font-weight: 500; }
+  .type-toggle .t-desc { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+  .type-toggle .t-check {
+    margin-left: auto;
+    width: 18px; height: 18px;
+    border-radius: 4px;
+    background: var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem;
+    transition: all 0.15s;
+  }
+  .type-toggle.on .t-check { background: var(--accent2); color: #fff; }
+
+  .setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.85rem;
+  }
+  .setting-row label { color: var(--text); }
+  .setting-row select, .setting-row input[type=number] {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 6px 10px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    outline: none;
+  }
+
+  .mobile-hint { display: none; }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    .left-panel, .right-panel { display: none; }
+    .main-panel { padding: 20px; }
+    .options { grid-template-columns: 1fr; }
+    .mobile-hint { display: block; text-align: center; color: var(--muted); font-size: 0.8rem; padding: 8px; }
+  }
+
+  .tag-vocab { color: #60a5fa; }
+  .tag-grammar { color: #a78bfa; }
+  .tag-reading { color: #34d399; }
+  .tag-listening { color: #f4c94a; }
+  .tag-cloze { color: #fb923c; }
+  .tag-error { color: #f87171; }
+</style>
 </head>
 <body>
 
-<div class="quiz-container" id="quiz-app">
+<header>
+  <div class="logo">English <span>Mastery</span> Lab</div>
+  <div class="header-stats">
+    <span>Session: <span class="val" id="hd-session">—</span></span>
+    <span>Streak: <span class="val" id="hd-streak">0</span> 🔥</span>
+    <span>XP: <span class="val" id="hd-xp">0</span></span>
+  </div>
+</header>
+
+<div class="layout">
+
+  <!-- LEFT: Module Selector -->
+  <aside class="left-panel">
+    <div class="panel-label">題型模組</div>
+
+    <div class="module-card active" data-type="vocab" onclick="selectModule(this,'vocab')">
+      <div class="m-badge"></div>
+      <div class="m-name">📚 Vocabulary</div>
+      <div class="m-meta"><span>字彙選擇</span><span id="m-score-vocab">—</span></div>
+      <div class="m-bar"><div class="m-fill" id="mf-vocab" style="width:0%"></div></div>
     </div>
 
-<script>
-/**
- * DATABASE STRUCTURE & TYPES EXPLANATION (Add your questions here)
- * * Types available:
- * 1. 'single-choice-grammar' (單選文法)
- * 2. 'multiple-choice-grammar' (多選文法)
- * 3. 'translation' (翻譯)
- * 4. 'cloze-words' (文章挖空選詞 - 適用單字片語)
- * 5. 'cloze-letters' (文章挖空選字 - 適用文法字尾/字首/單純拼字)
- * 6. 'reading-comprehension' (閱讀並選擇)
- * 7. 'vocabulary-synonym' (閱讀後文章中哪個字意思與某單字相同)
- * * Difficulty Levels: 'Easy' (Scores < 15), 'Medium' (Scores 15-30), 'Hard' (Scores > 30)
- */
+    <div class="module-card" data-type="grammar" onclick="selectModule(this,'grammar')">
+      <div class="m-badge"></div>
+      <div class="m-name">⚙️ Grammar</div>
+      <div class="m-meta"><span>文法結構</span><span id="m-score-grammar">—</span></div>
+      <div class="m-bar"><div class="m-fill" id="mf-grammar" style="width:0%"></div></div>
+    </div>
 
+    <div class="module-card" data-type="cloze" onclick="selectModule(this,'cloze')">
+      <div class="m-badge"></div>
+      <div class="m-name">📝 Cloze Test</div>
+      <div class="m-meta"><span>克漏字</span><span id="m-score-cloze">—</span></div>
+      <div class="m-bar"><div class="m-fill" id="mf-cloze" style="width:0%"></div></div>
+    </div>
+
+    <div class="module-card" data-type="reading" onclick="selectModule(this,'reading')">
+      <div class="m-badge"></div>
+      <div class="m-name">📖 Reading</div>
+      <div class="m-meta"><span>閱讀理解</span><span id="m-score-reading">—</span></div>
+      <div class="m-bar"><div class="m-fill" id="mf-reading" style="width:0%"></div></div>
+    </div>
+
+    <div class="module-card" data-type="error" onclick="selectModule(this,'error')">
+      <div class="m-badge"></div>
+      <div class="m-name">🔍 Error Correction</div>
+      <div class="m-meta"><span>錯誤改正</span><span id="m-score-error">—</span></div>
+      <div class="m-bar"><div class="m-fill" id="mf-error" style="width:0%"></div></div>
+    </div>
+
+    <div class="module-card" data-type="mixed" onclick="selectModule(this,'mixed')">
+      <div class="m-badge"></div>
+      <div class="m-name">🎲 Mixed Mode</div>
+      <div class="m-meta"><span>綜合隨機</span><span id="m-score-mixed">—</span></div>
+      <div class="m-bar"><div class="m-fill" id="mf-mixed" style="width:0%"></div></div>
+    </div>
+
+    <div class="section-gap"></div>
+    <div class="panel-label">難度</div>
+    <div style="padding: 0 8px;">
+      <label style="font-size:0.82rem; color:var(--muted); display:flex; align-items:center; gap:8px; cursor:pointer; margin-bottom:8px;">
+        <input type="radio" name="diff" value="easy" style="accent-color:var(--green);"> <span style="color:var(--green);">Easy</span>
+      </label>
+      <label style="font-size:0.82rem; color:var(--muted); display:flex; align-items:center; gap:8px; cursor:pointer; margin-bottom:8px;">
+        <input type="radio" name="diff" value="medium" checked style="accent-color:var(--gold);"> <span style="color:var(--gold);">Medium</span>
+      </label>
+      <label style="font-size:0.82rem; color:var(--muted); display:flex; align-items:center; gap:8px; cursor:pointer;">
+        <input type="radio" name="diff" value="hard" style="accent-color:var(--red);"> <span style="color:var(--red);">Hard</span>
+      </label>
+    </div>
+    <div class="section-gap"></div>
+    <div style="padding: 0 8px;">
+      <button class="btn btn-primary" style="width:100%; margin-bottom:8px;" onclick="startQuiz()">▶ 開始測驗</button>
+      <button class="btn btn-ghost" style="width:100%; font-size:0.8rem;" onclick="showResult()">📊 查看總報告</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-panel">
+
+    <!-- Setup screen -->
+    <div id="setup-screen">
+      <div class="setup-hero">
+        <h2>選擇題型，開始練習</h2>
+        <p>從左側選擇模組 → 設定難度 → 按下開始測驗</p>
+      </div>
+      <div style="text-align:center; color:var(--muted); font-size:0.9rem; margin-top:60px;">
+        <div style="font-size:3rem; margin-bottom:12px;">🎯</div>
+        <div>每題皆附詳解與規則說明</div>
+        <div style="margin-top:6px; font-size:0.8rem;">右側面板即時追蹤你的學習弱點</div>
+      </div>
+    </div>
+
+    <!-- Quiz screen -->
+    <div id="quiz-screen" style="display:none;">
+      <div class="quiz-header">
+        <div>
+          <div class="quiz-title" id="q-module-title">Vocabulary</div>
+          <div class="quiz-meta" id="q-module-meta">字彙選擇題 · Medium</div>
+        </div>
+        <button class="btn btn-ghost" onclick="endQuiz()">✕ 結束</button>
+      </div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="progress-bar" style="width:0%"></div>
+      </div>
+      <div id="q-area"></div>
+      <div class="quiz-controls">
+        <button class="btn btn-primary" id="submit-btn" onclick="submitAnswer()">確認答案</button>
+        <button class="btn btn-ghost" id="next-btn" onclick="nextQuestion()" style="display:none;">下一題 →</button>
+        <span class="q-counter" id="q-counter">1 / 10</span>
+      </div>
+    </div>
+
+    <!-- Result screen -->
+    <div id="result-screen">
+      <div class="result-grade" id="r-grade">A</div>
+      <div class="result-label" id="r-label">優秀！繼續保持</div>
+      <div class="result-grid">
+        <div class="result-stat">
+          <div class="rs-val" id="r-correct" style="color:var(--green);">0</div>
+          <div class="rs-key">答對題數</div>
+        </div>
+        <div class="result-stat">
+          <div class="rs-val" id="r-total">0</div>
+          <div class="rs-key">總題數</div>
+        </div>
+        <div class="result-stat">
+          <div class="rs-val" id="r-pct" style="color:var(--accent);">0%</div>
+          <div class="rs-key">正確率</div>
+        </div>
+      </div>
+      <div id="r-breakdown" style="text-align:left; margin-bottom:24px;"></div>
+      <div style="display:flex; gap:10px; justify-content:center;">
+        <button class="btn btn-primary" onclick="startQuiz()">再練一次</button>
+        <button class="btn btn-ghost" onclick="backToSetup()">換題型</button>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- RIGHT: Analysis Panel -->
+  <aside class="right-panel">
+    <div class="panel-label">綜合評估</div>
+
+    <div class="score-ring-wrap">
+      <svg class="ring-svg" width="100" height="100" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="40" fill="none" stroke="#252d3d" stroke-width="8"/>
+        <circle cx="50" cy="50" r="40" fill="none" stroke="url(#rg)" stroke-width="8"
+          stroke-linecap="round" stroke-dasharray="251.2"
+          stroke-dashoffset="251.2" id="ring-path"
+          transform="rotate(-90 50 50)" style="transition:stroke-dashoffset 0.8s ease;"/>
+        <defs>
+          <linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#4f8ef7"/>
+            <stop offset="100%" stop-color="#a78bfa"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <div class="ring-text">
+        <div class="ring-pct" id="ring-pct">—</div>
+        <div class="ring-label">Comprehensive Score</div>
+      </div>
+    </div>
+
+    <div class="panel-label">弱點分析</div>
+    <div id="weakness-list" style="margin-bottom:20px;">
+      <div style="color:var(--muted); font-size:0.8rem; text-align:center; padding:16px 0;">尚無資料，開始作答後顯示</div>
+    </div>
+
+    <div class="panel-label">學習建議</div>
+    <div class="suggestion-box" id="suggestion-box">
+      <div class="s-head">Action Items</div>
+      <div class="s-item">
+        <span class="s-icon">→</span>
+        <span>選擇一個模組開始練習，系統將根據你的表現給出個人化建議。</span>
+      </div>
+    </div>
+
+    <div class="section-gap"></div>
+    <div class="panel-label">作答紀錄</div>
+    <div id="history-log">
+      <div style="color:var(--muted); font-size:0.78rem; text-align:center; padding:10px 0;">暫無紀錄</div>
+    </div>
+  </aside>
+
+</div>
+
+<script>
+// ── DATA BANK ──────────────────────────────────────────────────────────
 const QUESTION_BANK = {
-    Easy: [
+  vocab: [
+    {
+      q: 'The scientist made a significant _____ in cancer research last year.',
+      type: 'mc', opts: ['breakthrough','breakdown','breakout','breakup'],
+      ans: 0, tag: 'vocab',
+      exp: '<strong>breakthrough</strong>（突破）是正確答案。',
+      expDetail: '四個選項都含 "break"，但語意不同：<strong>breakthrough</strong> = 重大發現/突破；breakdown = 故障、崩潰；breakout = 逃脫、爆發；breakup = 分手、瓦解。句子說的是「科學家在癌症研究上取得重大突破」，故選 breakthrough。',
+      rule: '學習「break + 介係詞」的複合名詞，每個搭配都有固定語境，建議按情境記憶。'
+    },
+    {
+      q: 'She was _____ by the complexity of the problem and couldn\'t find a solution.',
+      type: 'mc', opts: ['daunted','delighted','determined','distracted'],
+      ans: 0, tag: 'vocab',
+      exp: '<strong>daunted</strong>（氣餒的、被嚇到的）最符合語意。',
+      expDetail: '句子說「她被問題的複雜性 _____ 且找不到解法」，語義上需要「負面/受阻」的詞：<strong>daunted</strong> = 被嚇到、喪失信心；delighted = 高興；determined = 下定決心（正面）；distracted = 分心。',
+      rule: 'Daunted 常搭配 "by" 使用，如 "daunted by the challenge"，是描述心理受挫的常用詞。'
+    },
+    {
+      q: 'The company decided to _____ its losses by cutting staff.',
+      type: 'mc', opts: ['mitigate','aggravate','exacerbate','amplify'],
+      ans: 0, tag: 'vocab',
+      exp: '<strong>mitigate</strong>（減輕、緩和）是正確答案。',
+      expDetail: 'mitigate losses = 減少損失。其他三個詞都有「使惡化/加劇」的意思：aggravate、exacerbate（使惡化），amplify（放大）。公司想要「縮減損失」，故選 mitigate。',
+      rule: 'Mitigate 是高階字彙，與 alleviate、allay 同義，表示「使某事變得不那麼嚴重」。'
+    },
+    {
+      q: 'His _____ attitude toward the new policy frustrated his coworkers.',
+      type: 'mc', opts: ['apathetic','enthusiastic','diligent','cooperative'],
+      ans: 0, tag: 'vocab',
+      exp: '<strong>apathetic</strong>（冷漠的、漠不關心的）最符合語意。',
+      expDetail: '句子說他的態度「讓同事沮喪」，所以應該是負面的態度。apathetic = 冷漠、不在乎；enthusiastic = 熱情（正面）；diligent = 勤奮（正面）；cooperative = 合作的（正面）。',
+      rule: 'Apathetic 來自希臘文 apatheia，強調缺乏感情或興趣，常用於描述對重要事物的冷漠。'
+    },
+    {
+      q: 'The professor\'s lecture was so _____ that half the class fell asleep.',
+      type: 'mc', opts: ['monotonous','stimulating','provocative','engaging'],
+      ans: 0, tag: 'vocab',
+      exp: '<strong>monotonous</strong>（單調的、無聊的）最符合語意。',
+      expDetail: '因為「半班都睡著了」，所以課程應該是無聊的。monotonous = 單調、一成不變；stimulating = 刺激、激勵（正面）；provocative = 挑釁性的；engaging = 吸引人的（正面）。',
+      rule: 'Monotonous 字根 mono = 一個，tone = 音調，字面意思是「只有一種音調」，引申為乏味。'
+    },
+    {
+      q: 'To _____ means to officially cancel or revoke a law.',
+      type: 'mc', opts: ['repeal','repel','replete','repent'],
+      ans: 0, tag: 'vocab',
+      exp: '<strong>repeal</strong>（廢除，尤指法律）是正確答案。',
+      expDetail: 'repeal = 正式廢除（法律）；repel = 排斥、驅走；replete = 充滿的（形容詞）；repent = 悔恨。',
+      rule: 'Repeal 常見於法律語境，如 "repeal a law/act/bill"，是學術和正式英語的常見詞。'
+    }
+  ],
+
+  grammar: [
+    {
+      q: 'If I _____ harder in school, I would have gotten a better job.',
+      type: 'mc', opts: ['had studied','studied','have studied','would study'],
+      ans: 0, tag: 'grammar',
+      exp: '<strong>had studied</strong> 是假設語氣過去完成式，正確。',
+      expDetail: '這是「與過去事實相反」的假設語氣（Third Conditional）：If + had + p.p. → would have + p.p.。句子暗示「當時沒有認真讀書」，是對過去的後悔假設。',
+      rule: '三種假設語氣：① If + V現在 → will（真實條件）② If + V過去 → would（與現在相反）③ If + had p.p. → would have p.p.（與過去相反）'
+    },
+    {
+      q: 'Neither the manager nor the employees _____ aware of the change.',
+      type: 'mc', opts: ['were','was','are being','have been'],
+      ans: 0, tag: 'grammar',
+      exp: '<strong>were</strong> 是正確答案。',
+      expDetail: '"Neither A nor B" 的動詞一致性：動詞要與 <strong>最近的主詞</strong>（B，即 the employees）一致。employees 是複數，所以用 were。若改成 "Neither the employees nor the manager"，則用 was。',
+      rule: '"Neither...nor..." / "Either...or..." 的就近原則（Proximity Rule）：動詞與最靠近它的主詞保持一致。'
+    },
+    {
+      q: 'The book, _____ was written in 1984, is still popular today.',
+      type: 'mc', opts: ['which','that','what','whose'],
+      ans: 0, tag: 'grammar',
+      exp: '<strong>which</strong> 是正確答案（非限定性關係子句）。',
+      expDetail: '這是非限定性關係子句（Non-defining Relative Clause），由逗號隔開，只能用 <strong>which</strong>，不能用 that。that 只用於限定性關係子句（無逗號）。whose 是所有格；what 不能用於關係子句。',
+      rule: '有逗號 → 非限定 → 只能用 which/who/whom；無逗號 → 限定 → that/which/who 皆可。'
+    },
+    {
+      q: 'She suggested _____ the meeting until next week.',
+      type: 'mc', opts: ['postponing','to postpone','postpone','postponed'],
+      ans: 0, tag: 'grammar',
+      exp: '<strong>postponing</strong>（動名詞 V-ing）是正確答案。',
+      expDetail: 'suggest 後面接動名詞（gerund），不接不定詞（to-V）。固定搭配：suggest / recommend / avoid / enjoy / finish + V-ing。',
+      rule: '接 V-ing 的動詞記憶口訣：MEGADRIPS → Mind, Enjoy, Give up, Avoid, Deny, Resist, Imagine, Postpone, Suggest'
+    },
+    {
+      q: 'By the time she arrives, we _____ for two hours.',
+      type: 'mc', opts: ['will have been waiting','will be waiting','have waited','are waiting'],
+      ans: 0, tag: 'grammar',
+      exp: '<strong>will have been waiting</strong>（未來完成進行式）是正確答案。',
+      expDetail: '"By the time + 現在式" 表示「到那時為止」，主句用未來完成式。這裡強調的是「持續等待」的動作，所以用未來完成進行式 will have been + V-ing，凸顯動作的持續性。',
+      rule: '"By the time..." 句型：子句用現在式，主句用完成式（一般或進行）。強調持續 → 進行；強調結果 → 非進行。'
+    },
+    {
+      q: 'The report must _____ before Friday.',
+      type: 'mc', opts: ['be submitted','submit','have submitted','submitting'],
+      ans: 0, tag: 'grammar',
+      exp: '<strong>be submitted</strong>（被動語態）是正確答案。',
+      expDetail: '主詞 "The report" 是被動的接受者（報告被提交），搭配情態助動詞 must，被動結構為 must + be + p.p.，故選 be submitted。',
+      rule: '情態助動詞被動：Modal + be + p.p.，如 must be done, should be checked, can be improved。'
+    }
+  ],
+
+  cloze: [
+    {
+      type: 'passage',
+      passage: 'Social media has dramatically changed the way people communicate. While it offers many <span class="blank">(1)</span>, such as connecting friends across distances, it also comes with <span class="blank">(2)</span>. Studies show that excessive use can <span class="blank">(3)</span> mental health, particularly among teenagers.',
+      questions: [
         {
-            id: "E001",
-            type: "single-choice-grammar",
-            question: "Choose the correct verb form: She ________ to school every day.",
-            options: ["go", "goes", "going", "gone"],
-            answer: [1] // Index of 'goes'
+          q: '(1) 空格最適合的詞是？',
+          opts: ['benefits','problems','dangers','restrictions'],
+          ans: 0, tag: 'cloze',
+          exp: '<strong>benefits</strong>（好處）搭配後句「如連結遠方朋友」的正面例子。',
+          expDetail: '空格前說「社群媒體提供許多 ___」，後面接正面例子「連結友人」，故應填正面詞：benefits（好處）。',
+          rule: '克漏字的邏輯線索：注意前後句的語氣是正面還是負面，並注意 "such as" 後的例子提示。'
         },
         {
-            id: "E002",
-            type: "translation",
-            question: "Translate to English: '這是一本書。'",
-            options: ["This is a book.", "That was books.", "These are book.", "This are a book."],
-            answer: [0]
+          q: '(2) 空格最適合的詞是？',
+          opts: ['drawbacks','advantages','solutions','improvements'],
+          ans: 0, tag: 'cloze',
+          exp: '<strong>drawbacks</strong>（缺點）與前半句的 benefits 形成對比。',
+          expDetail: 'it also comes with ___：用 "also" 和 "but" 暗示對比，前面講好處，這裡要講缺點。drawbacks = 缺點，與 benefits 對比。',
+          rule: '"While A, also B" 結構常表示對比，A 和 B 語義相反。常見對比詞對：benefits vs drawbacks，advantages vs disadvantages。'
+        },
+        {
+          q: '(3) 空格最適合的詞是？',
+          opts: ['affect','improve','protect','ignore'],
+          ans: 0, tag: 'cloze',
+          exp: '<strong>affect</strong>（影響，通常為負面）最符合上下文。',
+          expDetail: '文章說「過度使用可以 ___ 心理健康」，在負面語境（excessive use）下，應選負面影響的詞。affect = 影響（中性偏負）；improve = 改善（正面）；protect = 保護（正面）；ignore = 忽略（不合邏輯）。',
+          rule: 'Affect vs Effect：affect 是動詞（影響）；effect 是名詞（效果）。記法：A comes before E in the alphabet, and Affect is the Action (verb)。'
         }
-    ],
-    Medium: [
+      ]
+    }
+  ],
+
+  reading: [
+    {
+      type: 'passage',
+      title: 'The Science of Sleep',
+      text: 'Sleep is often underestimated in modern society. Research indicates that adults need 7–9 hours of sleep per night to function optimally. During sleep, the brain consolidates memories and removes toxins. Chronic sleep deprivation is linked to increased risk of diabetes, heart disease, and depression. Despite this evidence, many people voluntarily sacrifice sleep for work or entertainment.',
+      questions: [
         {
-            id: "M001",
-            type: "multiple-choice-grammar",
-            question: "Select ALL options that correctly complete the conditional sentence: If I ________ more time, I would travel around the world.",
-            options: ["had", "were to have", "have", "would have"],
-            answer: [0, 1] // Multiple answers allowed
+          q: 'According to the passage, what happens in the brain during sleep?',
+          opts: [
+            'It creates new toxins for the body',
+            'It consolidates memories and removes toxins',
+            'It stops functioning to rest',
+            'It generates dreams only'
+          ],
+          ans: 1, tag: 'reading',
+          exp: '答案在文章第三句：<strong>"the brain consolidates memories and removes toxins"</strong>',
+          expDetail: '閱讀理解的 "factual detail" 題：直接在文章中找到對應句子即可。原文明確說 "the brain consolidates memories and removes toxins"，對應選項 B。',
+          rule: '做細節題時，用關鍵字（brain, during sleep）快速定位原文，不要依賴記憶，要回文確認。'
         },
         {
-            id: "M002",
-            type: "cloze-words",
-            passage: "Yesterday, Jack went to the market to [1] some fresh vegetables. On his way back, he accidentally [2] his wallet.",
-            question: "Select the correct pair of words to fill blanks [1] and [2] respectively:",
-            options: [
-                "buy / lost",
-                "bought / lose",
-                "buying / losing",
-                "buy / dropped"
-            ],
-            answer: [0]
+          q: 'What is the author\'s attitude toward modern society\'s approach to sleep?',
+          opts: ['Supportive','Critical','Indifferent','Confused'],
+          ans: 1, tag: 'reading',
+          exp: '作者持<strong>批評態度（Critical）</strong>。',
+          expDetail: '"Sleep is often underestimated" 暗示作者認為社會低估睡眠，並在結尾說「許多人刻意犧牲睡眠」（voluntarily sacrifice），這是隱含的批評態度。態度題要注意作者用的形容詞和語氣詞。',
+          rule: '作者態度題：注意文章的開頭定調句（underestimated）、結論句，以及帶有評判意味的形容詞和副詞。'
         },
         {
-            id: "M003",
-            type: "cloze-letters",
-            passage: "The scientist made an unprec[1]edented discovery that completely revo[2]utionized the field of biology.",
-            question: "Identify the missing letters for blanks [1] and [2]:",
-            options: [
-                "[1]: ed ; [2]: l",
-                "[1]: od ; [2]: r",
-                "[1]: id ; [2]: l",
-                "[1]: ad ; [2]: v"
-            ],
-            answer: [0]
+          q: 'Which health condition is NOT mentioned as linked to sleep deprivation?',
+          opts: ['Diabetes','Heart disease','Obesity','Depression'],
+          ans: 2, tag: 'reading',
+          exp: '<strong>Obesity（肥胖）</strong>在文中未被提及。',
+          expDetail: '文章提到 "diabetes, heart disease, and depression" 三種，沒有提到 obesity（肥胖）。這是 "NOT mentioned" 型題目，要確認哪個選項在文章中找不到。',
+          rule: '"NOT mentioned / NOT stated / EXCEPT" 題型：在文中逐一找到其他三個選項的依據，剩下那個就是答案。'
         }
-    ],
-    Hard: [
-        {
-            id: "H001",
-            type: "reading-comprehension",
-            passage: "Quantum computing represents a paradigm shift in computation. Unlike classical computers that use bits as the basic unit of information (0s and 1s), quantum computers leverage qubits. Qubits can exist in a state of superposition, meaning they can represent both a 0 and a 1 simultaneously, drastically expanding processing power.",
-            question: "According to the text, what allows quantum computers to process data faster than classical ones?",
-            options: [
-                "They use larger physical microchips.",
-                "The capability of qubits to exist in superposition.",
-                "They rely on traditional binary sequences of 0s and 1s.",
-                "They exclude the use of software algorithms."
-            ],
-            answer: [1]
-        },
-        {
-            id: "H002",
-            type: "vocabulary-synonym",
-            passage: "The torrential rain caused catastrophic damage to the coastal village, leaving many homes completely inundated and forcing hundreds of residents to evacuate immediately.",
-            question: "Which word in the passage has the closest meaning to 'flooded'?",
-            options: ["torrential", "catastrophic", "inundated", "evacuate"],
-            answer: [2]
-        }
-    ]
+      ]
+    }
+  ],
+
+  error: [
+    {
+      q: 'Find the grammatical error: "She don\'t know the answer to the question."',
+      type: 'mc',
+      opts: [
+        'She → Her',
+        'don\'t → doesn\'t',
+        'know → knows',
+        'to → of'
+      ],
+      ans: 1, tag: 'error',
+      exp: '<strong>don\'t → doesn\'t</strong>：第三人稱單數現在式需用 doesn\'t。',
+      expDetail: '主詞 "She" 是第三人稱單數，現在式否定助動詞應用 <strong>doesn\'t</strong>，而非 don\'t（用於 I/You/We/They）。',
+      rule: '第三人稱單數（He/She/It）現在式：肯定 → 動詞加 -s/-es；否定 → doesn\'t + 原型；疑問 → Does + 主詞 + 原型'
+    },
+    {
+      q: 'Find the error: "There are a lot of informations on the internet."',
+      type: 'mc',
+      opts: [
+        'There are → There is',
+        'informations → information',
+        'on → in',
+        'internet → Internet'
+      ],
+      ans: 1, tag: 'error',
+      exp: '<strong>informations → information</strong>：information 是不可數名詞，無複數形。',
+      expDetail: 'information 是不可數名詞（uncountable noun），沒有複數形 informations。類似的不可數名詞：knowledge, advice, furniture, equipment, luggage。',
+      rule: '常見不可數名詞（不加 -s）：information, advice, news, homework, work, music, traffic, weather, money, research。'
+    },
+    {
+      q: 'Find the error: "He is one of the student who works hardest in class."',
+      type: 'mc',
+      opts: [
+        'one of → one from',
+        'student → students',
+        'who → whom',
+        'works → work'
+      ],
+      ans: 1, tag: 'error',
+      exp: '<strong>student → students</strong>："one of the + 複數名詞" 是固定結構。',
+      expDetail: '"one of the ___" 後面必須接複數名詞，因為你是從「多個中選一個」。所以應為 "one of the students"。關係子句的動詞 works 是正確的（先行詞是 students，但 one of the 結構中關係子句動詞仍可與 one 一致）。',
+      rule: '"one of the + 複數名詞 + who/that + 單數動詞"：先行詞形式上是複數（students），但關係子句動詞按正式語法用單數（因為指的是 one）。'
+    },
+    {
+      q: 'Find the error: "The news are shocking to everyone."',
+      type: 'mc',
+      opts: [
+        'The → A',
+        'are → is',
+        'shocking → shocked',
+        'to → for'
+      ],
+      ans: 1, tag: 'error',
+      exp: '<strong>are → is</strong>：news 是單數不可數名詞。',
+      expDetail: '"news" 雖然看起來有 -s 結尾，但它是單數不可數名詞，動詞應用單數 is。類似的詞：economics, mathematics, physics, politics → 皆視為單數。',
+      rule: '學科名稱（-ics 結尾）和特定名詞（news, series, species）看似複數，但視為單數，動詞用 is/was。'
+    }
+  ]
 };
 
-// State Variables
-let currentScore = 5;
-let currentQuestion = null;
-let selectedIndices = [];
-let isSubmitted = false;
+// ── STATE ─────────────────────────────────────────────────────────────
+let state = {
+  currentModule: 'vocab',
+  currentQuestions: [],
+  currentIdx: 0,
+  answered: false,
+  selectedOpt: null,
+  scores: { vocab: [], grammar: [], cloze: [], reading: [], error: [], mixed: [] },
+  xp: 0,
+  streak: 0,
+  history: [],
+  passageQIdx: 0,
+  passageRef: null,
+};
 
-const appContainer = document.getElementById('quiz-app');
-
-// Initialize Game
-function initGame() {
-    currentScore = 5;
-    nextQuestion();
+// ── MODULE SELECT ──────────────────────────────────────────────────────
+function selectModule(el, type) {
+  document.querySelectorAll('.module-card').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  state.currentModule = type;
 }
 
-// Determine difficulty based on current score
-function getDifficulty(score) {
-    if (score < 15) return 'Easy';
-    if (score <= 30) return 'Medium';
-    return 'Hard';
+// ── FLATTEN QUESTION BANK ──────────────────────────────────────────────
+function flattenQuestions(type) {
+  const bank = type === 'mixed'
+    ? [...QUESTION_BANK.vocab, ...QUESTION_BANK.grammar, ...QUESTION_BANK.error]
+    : QUESTION_BANK[type] || [];
+
+  let flat = [];
+  for (const item of bank) {
+    if (item.type === 'passage') {
+      for (const q of item.questions) {
+        flat.push({ ...q, passageText: item.text || item.passage, passageTitle: item.title });
+      }
+    } else {
+      flat.push(item);
+    }
+  }
+  return flat;
 }
 
-// Fetch a random question based on dynamic difficulty
+// ── TAG COLORS ─────────────────────────────────────────────────────────
+const TAG_MAP = {
+  vocab: { label: 'Vocabulary', color: '#60a5fa' },
+  grammar: { label: 'Grammar', color: '#a78bfa' },
+  reading: { label: 'Reading', color: '#34d399' },
+  cloze: { label: 'Cloze', color: '#fb923c' },
+  error: { label: 'Error Correction', color: '#f87171' },
+};
+
+// ── START QUIZ ─────────────────────────────────────────────────────────
+function startQuiz() {
+  const qs = flattenQuestions(state.currentModule);
+  if (!qs.length) return;
+
+  state.currentQuestions = shuffle([...qs]).slice(0, Math.min(qs.length, 10));
+  state.currentIdx = 0;
+  state.answered = false;
+  state.selectedOpt = null;
+
+  document.getElementById('setup-screen').style.display = 'none';
+  document.getElementById('result-screen').style.display = 'none';
+  document.getElementById('quiz-screen').style.display = 'block';
+
+  const mod = state.currentModule === 'mixed' ? 'Mixed Mode' :
+    ({ vocab:'Vocabulary', grammar:'Grammar', cloze:'Cloze Test', reading:'Reading', error:'Error Correction' }[state.currentModule]);
+  document.getElementById('q-module-title').textContent = mod;
+  document.getElementById('q-module-meta').textContent = `${mod} · ${getDifficulty()}`;
+  document.getElementById('hd-session').textContent = mod;
+
+  renderQuestion();
+}
+
+function getDifficulty() {
+  const r = document.querySelector('input[name=diff]:checked');
+  return r ? { easy:'Easy', medium:'Medium', hard:'Hard' }[r.value] : 'Medium';
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// ── RENDER QUESTION ────────────────────────────────────────────────────
+function renderQuestion() {
+  const q = state.currentQuestions[state.currentIdx];
+  const total = state.currentQuestions.length;
+  const idx = state.currentIdx;
+
+  // Progress
+  document.getElementById('progress-bar').style.width = `${(idx / total) * 100}%`;
+  document.getElementById('q-counter').textContent = `${idx + 1} / ${total}`;
+
+  // Controls reset
+  document.getElementById('submit-btn').style.display = 'inline-block';
+  document.getElementById('next-btn').style.display = 'none';
+  state.answered = false;
+  state.selectedOpt = null;
+
+  const tag = TAG_MAP[q.tag] || TAG_MAP.vocab;
+  let passageHTML = '';
+  if (q.passageText) {
+    passageHTML = `
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:18px;font-size:0.85rem;line-height:1.8;color:#c4ceea;">
+        ${q.passageTitle ? `<div style="font-family:var(--mono);font-size:0.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px;">📖 ${q.passageTitle}</div>` : ''}
+        ${q.passageText}
+      </div>`;
+  }
+
+  const optsHTML = q.opts.map((opt, i) => `
+    <button class="opt-btn" id="opt-${i}" onclick="selectOpt(${i})">
+      <span class="opt-label">${'ABCD'[i]}</span>
+      <span>${opt}</span>
+    </button>
+  `).join('');
+
+  document.getElementById('q-area').innerHTML = `
+    <div class="q-card">
+      <div class="q-tag">
+        <span class="dot" style="background:${tag.color}"></span>
+        ${tag.label}
+      </div>
+      ${passageHTML}
+      <div class="q-text">${q.q}</div>
+      <div class="options" id="opts-wrap">
+        ${optsHTML}
+      </div>
+      <div class="explanation" id="explanation"></div>
+    </div>
+  `;
+}
+
+// ── SELECT OPTION ──────────────────────────────────────────────────────
+function selectOpt(i) {
+  if (state.answered) return;
+  state.selectedOpt = i;
+  document.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById(`opt-${i}`)?.classList.add('selected');
+}
+
+// ── SUBMIT ─────────────────────────────────────────────────────────────
+function submitAnswer() {
+  if (state.selectedOpt === null) {
+    showToast('請先選擇一個答案！');
+    return;
+  }
+  if (state.answered) return;
+  state.answered = true;
+
+  const q = state.currentQuestions[state.currentIdx];
+  const correct = state.selectedOpt === q.ans;
+
+  // Style options
+  document.querySelectorAll('.opt-btn').forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.ans) btn.classList.add('correct');
+    else if (i === state.selectedOpt && !correct) btn.classList.add('wrong');
+  });
+
+  // Show explanation
+  const expEl = document.getElementById('explanation');
+  expEl.innerHTML = `
+    <div class="exp-head">${correct ? '✓ 答對了！' : '✗ 答錯了'} — 詳解</div>
+    <div class="exp-body">${q.exp}<br><br>${q.expDetail}</div>
+    <div class="exp-rule"><b>📌 規則記憶：</b>${q.rule}</div>
+  `;
+  expEl.classList.add('show');
+
+  // Update state
+  const tag = q.tag;
+  state.scores[tag] = state.scores[tag] || [];
+  state.scores[tag].push(correct ? 1 : 0);
+  if (state.currentModule === 'mixed') state.scores.mixed.push(correct ? 1 : 0);
+
+  // XP + streak
+  if (correct) {
+    state.streak++;
+    state.xp += 10 + (state.streak > 2 ? 5 : 0);
+  } else {
+    state.streak = 0;
+  }
+  document.getElementById('hd-streak').textContent = state.streak;
+  document.getElementById('hd-xp').textContent = state.xp;
+
+  // History
+  state.history.unshift({ tag, correct, q: q.q.slice(0, 35) + '…' });
+  if (state.history.length > 15) state.history.pop();
+
+  // Show next
+  document.getElementById('submit-btn').style.display = 'none';
+  document.getElementById('next-btn').style.display = 'inline-block';
+
+  updateAnalysis();
+}
+
+// ── NEXT ───────────────────────────────────────────────────────────────
 function nextQuestion() {
-    if (currentScore <= 0) {
-        renderGameOver();
-        return;
-    }
-
-    const diff = getDifficulty(currentScore);
-    const pool = QUESTION_BANK[diff];
-
-    if (!pool || pool.length === 0) {
-        // Fallback if a specific difficulty pool is empty
-        renderNoMoreQuestions();
-        return;
-    }
-
-    // Pick random question from selected difficulty pool
-    const randomIndex = Math.floor(Math.random() * pool.length);
-    currentQuestion = pool[randomIndex];
-    
-    // Reset selection state
-    selectedIndices = [];
-    isSubmitted = false;
-
-    renderQuestion(diff);
+  state.currentIdx++;
+  if (state.currentIdx >= state.currentQuestions.length) {
+    showResult();
+  } else {
+    renderQuestion();
+  }
 }
 
-// Render Core Quiz UI
-function renderQuestion(difficulty) {
-    let passageHtml = '';
-    if (currentQuestion.passage) {
-        passageHtml = `<div class="passage">${currentQuestion.passage}</div>`;
+// ── END QUIZ ───────────────────────────────────────────────────────────
+function endQuiz() {
+  backToSetup();
+}
+
+function backToSetup() {
+  document.getElementById('quiz-screen').style.display = 'none';
+  document.getElementById('result-screen').style.display = 'none';
+  document.getElementById('setup-screen').style.display = 'block';
+}
+
+// ── RESULT SCREEN ──────────────────────────────────────────────────────
+function showResult() {
+  document.getElementById('quiz-screen').style.display = 'none';
+  document.getElementById('setup-screen').style.display = 'none';
+  document.getElementById('result-screen').style.display = 'block';
+
+  const qs = state.currentQuestions.slice(0, state.currentIdx + (state.answered ? 1 : 0));
+  const total = qs.length;
+  // Count correct answers from scores
+  let correct = 0;
+  for (const q of qs) {
+    const tagScores = state.scores[q.tag];
+    if (tagScores && tagScores.length) {
+      // Approximate: count the session's correct
     }
+  }
+  // Re-derive from history
+  const sessionCorrect = state.history.slice(0, total).filter(h => h.correct).length;
 
-    let typeLabel = currentQuestion.type.replace(/-/g, ' ');
+  const pct = total ? Math.round((sessionCorrect / total) * 100) : 0;
 
-    let optionsHtml = '';
-    currentQuestion.options.forEach((option, index) => {
-        optionsHtml += `
-            <button class="option-btn" onclick="handleOptionClick(${index})" id="opt-${index}">
-                ${option}
-            </button>
-        `;
-    });
+  let grade, label;
+  if (pct >= 90) { grade = 'A+'; label = '完美！你是英文高手 🎉'; }
+  else if (pct >= 80) { grade = 'A'; label = '優秀！再加把勁！'; }
+  else if (pct >= 70) { grade = 'B'; label = '良好，還有進步空間。'; }
+  else if (pct >= 60) { grade = 'C'; label = '及格，建議加強弱項。'; }
+  else { grade = 'D'; label = '需要多練習，加油！'; }
 
-    appContainer.innerHTML = `
-        <div class="header">
-            <div>
-                <span class="difficulty-badge">${difficulty} Level</span>
-            </div>
-            <div class="score-badge">Score: ${currentScore}</div>
+  document.getElementById('r-grade').textContent = grade;
+  document.getElementById('r-label').textContent = label;
+  document.getElementById('r-correct').textContent = sessionCorrect;
+  document.getElementById('r-total').textContent = total;
+  document.getElementById('r-pct').textContent = pct + '%';
+
+  updateAnalysis();
+}
+
+// ── ANALYSIS ──────────────────────────────────────────────────────────
+function updateAnalysis() {
+  // Compute per-tag accuracy
+  const allTags = ['vocab','grammar','cloze','reading','error'];
+  let totalAnswered = 0, totalCorrect = 0;
+
+  const tagStats = allTags.map(tag => {
+    const arr = state.scores[tag] || [];
+    const n = arr.length;
+    const c = arr.filter(x => x === 1).length;
+    totalAnswered += n;
+    totalCorrect += c;
+    return { tag, n, c, pct: n ? Math.round((c / n) * 100) : null };
+  }).filter(t => t.n > 0);
+
+  // Overall score ring
+  const overall = totalAnswered ? Math.round((totalCorrect / totalAnswered) * 100) : null;
+  if (overall !== null) {
+    document.getElementById('ring-pct').textContent = overall + '%';
+    const circumference = 251.2;
+    const offset = circumference - (overall / 100) * circumference;
+    document.getElementById('ring-path').style.strokeDashoffset = offset;
+  }
+
+  // Update module bars
+  for (const t of tagStats) {
+    const el = document.getElementById(`mf-${t.tag}`);
+    const sc = document.getElementById(`m-score-${t.tag}`);
+    if (el) el.style.width = t.pct + '%';
+    if (sc) sc.textContent = t.pct + '%';
+  }
+
+  // Weakness list
+  if (tagStats.length === 0) return;
+  const sorted = [...tagStats].sort((a, b) => a.pct - b.pct);
+
+  const weaknessHTML = sorted.map(t => {
+    let level = 'level-strong';
+    if (t.pct < 50) level = 'level-danger';
+    else if (t.pct < 70) level = 'level-weak';
+    else if (t.pct < 85) level = 'level-ok';
+    return `
+      <div class="weakness-row ${level}">
+        <div class="weakness-header">
+          <span class="weakness-name">${TAG_MAP[t.tag]?.label || t.tag}</span>
+          <span class="weakness-pct">${t.pct}% (${t.c}/${t.n})</span>
         </div>
-        <div class="question-box">
-            <span class="type-tag">${typeLabel}</span>
-            ${passageHtml}
-            <div class="question-text">${currentQuestion.question}</div>
-            <div class="options-container">
-                ${optionsHtml}
-            </div>
-        </div>
-        <div class="control-panel">
-            <button class="action-btn" id="action-btn" onclick="handleSubmit()">Submit Answer</button>
-        </div>
-    `;
+        <div class="w-bar"><div class="w-fill" style="width:${t.pct}%"></div></div>
+      </div>`;
+  }).join('');
+  document.getElementById('weakness-list').innerHTML = weaknessHTML;
+
+  // Suggestions
+  const weak = sorted.filter(t => t.pct < 70).map(t => TAG_MAP[t.tag]?.label);
+  const suggestions = [];
+  if (weak.includes('Grammar')) suggestions.push('加強時態與假設語氣，建議每日練習 5 道語法題。');
+  if (weak.includes('Vocabulary')) suggestions.push('每天學習 10 個新單字，搭配例句記憶。');
+  if (weak.includes('Reading')) suggestions.push('練習閱讀策略：先讀題目再讀文章，用關鍵字定位。');
+  if (weak.includes('Cloze')) suggestions.push('克漏字需注重上下文邏輯，多練習篇章連貫性。');
+  if (weak.includes('Error Correction')) suggestions.push('錯誤改正需熟記常見語法規則，建議製作錯誤筆記。');
+  if (!suggestions.length) suggestions.push('表現優秀！可以嘗試更高難度的題目或 Mixed Mode。');
+
+  document.getElementById('suggestion-box').innerHTML = `
+    <div class="s-head">Action Items</div>
+    ${suggestions.map(s => `<div class="s-item"><span class="s-icon">→</span><span>${s}</span></div>`).join('')}
+  `;
+
+  // History log
+  if (state.history.length) {
+    document.getElementById('history-log').innerHTML = state.history.slice(0, 8).map(h => {
+      const tag = TAG_MAP[h.tag] || { color: '#6b7a9e', label: h.tag };
+      return `<div class="history-entry">
+        <span class="h-dot" style="background:${h.correct ? 'var(--green)' : 'var(--red)'}"></span>
+        <span class="h-type">${tag.label}</span>
+        <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${h.q}</span>
+      </div>`;
+    }).join('');
+  }
 }
 
-// Handle User Selections
-function handleOptionClick(index) {
-    if (isSubmitted) return;
-
-    const isMultiple = currentQuestion.type === 'multiple-choice-grammar';
-
-    if (isMultiple) {
-        const idxOf = selectedIndices.indexOf(index);
-        if (idxOf > -1) {
-            selectedIndices.splice(idxOf, 1);
-            document.getElementById(`opt-${index}`).classList.remove('selected');
-        } else {
-            selectedIndices.push(index);
-            document.getElementById(`opt-${index}`).classList.add('selected');
-        }
-    } else {
-        // Single choice handling
-        selectedIndices = [index];
-        const allButtons = document.querySelectorAll('.option-btn');
-        allButtons.forEach(btn => btn.classList.remove('selected'));
-        document.getElementById(`opt-${index}`).classList.add('selected');
-    }
+// ── TOAST ─────────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.style.cssText = 'position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#1e2433;border:1px solid #4f8ef7;color:#e4e9f5;padding:10px 22px;border-radius:8px;font-size:0.85rem;z-index:999;animation:fadeSlide 0.2s ease;';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2000);
 }
-
-// Validation & Score calculation logic
-function handleSubmit() {
-    if (isSubmitted) {
-        nextQuestion();
-        return;
-    }
-
-    if (selectedIndices.length === 0) {
-        alert("Please select an answer first!");
-        return;
-    }
-
-    isSubmitted = true;
-    
-    // Sort answers for safe array comparison
-    const correctAnswers = [...currentQuestion.answer].sort();
-    const userAnswers = [...selectedIndices].sort();
-    
-    // Check if user configuration matches answers completely
-    const isCorrect = correctAnswers.length === userAnswers.length && 
-                      correctAnswers.every((val, index) => val === userAnswers[index]);
-
-    // Update UI elements to reflect right/wrong statuses
-    currentQuestion.options.forEach((_, index) => {
-        const btn = document.getElementById(`opt-${index}`);
-        btn.disabled = true; // Lock choice buttons
-        
-        if (correctAnswers.includes(index)) {
-            btn.classList.add('correct');
-        } else if (userAnswers.includes(index)) {
-            btn.classList.add('wrong');
-        }
-    });
-
-    // Score adjustments
-    if (isCorrect) {
-        currentScore += 2;
-        document.querySelector('.score-badge').style.backgroundColor = 'var(--success-color)';
-    } else {
-        currentScore -= 4;
-        document.querySelector('.score-badge').style.backgroundColor = 'var(--danger-color)';
-    }
-
-    // Refresh Score text immediately inside UI
-    document.querySelector('.score-badge').innerText = `Score: ${currentScore}`;
-
-    // Update Action Button state
-    const actionBtn = document.getElementById('action-btn');
-    if (currentScore <= 0) {
-        actionBtn.innerText = "See Results";
-    } else {
-        actionBtn.innerText = "Next Question";
-    }
-}
-
-// Game Over view
-function renderGameOver() {
-    appContainer.innerHTML = `
-        <div class="game-over">
-            <h2>Game Over!</h2>
-            <p>Your score hit 0 or lower.</p>
-            <div class="score-badge" style="display:inline-block; margin: 20px 0; background-color: var(--danger-color)">Final Score: ${currentScore}</div>
-            <div>
-                <button class="action-btn" onclick="initGame()">Try Again</button>
-            </div>
-        </div>
-    `;
-}
-
-// Fallback logic view
-function renderNoMoreQuestions() {
-    appContainer.innerHTML = `
-        <div class="game-over">
-            <h2>Impressive!</h2>
-            <p>You outran the current test framework database pool!</p>
-            <div class="score-badge" style="display:inline-block; margin: 20px 0;">Final Score: ${currentScore}</div>
-            <div>
-                <button class="action-btn" onclick="initGame()">Restart Game</button>
-            </div>
-        </div>
-    `;
-}
-
-// Initial Launch
-initGame();
 </script>
 </body>
 </html>
