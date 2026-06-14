@@ -4,7 +4,7 @@
 <style>
 #background {
     position: relative;
-    width: 1000px; 
+    width: 1000px;
     height: 500px;
     background-color: rgb(192, 192, 192);
     border: solid 50px rgb(78, 77, 77);
@@ -95,17 +95,28 @@
     left: 1000px;
     top: 225px;
 }
+#score {
+    position: absolute;
+    top: 75px;
+    left: 20px;
+    font-size: 24px;
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    color: rgb(51, 50, 50);
+    z-index: 5;
+}
 </style>
 <script>
-let gameInterval;
-let timeInterval;
-let playerY = 225;
-let playerDirection = 1;
-let spikeX = 1000;
-let spikeY = 225;
-let isPlaying = false;
-let time = 0;
-let speed = 5;
+ gameInterval;
+ timeInterval;
+ playerY = 225;
+playerDirection = 1;
+ spikeX = 1000;
+ spikeY = 225;
+ isPlaying = false;
+ time = 0;
+ speed = 5;
+distance = 0;
 
 function changeDirection() {
     if (!isPlaying) return;
@@ -150,9 +161,12 @@ function gamestart() {
         }
         spike.style.left = spikeX + "px";
 
+        distance += Math.floor(speed);
+        document.getElementById("score").innerText = distance + "m";
+
         if (spikeX < 150 && spikeX + 50 > 100) {
             if (spikeY < playerY + 50 && spikeY + 50 > playerY) {
-                alert("Game Over!");
+                alert("Game Over! Distance: " + distance + "m");
                 clearInterval(gameInterval);
                 clearInterval(timeInterval);
                 location.reload();
@@ -168,6 +182,7 @@ function gamestart() {
 <div id="background" onclick="changeDirection()">
     <div id="wall-top"></div>
     <div id="wall-bottom"></div>
+    <div id="score">0m</div>
     
     <div id="gamestartbotton" onclick="event.stopPropagation(); gamestart()">
         <div id="triangle"></div>
