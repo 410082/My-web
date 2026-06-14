@@ -84,7 +84,7 @@
 }
 #spike {
     position: absolute;
-    left: 1000px;
+    left: 900px;
     background-color: rgb(51, 50, 50);
     width: 100px;
     height: 200px;
@@ -105,10 +105,11 @@ gameInterval = null;
 timeInterval = null;
 playerY = 225;
 playerDirection = 1;
-spikeX = 1000;
+spikeX = 900;
 spikeY = 240;
 spikeW = 100;
 spikeH = 200;
+currentW = 100;
 isSpikeOnCeiling = 0;
 isPlaying = false;
 time = 0;
@@ -137,7 +138,7 @@ function gamestart() {
 
     timeInterval = setInterval(function() {
         time++;
-        speed = 0.15 * time + 5;
+        speed = 0.3 * time + 5;
     }, 1000);
 
     gameInterval = setInterval(function() {
@@ -158,16 +159,12 @@ function gamestart() {
 
         spikeX -= speed;
         
-        if (spikeX > 1000) {
-            spike.style.display = "none";
-        } else if (spikeX < -spikeW) {
-            spikeX = 1000;
-            spike.style.display = "none";
+        if (spikeX < -spikeW) {
+            spikeX = 900;
             
             spikeW = Math.floor(Math.random() * 81) + 80;
             spikeH = Math.floor(Math.random() * 121) + 100;
             
-            spike.style.width = spikeW + "px";
             spike.style.height = spikeH + "px";
 
             if (Math.random() < 0.5) {
@@ -180,13 +177,27 @@ function gamestart() {
                 spike.style.clipPath = "polygon(50% 0%, 0% 100%, 100% 100%)";
             }
             spike.style.top = spikeY + "px";
-        } else {
-            spike.style.display = "block";
         }
         
-        spike.style.left = spikeX + "px";
+        currentW = spikeW;
+        renderX = spikeX;
+        
+        if (spikeX + spikeW > 900) {
+            currentW = 900 - spikeX;
+        }
+        if (spikeX < 0) {
+            currentW = spikeW + spikeX;
+            renderX = 0;
+        }
+        
+        if (currentW < 0) {
+            currentW = 0;
+        }
+        
+        spike.style.width = currentW + "px";
+        spike.style.left = renderX + "px";
 
-        distance += 0.1;
+        distance += 0.05;
         document.getElementById("score").innerText = Math.floor(distance) + "m";
 
         if (spikeX < 150 && spikeX + spikeW > 100) {
