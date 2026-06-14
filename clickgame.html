@@ -1,8 +1,8 @@
+<!DOCTYPE html>
 <html>
-    <head>
-     <style>
-
-    #background {
+<head>
+<style>
+#background {
     position: relative;
     width: 1000px;
     height: 500px;
@@ -20,7 +20,7 @@
     top: 200px;
     left: 450px;
     cursor: pointer;
-    z-index: 10;
+    z-index: 99;
 }
 #triangle {
     height: 0px;
@@ -41,6 +41,7 @@
     left: 100px;
     top: 225px;
     transition: transform 0.1s;
+    z-index: 5;
 }
 #eye {
     width: 30px;
@@ -76,6 +77,7 @@
     top: 0px;
     left: 0px;
     background-color: rgb(51, 50, 50);
+    z-index: 10;
 }
 #wall-bottom {
     width: 1000px;
@@ -84,6 +86,7 @@
     bottom: 0px;
     left: 0px;
     background-color: rgb(51, 50, 50);
+    z-index: 10;
 }
 #spike {
     width: 0;
@@ -94,6 +97,7 @@
     position: absolute;
     left: 1000px;
     top: 225px;
+    z-index: 4;
 }
 #score {
     position: absolute;
@@ -107,22 +111,20 @@
 }
 </style>
 <script>
- gameInterval;
- timeInterval;
- playerY = 225;
- playerDirection = 1;
- spikeX = 1000;
- spikeY = 225;
- isPlaying = false;
- time = 0;
- speed = 5;
- distance = 0;
+let gameInterval;
+let timeInterval;
+let playerY = 225;
+let playerDirection = 1;
+let spikeX = 1000;
+let spikeY = 225;
+let isPlaying = false;
+let time = 0;
+let speed = 5;
+let distance = 0;
 
 function changeDirection() {
     if (!isPlaying) return;
-    
     playerDirection = playerDirection * -1;
-    
     const player = document.getElementById("player");
     if (playerDirection === 1) {
         player.style.transform = "rotate(30deg)";
@@ -131,8 +133,12 @@ function changeDirection() {
     }
 }
 
-
-function gamestart() {
+function gamestart(event) {
+    if (event) {
+        event.stopPropagation();
+    }
+    if (isPlaying) return;
+    
     isPlaying = true;
     document.getElementById("gamestartbotton").style.display = "none";
     document.getElementById("player").style.transform = "rotate(30deg)";
@@ -147,17 +153,17 @@ function gamestart() {
         const spike = document.getElementById("spike");
 
         playerY += playerDirection * 5; 
-        
         if (playerY < 60) playerY = 60;
         if (playerY > 390) playerY = 390;
-        
         player.style.top = playerY + "px";
 
         spikeX -= speed;
         if (spikeX < -50) {
             spikeX = 1000;
-            const tracks =;
-            spikeY = tracks[Math.floor(Math.random() * tracks.length)];
+            let randTrack = Math.floor(Math.random() * 3);
+            if (randTrack === 0) spikeY = 80;
+            if (randTrack === 1) spikeY = 225;
+            if (randTrack === 2) spikeY = 370;
             spike.style.top = spikeY + "px";
         }
         spike.style.left = spikeX + "px";
@@ -173,33 +179,29 @@ function gamestart() {
                 location.reload();
             }
         }
-
     }, 20);
 }
-    </script>
-        </head>
-    <body>
+</script>
+</head>
+<body>
 
 <div id="background" onclick="changeDirection()">
-   
     <div id="wall-top"></div>
-        <div id="wall-bottom"></div>
-            <div id="score">0m</div>
+    <div id="wall-bottom"></div>
+    <div id="score">0m</div>
     
-        <div id="gamestartbotton" onclick="event.stopPropagation(); gamestart()">
-            <div id="triangle"></div>
+    <div id="gamestartbotton" onclick="gamestart(event)">
+        <div id="triangle"></div>
     </div>
-
     
     <div id="player">
         <div id="eye">
-            
-        <div id="eyeball"><div id="reflection"></div></div>
-    </div>
+            <div id="eyeball"><div id="reflection"></div></div>
+        </div>
     </div>
     
     <div id="spike"></div>
 </div>
 
-    </body>
+</body>
 </html>
