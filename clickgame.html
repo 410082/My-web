@@ -107,16 +107,16 @@
 }
 </style>
 <script>
- gameInterval;
- timeInterval;
- playerY = 225;
-playerDirection = 1;
- spikeX = 1000;
- spikeY = 225;
- isPlaying = false;
- time = 0;
- speed = 5;
-distance = 0;
+let gameInterval;
+let timeInterval;
+let playerY = 225;
+let playerDirection = 1;
+let spikeX = 1000;
+let spikeY = 225;
+let isPlaying = false;
+let time = 0;
+let speed = 5;
+let distance = 0;
 
 function changeDirection() {
     if (!isPlaying) return;
