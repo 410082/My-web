@@ -149,6 +149,39 @@ function changeDirection() {
     }
 }
 
+function checkTriangleCollision(pY, sX, sY, sW, sH, isCeiling) {
+    pLeft = 100;
+    pRight = 150;
+    
+    if (sX + sW < pLeft || sX > pRight) {
+        return false;
+    }
+
+    pCenterX = 125;
+    sCenterX = sX + (sW / 2);
+    distX = Math.abs(pCenterX - sCenterX);
+    
+    halfW = sW / 2;
+    if (distX >= halfW) {
+        return false;
+    }
+    
+    currentSpikeHeight = sH * (1 - (distX / halfW));
+
+    if (isCeiling == 1) {
+        spikeBottomEdge = 60 + currentSpikeHeight;
+        if (pY < spikeBottomEdge) {
+            return true;
+        }
+    } else {
+        spikeTopEdge = 440 - currentSpikeHeight;
+        if (pY + 50 > spikeTopEdge) {
+            return true;
+        }
+    }
+    return false;
+}
+
 function gamestart() {
     if (isPlaying == true) return;
     
@@ -222,44 +255,20 @@ function gamestart() {
         distance += 0.05;
         document.getElementById("score").innerText = Math.floor(distance) + "m";
 
-        if (spike1X < 150 && spike1X + spike1W > 100) {
-            if (isSpike1Ceiling == 1) {
-                if (playerY < 60 + spike1H - 15) {
-                    alert("Game Over! Distance: " + Math.floor(distance) + "m");
-                    clearInterval(gameInterval);
-                    clearInterval(timeInterval);
-                    location.reload();
-                    return;
-                }
-            } else {
-                if (playerY + 50 > spike1Y + 15) {
-                    alert("Game Over! Distance: " + Math.floor(distance) + "m");
-                    clearInterval(gameInterval);
-                    clearInterval(timeInterval);
-                    location.reload();
-                    return;
-                }
-            }
+        if (checkTriangleCollision(playerY, spike1X, spike1Y, spike1W, spike1H, isSpike1Ceiling)) {
+            alert("Game Over! Distance: " + Math.floor(distance) + "m");
+            clearInterval(gameInterval);
+            clearInterval(timeInterval);
+            location.reload();
+            return;
         }
 
-        if (spike2X < 150 && spike2X + spike2W > 100) {
-            if (isSpike2Ceiling == 1) {
-                if (playerY < 60 + spike2H - 15) {
-                    alert("Game Over! Distance: " + Math.floor(distance) + "m");
-                    clearInterval(gameInterval);
-                    clearInterval(timeInterval);
-                    location.reload();
-                    return;
-                }
-            } else {
-                if (playerY + 50 > spike2Y + 15) {
-                    alert("Game Over! Distance: " + Math.floor(distance) + "m");
-                    clearInterval(gameInterval);
-                    clearInterval(timeInterval);
-                    location.reload();
-                    return;
-                }
-            }
+        if (checkTriangleCollision(playerY, spike2X, spike2Y, spike2W, spike2H, isSpike2Ceiling)) {
+            alert("Game Over! Distance: " + Math.floor(distance) + "m");
+            clearInterval(gameInterval);
+            clearInterval(timeInterval);
+            location.reload();
+            return;
         }
     }, 20);
 }
