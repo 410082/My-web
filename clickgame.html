@@ -86,9 +86,18 @@
     background-color: rgb(51, 50, 50);
     z-index: 10;
 }
-#spike {
+#spike1 {
     position: absolute;
     left: 1000px;
+    background-color: rgb(51, 50, 50);
+    width: 100px;
+    height: 200px;
+    top: 240px;
+    z-index: 4;
+}
+#spike2 {
+    position: absolute;
+    left: 1550px;
     background-color: rgb(51, 50, 50);
     width: 100px;
     height: 200px;
@@ -111,11 +120,19 @@ gameInterval = null;
 timeInterval = null;
 playerY = 225;
 playerDirection = 1;
-spikeX = 1000;
-spikeY = 240;
-spikeW = 100;
-spikeH = 200;
-isSpikeOnCeiling = 0;
+
+spike1X = 1000;
+spike1Y = 240;
+spike1W = 100;
+spike1H = 200;
+isSpike1Ceiling = 0;
+
+spike2X = 1550;
+spike2Y = 240;
+spike2W = 100;
+spike2H = 200;
+isSpike2Ceiling = 0;
+
 isPlaying = false;
 time = 0;
 speed = 5;
@@ -138,7 +155,9 @@ function gamestart() {
     isPlaying = true;
     document.getElementById("gamestartbotton").style.display = "none";
     document.getElementById("player").style.transform = "rotate(30deg)";
-    document.getElementById("spike").style.clipPath = "polygon(50% 0%, 0% 100%, 100% 100%)";
+    
+    document.getElementById("spike1").style.clipPath = "polygon(50% 0%, 0% 100%, 100% 100%)";
+    document.getElementById("spike2").style.clipPath = "polygon(50% 0%, 0% 100%, 100% 100%)";
 
     timeInterval = setInterval(function() {
         time++;
@@ -147,10 +166,10 @@ function gamestart() {
 
     gameInterval = setInterval(function() {
         player = document.getElementById("player");
-        spike = document.getElementById("spike");
+        s1 = document.getElementById("spike1");
+        s2 = document.getElementById("spike2");
 
         playerY += playerDirection * 5; 
-        
         if (playerY <= 60 || playerY >= 390) {
             alert("Game Over! Distance: " + Math.floor(distance) + "m");
             clearInterval(gameInterval);
@@ -158,51 +177,87 @@ function gamestart() {
             location.reload();
             return;
         }
-        
         player.style.top = playerY + "px";
 
-        spikeX -= speed;
-        
-        if (spikeX < -spikeW) {
-            spikeX = 1000;
-            
-            spikeW = Math.floor(Math.random() * 81) + 80;
-            spikeH = Math.floor(Math.random() * 121) + 100;
-            
-            spike.style.width = spikeW + "px";
-            spike.style.height = spikeH + "px";
-
+        spike1X -= speed;
+        if (spike1X < -spike1W) {
+            spike1X = 1000;
+            spike1W = Math.floor(Math.random() * 81) + 80;
+            spike1H = Math.floor(Math.random() * 121) + 100;
+            s1.style.width = spike1W + "px";
+            s1.style.height = spike1H + "px";
             if (Math.random() < 0.5) {
-                isSpikeOnCeiling = 1;
-                spikeY = 60;
-                spike.style.clipPath = "polygon(50% 100%, 0% 0%, 100% 0%)";
+                isSpike1Ceiling = 1;
+                spike1Y = 60;
+                s1.style.clipPath = "polygon(50% 100%, 0% 0%, 100% 0%)";
             } else {
-                isSpikeOnCeiling = 0;
-                spikeY = 440 - spikeH;
-                spike.style.clipPath = "polygon(50% 0%, 0% 100%, 100% 100%)";
+                isSpike1Ceiling = 0;
+                spike1Y = 440 - spike1H;
+                s1.style.clipPath = "polygon(50% 0%, 0% 100%, 100% 100%)";
             }
-            spike.style.top = spikeY + "px";
+            s1.style.top = spike1Y + "px";
         }
-        
-        spike.style.left = spikeX + "px";
+        s1.style.left = spike1X + "px";
+
+        spike2X -= speed;
+        if (spike2X < -spike2W) {
+            spike2X = 1000;
+            spike2W = Math.floor(Math.random() * 81) + 80;
+            spike2H = Math.floor(Math.random() * 121) + 100;
+            s2.style.width = spike2W + "px";
+            s2.style.height = spike2H + "px";
+            if (Math.random() < 0.5) {
+                isSpike2Ceiling = 1;
+                spike2Y = 60;
+                s2.style.clipPath = "polygon(50% 100%, 0% 0%, 100% 0%)";
+            } else {
+                isSpike2Ceiling = 0;
+                spike2Y = 440 - spike2H;
+                s2.style.clipPath = "polygon(50% 0%, 0% 100%, 100% 100%)";
+            }
+            s2.style.top = spike2Y + "px";
+        }
+        s2.style.left = spike2X + "px";
 
         distance += 0.05;
         document.getElementById("score").innerText = Math.floor(distance) + "m";
 
-        if (spikeX < 150 && spikeX + spikeW > 100) {
-            if (isSpikeOnCeiling == 1) {
-                if (playerY < 60 + spikeH - 15) {
+        if (spike1X < 150 && spike1X + spike1W > 100) {
+            if (isSpike1Ceiling == 1) {
+                if (playerY < 60 + spike1H - 15) {
                     alert("Game Over! Distance: " + Math.floor(distance) + "m");
                     clearInterval(gameInterval);
                     clearInterval(timeInterval);
                     location.reload();
+                    return;
                 }
             } else {
-                if (playerY + 50 > spikeY + 15) {
+                if (playerY + 50 > spike1Y + 15) {
                     alert("Game Over! Distance: " + Math.floor(distance) + "m");
                     clearInterval(gameInterval);
                     clearInterval(timeInterval);
                     location.reload();
+                    return;
+                }
+            }
+        }
+
+        if (spike2X < 150 && spike2X + spike2W > 100) {
+            if (isSpike2Ceiling == 1) {
+                if (playerY < 60 + spike2H - 15) {
+                    alert("Game Over! Distance: " + Math.floor(distance) + "m");
+                    clearInterval(gameInterval);
+                    clearInterval(timeInterval);
+                    location.reload();
+                    return;
+                }
+            } else {
+                if (playerY + 50 > spike2Y + 15) {
+                    alert("Game Over! Distance: " + Math.floor(distance) + "m");
+                    clearInterval(gameInterval);
+                    clearInterval(timeInterval);
+                    location.reload();
+                    return;
                 }
             }
         }
@@ -227,7 +282,8 @@ function gamestart() {
         </div>
     </div>
     
-    <div id="spike"></div>
+    <div id="spike1"></div>
+    <div id="spike2"></div>
 </div>
 
 </body>
