@@ -3,11 +3,10 @@
 <style>
 #background {
     position: relative;
-    width: 900px;
-    height: 380px;
+    width: 1000px;
+    height: 500px;
     background-color: rgb(192, 192, 192);
-    margin: 50px auto;
-    outline: solid 50px rgb(78, 77, 77);
+    border: solid 50px rgb(78, 77, 77);
     border-radius: 30px;
     overflow: hidden;
 }
@@ -17,8 +16,8 @@
     background-color: rgba(66, 66, 66, 0.829);
     border: solid 20px rgba(255, 255, 255, 0.884);
     position: absolute;
-    top: 150px;
-    left: 410px;
+    top: 200px;
+    left: 450px;
     z-index: 99;
 }
 #triangle {
@@ -38,7 +37,7 @@
     border-radius: 20px;
     position: absolute;
     left: 100px;
-    top: 165px;
+    top: 225px;
     transition: transform 0.1s;
     z-index: 5;
 }
@@ -70,7 +69,7 @@
     right: 0px;
 }
 #wall-top {
-    width: 900px;
+    width: 1000px;
     height: 60px;
     position: absolute;
     top: 0px;
@@ -79,7 +78,7 @@
     z-index: 10;
 }
 #wall-bottom {
-    width: 900px;
+    width: 1000px;
     height: 60px;
     position: absolute;
     bottom: 0px;
@@ -89,11 +88,11 @@
 }
 #spike {
     position: absolute;
-    left: 900px;
+    left: 1000px;
     background-color: rgb(51, 50, 50);
     width: 100px;
     height: 200px;
-    top: 180px;
+    top: 240px;
     z-index: 4;
 }
 #score {
@@ -110,10 +109,10 @@
 <script>
 gameInterval = null;
 timeInterval = null;
-playerY = 165;
+playerY = 225;
 playerDirection = 1;
-spikeX = 900;
-spikeY = 180;
+spikeX = 1000;
+spikeY = 240;
 spikeW = 100;
 spikeH = 200;
 isSpikeOnCeiling = 0;
@@ -152,7 +151,7 @@ function gamestart() {
 
         playerY += playerDirection * 5; 
         
-        if (playerY <= 60 || playerY >= 270) {
+        if (playerY <= 60 || playerY >= 390) {
             alert("Game Over! Distance: " + Math.floor(distance) + "m");
             clearInterval(gameInterval);
             clearInterval(timeInterval);
@@ -165,7 +164,7 @@ function gamestart() {
         spikeX -= speed;
         
         if (spikeX < -spikeW) {
-            spikeX = 900;
+            spikeX = 1000;
             
             spikeW = Math.floor(Math.random() * 81) + 80;
             spikeH = Math.floor(Math.random() * 121) + 100;
@@ -179,7 +178,7 @@ function gamestart() {
                 spike.style.clipPath = "polygon(50% 100%, 0% 0%, 100% 0%)";
             } else {
                 isSpikeOnCeiling = 0;
-                spikeY = 320 - spikeH;
+                spikeY = 440 - spikeH;
                 spike.style.clipPath = "polygon(50% 0%, 0% 100%, 100% 100%)";
             }
             spike.style.top = spikeY + "px";
