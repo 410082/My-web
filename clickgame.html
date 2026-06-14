@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-    
 <style>
 #background {
     position: relative;
@@ -108,8 +107,8 @@
 }
 </style>
 <script>
-gameInterval;
-timeInterval;
+gameInterval = null;
+timeInterval = null;
 playerY = 225;
 playerDirection = 1;
 spikeX = 1000;
@@ -123,7 +122,7 @@ distance = 0;
 function changeDirection() {
     if (!isPlaying) return;
     playerDirection = playerDirection * -1;
-    const player = document.getElementById("player");
+    player = document.getElementById("player");
     if (playerDirection === 1) {
         player.style.transform = "rotate(30deg)";
     } else {
@@ -147,8 +146,8 @@ function gamestart(event) {
     }, 1000);
 
     gameInterval = setInterval(function() {
-       const player = document.getElementById("player");
-       const spike = document.getElementById("spike");
+        player = document.getElementById("player");
+        spike = document.getElementById("spike");
 
         playerY += playerDirection * 5; 
         
@@ -197,19 +196,17 @@ function gamestart(event) {
                 }
             } else {
                 if (playerY + 50 > 240) {
-           alert("Game Over! Distance: " + Math.floor(distance) + "m");
-    clearInterval(gameInterval);
- clearInterval(timeInterval);
- location.reload();
-  }
-  }
- }
- }, 20);
+                    alert("Game Over! Distance: " + Math.floor(distance) + "m");
+                    clearInterval(gameInterval);
+                    clearInterval(timeInterval);
+                    location.reload();
+                }
+            }
+        }
+    }, 20);
 }
 </script>
 </head>
-
-    
 <body>
 
 <div id="background" onclick="changeDirection()">
