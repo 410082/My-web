@@ -60,7 +60,6 @@
     top: 5px;
     right: 5px;
 }
-    
 #reflection {
     width: 10px;
     height: 10px;
@@ -78,15 +77,15 @@
     left: 0px;
     background-color: rgb(51, 50, 50);
 }
-    #wall-bottom {
-        width: 1000px;
-        height: 60px;
-        position: absolute;
-        bottom: 0px;
-        left: 0px;
+#wall-bottom {
+    width: 1000px;
+    height: 60px;
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
     background-color: rgb(51, 50, 50);
 }
-        #spike {
+#spike {
     width: 0;
     height: 0;
     border-top: 25px solid transparent;
@@ -99,11 +98,14 @@
 </style>
 <script>
 let gameInterval;
+let timeInterval;
 let playerY = 225;
 let playerDirection = 1;
 let spikeX = 1000;
 let spikeY = 225;
 let isPlaying = false;
+let time = 0;
+let speed = 5;
 
 function changeDirection() {
     if (!isPlaying) return;
@@ -111,11 +113,9 @@ function changeDirection() {
     playerDirection = playerDirection * -1;
     
     const player = document.getElementById("player");
-        if (playerDirection === 1) {
+    if (playerDirection === 1) {
         player.style.transform = "rotate(30deg)";
-        
-    }
-        else {
+    } else {
         player.style.transform = "rotate(-30deg)";
     }
 }
@@ -125,19 +125,23 @@ function gamestart() {
     document.getElementById("gamestartbotton").style.display = "none";
     document.getElementById("player").style.transform = "rotate(30deg)";
 
-    
-gameInterval = setInterval(() => {
+    timeInterval = setInterval(() => {
+        time++;
+        speed = 0.15 * time + 5;
+    }, 1000);
+
+    gameInterval = setInterval(() => {
         const player = document.getElementById("player");
         const spike = document.getElementById("spike");
 
         playerY += playerDirection * 5; 
         
-            if (playerY < 60) playerY = 60;
+        if (playerY < 60) playerY = 60;
         if (playerY > 390) playerY = 390;
         
         player.style.top = playerY + "px";
 
-        spikeX -= 8;
+        spikeX -= speed;
         if (spikeX < -50) {
             spikeX = 1000;
             const tracks =;
@@ -150,6 +154,7 @@ gameInterval = setInterval(() => {
             if (spikeY < playerY + 50 && spikeY + 50 > playerY) {
                 alert("Game Over!");
                 clearInterval(gameInterval);
+                clearInterval(timeInterval);
                 location.reload();
             }
         }
@@ -158,13 +163,13 @@ gameInterval = setInterval(() => {
 }
 </script>
 </head>
-    
 <body>
+
 <div id="background" onclick="changeDirection()">
-        <div id="wall-top"></div>
+    <div id="wall-top"></div>
     <div id="wall-bottom"></div>
     
-            <div id="gamestartbotton" onclick="event.stopPropagation(); gamestart()">
+    <div id="gamestartbotton" onclick="event.stopPropagation(); gamestart()">
         <div id="triangle"></div>
     </div>
     
@@ -177,5 +182,5 @@ gameInterval = setInterval(() => {
     <div id="spike"></div>
 </div>
 
-        </body>
-            </html>
+</body>
+</html>
