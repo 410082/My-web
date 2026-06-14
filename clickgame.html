@@ -133,6 +133,8 @@ function gamestart() {
     document.getElementById("gamestartbotton").style.display = "none";
     document.getElementById("player").style.transform = "rotate(30deg)";
 
+    document.getElementById("spike").style.clipPath = "polygon(50% 0%, 0% 100%, 100% 100%)";
+
     timeInterval = setInterval(function() {
         time++;
         speed = 0.15 * time + 5;
@@ -155,11 +157,15 @@ function gamestart() {
         player.style.top = playerY + "px";
 
         spikeX -= speed;
-        if (spikeX < -180) {
+        
+        if (spikeX > 1000) {
+            spike.style.display = "none";
+        } else if (spikeX < -spikeW) {
             spikeX = 1000;
+            spike.style.display = "none";
             
-            spikeW = Math.floor(Math.random() * 101) + 80;
-            spikeH = Math.floor(Math.random() * 151) + 100;
+            spikeW = Math.floor(Math.random() * 81) + 80;
+            spikeH = Math.floor(Math.random() * 121) + 100;
             
             spike.style.width = spikeW + "px";
             spike.style.height = spikeH + "px";
@@ -167,12 +173,17 @@ function gamestart() {
             if (Math.random() < 0.5) {
                 isSpikeOnCeiling = 1;
                 spikeY = 60;
+                spike.style.clipPath = "polygon(50% 100%, 0% 0%, 100% 0%)";
             } else {
                 isSpikeOnCeiling = 0;
                 spikeY = 440 - spikeH;
+                spike.style.clipPath = "polygon(50% 0%, 0% 100%, 100% 100%)";
             }
             spike.style.top = spikeY + "px";
+        } else {
+            spike.style.display = "block";
         }
+        
         spike.style.left = spikeX + "px";
 
         distance += 0.1;
@@ -180,14 +191,14 @@ function gamestart() {
 
         if (spikeX < 150 && spikeX + spikeW > 100) {
             if (isSpikeOnCeiling == 1) {
-                if (playerY < 60 + spikeH) {
+                if (playerY < 60 + spikeH - 15) {
                     alert("Game Over! Distance: " + Math.floor(distance) + "m");
                     clearInterval(gameInterval);
                     clearInterval(timeInterval);
                     location.reload();
                 }
             } else {
-                if (playerY + 50 > spikeY) {
+                if (playerY + 50 > spikeY + 15) {
                     alert("Game Over! Distance: " + Math.floor(distance) + "m");
                     clearInterval(gameInterval);
                     clearInterval(timeInterval);
