@@ -93,6 +93,11 @@
     height: 0;
     position: absolute;
     left: 1000px;
+    top: 240px;
+    border-left: 75px solid transparent;
+    border-right: 75px solid transparent;
+    border-top: 0px solid transparent;
+    border-bottom: 200px solid rgb(51, 50, 50);
     z-index: 4;
 }
 #score {
@@ -112,8 +117,8 @@ timeInterval = null;
 playerY = 225;
 playerDirection = 1;
 spikeX = 1000;
-spikeY = 60;
-isSpikeOnCeiling = 1;
+spikeY = 240;
+isSpikeOnCeiling = 0;
 isPlaying = false;
 time = 0;
 speed = 5;
