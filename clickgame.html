@@ -1,8 +1,8 @@
-<!DOCTYPE html>
 <html>
-<head>
-<style>
-#background {
+    <head>
+     <style>
+
+    #background {
     position: relative;
     width: 1000px;
     height: 500px;
@@ -131,6 +131,7 @@ function changeDirection() {
     }
 }
 
+
 function gamestart() {
     isPlaying = true;
     document.getElementById("gamestartbotton").style.display = "none";
@@ -175,27 +176,30 @@ function gamestart() {
 
     }, 20);
 }
-</script>
-</head>
-<body>
+    </script>
+        </head>
+    <body>
 
 <div id="background" onclick="changeDirection()">
+   
     <div id="wall-top"></div>
-    <div id="wall-bottom"></div>
-    <div id="score">0m</div>
+        <div id="wall-bottom"></div>
+            <div id="score">0m</div>
     
-    <div id="gamestartbotton" onclick="event.stopPropagation(); gamestart()">
-        <div id="triangle"></div>
+        <div id="gamestartbotton" onclick="event.stopPropagation(); gamestart()">
+            <div id="triangle"></div>
     </div>
+
     
     <div id="player">
         <div id="eye">
-            <div id="eyeball"><div id="reflection"></div></div>
-        </div>
+            
+        <div id="eyeball"><div id="reflection"></div></div>
+    </div>
     </div>
     
     <div id="spike"></div>
 </div>
 
-</body>
+    </body>
 </html>
