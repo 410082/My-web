@@ -1,6 +1,31 @@
 <html>
 <head>
 <style>
+/*#warningblock{
+    position:relative;
+    width: 1000px;
+    height: 50px;
+    top:
+}
+#warningfont{
+    position:relative;
+    width: 1000px;
+    height: 100px;
+    top:
+}
+#warningblock2{
+    position:relative;
+    width: 1000px;
+    height: 50px;
+    top:
+}*/
+#monster{
+    position: absolute;
+    width:400px;
+    height:200px;
+    left:-300px;
+    top:150px;
+}
 #background {
     position: relative;
     width: 1000px;
@@ -185,6 +210,15 @@ function checkTriangleCollision(pY, sX, sY, sW, sH, isCeiling) {
 function gamestart() {
     if (isPlaying == true) return;
     
+  /*  if (distance>100)
+{
+    if(speed*distance%3==0)
+    {
+        warning();
+    }
+}
+*/
+
     isPlaying = true;
     document.getElementById("gamestartbotton").style.display = "none";
     document.getElementById("player").style.transform = "rotate(30deg)";
@@ -272,6 +306,12 @@ function gamestart() {
         }
     }, 20);
 }
+
+  /*  warning(){
+        clearInterval(gameInterval);
+
+    }*/
+
 </script>
 </head>
 <body>
@@ -293,6 +333,12 @@ function gamestart() {
     
     <div id="spike1"></div>
     <div id="spike2"></div>
+    <img id="monster" src="warning/1.png">
+    
+    <div id="warningblock">
+        <div id="warningfont"></div>
+        <div id="warningblock2"></div>
+    </div>
 </div>
 
 </body>
