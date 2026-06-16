@@ -1,0 +1,2015 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>天球完全教學</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;600;900&family=Space+Mono:wght@400;700&display=swap');
+
+  :root {
+    --space: #04080f;
+    --deep: #080f1e;
+    --panel: #0d1628;
+    --border: #1a2a4a;
+    --accent: #4fc3f7;
+    --gold: #ffd54f;
+    --sun: #ff8f00;
+    --ecliptic: #ff6b6b;
+    --equator: #4fc3f7;
+    --green: #69f0ae;
+    --text: #cdd9f0;
+    --dim: #5a6a8a;
+    --white: #eef4ff;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--space);
+    color: var(--text);
+    font-family: 'Noto Serif TC', serif;
+    min-height: 100vh;
+  }
+
+  /* Stars background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,0.6) 0%, transparent 100%),
+      radial-gradient(1px 1px at 25% 40%, rgba(255,255,255,0.4) 0%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 40% 8%, rgba(255,255,255,0.7) 0%, transparent 100%),
+      radial-gradient(1px 1px at 60% 20%, rgba(255,255,255,0.5) 0%, transparent 100%),
+      radial-gradient(1px 1px at 75% 35%, rgba(255,255,255,0.3) 0%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 88% 12%, rgba(255,255,255,0.6) 0%, transparent 100%),
+      radial-gradient(1px 1px at 5% 70%, rgba(255,255,255,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 50% 85%, rgba(255,255,255,0.3) 0%, transparent 100%),
+      radial-gradient(1.5px 1.5px at 92% 75%, rgba(255,255,255,0.5) 0%, transparent 100%),
+      radial-gradient(1px 1px at 33% 95%, rgba(255,255,255,0.4) 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  header {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    padding: 3rem 1rem 2rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  header h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 900;
+    color: var(--white);
+    letter-spacing: 0.05em;
+    text-shadow: 0 0 40px rgba(79,195,247,0.4);
+  }
+
+  header p {
+    margin-top: 0.5rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--dim);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  /* Chapter nav */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(4,8,15,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  nav::-webkit-scrollbar { display: none; }
+
+  nav button {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--dim);
+    font-family: 'Noto Serif TC', serif;
+    font-size: 0.8rem;
+    padding: 0.8rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  nav button:hover { color: var(--accent); }
+  nav button.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  /* Main content */
+  main {
+    position: relative;
+    z-index: 10;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 1rem 4rem;
+  }
+
+  .chapter {
+    display: none;
+    padding-top: 2rem;
+  }
+  .chapter.active { display: block; }
+
+  .ch-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .ch-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .ch-header h2 {
+    font-size: clamp(1.5rem, 3vw, 2.2rem);
+    font-weight: 900;
+    color: var(--white);
+  }
+
+  .ch-header p {
+    margin-top: 0.5rem;
+    color: var(--dim);
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  /* Canvas container */
+  .canvas-wrap {
+    background: var(--deep);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 1rem;
+    margin: 1.5rem 0;
+    position: relative;
+  }
+
+  .canvas-wrap canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 420px;
+  }
+
+  .canvas-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--dim);
+    text-align: right;
+    margin-top: 0.5rem;
+    letter-spacing: 0.1em;
+  }
+
+  /* Controls */
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin: 1rem 0;
+    align-items: center;
+  }
+
+  .ctrl-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 0.4rem 0.75rem;
+    border-radius: 2px;
+  }
+
+  .ctrl-group label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--dim);
+    white-space: nowrap;
+  }
+
+  .ctrl-group input[type="range"] {
+    width: 100px;
+    accent-color: var(--accent);
+  }
+
+  .ctrl-group span {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--accent);
+    min-width: 3ch;
+  }
+
+  .btn {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--accent);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    padding: 0.4rem 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.05em;
+  }
+  .btn:hover { background: var(--border); }
+  .btn.active { background: var(--accent); color: var(--space); }
+
+  /* Prose */
+  .prose {
+    line-height: 1.9;
+    font-size: 0.95rem;
+  }
+
+  .prose h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--white);
+    margin: 1.8rem 0 0.6rem;
+  }
+
+  .prose p {
+    margin-bottom: 0.8rem;
+    color: var(--text);
+  }
+
+  .prose strong { color: var(--accent); font-weight: 600; }
+  .prose em { color: var(--gold); font-style: normal; }
+
+  .callout {
+    border-left: 3px solid var(--accent);
+    background: rgba(79,195,247,0.05);
+    padding: 0.8rem 1rem;
+    margin: 1rem 0;
+    font-size: 0.88rem;
+  }
+
+  .callout.gold {
+    border-color: var(--gold);
+    background: rgba(255,213,79,0.05);
+  }
+
+  .callout.red {
+    border-color: var(--ecliptic);
+    background: rgba(255,107,107,0.05);
+  }
+
+  .callout p { margin: 0; }
+
+  .key-facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .fact {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 1rem;
+  }
+
+  .fact-val {
+    font-family: 'Space Mono', monospace;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .fact-label {
+    font-size: 0.75rem;
+    color: var(--dim);
+    margin-top: 0.25rem;
+  }
+
+  /* Quiz */
+  .quiz-section {
+    margin-top: 2.5rem;
+    border-top: 1px solid var(--border);
+    padding-top: 2rem;
+  }
+
+  .quiz-section h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--gold);
+    margin-bottom: 1.5rem;
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 0.1em;
+  }
+
+  .quiz-item {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .quiz-q {
+    font-size: 0.92rem;
+    color: var(--white);
+    margin-bottom: 1rem;
+    line-height: 1.6;
+  }
+
+  .quiz-opts {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .quiz-opt {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Noto Serif TC', serif;
+    font-size: 0.85rem;
+    padding: 0.5rem 0.8rem;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .quiz-opt:hover { border-color: var(--accent); color: var(--accent); }
+  .quiz-opt.correct { border-color: var(--green); background: rgba(105,240,174,0.1); color: var(--green); }
+  .quiz-opt.wrong { border-color: var(--ecliptic); background: rgba(255,107,107,0.1); color: var(--ecliptic); }
+
+  .quiz-explain {
+    display: none;
+    margin-top: 0.8rem;
+    font-size: 0.82rem;
+    color: var(--dim);
+    line-height: 1.6;
+    border-top: 1px solid var(--border);
+    padding-top: 0.8rem;
+  }
+  .quiz-explain.show { display: block; }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin: 0.5rem 0;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--dim);
+  }
+
+  .legend-line {
+    width: 24px;
+    height: 2px;
+  }
+
+  .legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>天球完全教學</h1>
+  <p>Celestial Sphere · Complete Interactive Course</p>
+</header>
+
+<nav id="chapNav">
+  <button class="active" onclick="showChap(0)">① 什麼是天球</button>
+  <button onclick="showChap(1)">② 地球自轉軸</button>
+  <button onclick="showChap(2)">③ 天赤道 vs 黃道</button>
+  <button onclick="showChap(3)">④ 星星的轉動</button>
+  <button onclick="showChap(4)">⑤ 太陽的路徑</button>
+  <button onclick="showChap(5)">⑥ 四季與節氣</button>
+  <button onclick="showChap(6)">⑦ 找天極技巧</button>
+  <button onclick="showChap(7)">⑧ 綜合測驗</button>
+</nav>
+
+<main>
+
+<!-- =========== CHAPTER 0 =========== -->
+<section class="chapter active" id="ch0">
+  <div class="ch-header">
+    <div class="ch-tag">Chapter 01 · Fundamentals</div>
+    <h2>什麼是天球？</h2>
+    <p>把整個宇宙投影到以觀測者為中心的巨大球面上——這就是天球的核心概念。</p>
+  </div>
+
+  <div class="canvas-wrap">
+    <canvas id="c0" width="800" height="420"></canvas>
+    <div class="canvas-label">拖曳旋轉 · 天球基本結構示意</div>
+  </div>
+
+  <div class="controls">
+    <div class="ctrl-group">
+      <label>自動旋轉</label>
+      <button class="btn active" id="c0rotBtn" onclick="toggleRot(0)">ON</button>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#4fc3f7"></div>天球赤道</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#ffd54f"></div>天頂 (Zenith)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#69f0ae"></div>觀測者</div>
+    </div>
+  </div>
+
+  <div class="prose">
+    <p>古人仰望天空，感覺星星都鑲嵌在一個以自己為中心的巨大球殼上。這個虛構的球就叫<strong>天球（Celestial Sphere）</strong>。</p>
+
+    <h3>天球的三要素</h3>
+    <p><strong>① 觀測者在球心</strong>：天球半徑可以是任意大，重要的是方向，不是距離。兩顆相差幾千光年的星星，只要在同一方向，在天球上就是同一個點。</p>
+    <p><strong>② 天極（Celestial Pole）</strong>：地球自轉軸向兩端無限延伸，刺穿天球的兩個點，叫<em>北天極</em>與<em>南天極</em>。北天極附近正好有一顆明亮的星——<strong>北極星（Polaris）</strong>。</p>
+    <p><strong>③ 天赤道（Celestial Equator）</strong>：地球赤道平面無限延伸，切割天球的大圓。</p>
+
+    <div class="callout">
+      <p>💡 天球是一個<strong>投影裝置</strong>，不是真實存在的物體。它讓我們用二維角度（赤經、赤緯）來描述任何天體的位置。</p>
+    </div>
+
+    <h3>天球坐標系</h3>
+    <p>就像地球用「經緯度」定位，天球用<strong>赤經（Right Ascension, RA）</strong>與<strong>赤緯（Declination, Dec）</strong>。</p>
+    <p>赤緯從天赤道算起，向北天極為 +90°，向南天極為 −90°。赤經則從<em>春分點</em>出發，向東繞一圈 0h～24h（360°）。</p>
+  </div>
+
+  <div class="key-facts">
+    <div class="fact"><div class="fact-val">90°N</div><div class="fact-label">北天極赤緯</div></div>
+    <div class="fact"><div class="fact-val">0°</div><div class="fact-label">天赤道赤緯</div></div>
+    <div class="fact"><div class="fact-val">0h</div><div class="fact-label">春分點赤經</div></div>
+    <div class="fact"><div class="fact-val">24h</div><div class="fact-label">赤經一圈</div></div>
+  </div>
+
+  <div class="quiz-section">
+    <h3>// QUIZ · Chapter 01</h3>
+    <div class="quiz-item">
+      <div class="quiz-q">Q1. 天球的「半徑」在天文學上代表什麼意思？</div>
+      <div class="quiz-opts">
+        <button class="quiz-opt" onclick="ans(this,false,'天球半徑是固定的，大約是地球到月亮的距離。')">A. 代表地球到月球的距離</button>
+        <button class="quiz-opt" onclick="ans(this,true,'天球只描述方向，半徑可以是任意大，不代表任何真實距離。')">B. 任意大，天球只記錄方向不記錄距離</button>
+        <button class="quiz-opt" onclick="ans(this,false,'半徑是 1 光年，讓我們能描述太陽系內的天體。')">C. 固定為 1 光年</button>
+      </div>
+      <div class="quiz-explain"></div>
+    </div>
+    <div class="quiz-item">
+      <div class="quiz-q">Q2. 北天極的赤緯是多少？</div>
+      <div class="quiz-opts">
+        <button class="quiz-opt" onclick="ans(this,false,'0° 是天赤道的赤緯，不是北天極。')">A. 0°</button>
+        <button class="quiz-opt" onclick="ans(this,false,'45° 是中緯度，不是極點。')">B. +45°</button>
+        <button class="quiz-opt" onclick="ans(this,true,'北天極在天球正北端，赤緯為 +90°。')">C. +90°</button>
+      </div>
+      <div class="quiz-explain"></div>
+    </div>
+  </div>
+</section>
+
+<!-- =========== CHAPTER 1 =========== -->
+<section class="chapter" id="ch1">
+  <div class="ch-header">
+    <div class="ch-tag">Chapter 02 · Earth's Axis</div>
+    <h2>地球自轉軸與傾角</h2>
+    <p>地軸不是直的——它相對於公轉軌道面傾斜了 23.5°，這個傾角是四季的根源。</p>
+  </div>
+
+  <div class="canvas-wrap">
+    <canvas id="c1" width="800" height="420"></canvas>
+    <div class="canvas-label">地球、地軸、公轉軌道面（黃道面）關係</div>
+  </div>
+
+  <div class="controls">
+    <div class="ctrl-group">
+      <label>地軸傾角</label>
+      <input type="range" min="0" max="45" value="23.5" step="0.5" id="tiltSlider" oninput="updateTilt(this.value)">
+      <span id="tiltVal">23.5°</span>
+    </div>
+    <div class="ctrl-group">
+      <label>公轉位置</label>
+      <input type="range" min="0" max="360" value="0" step="1" id="orbitSlider" oninput="updateOrbit(this.value)">
+      <span id="orbitVal">0°</span>
+    </div>
+  </div>
+
+  <div class="prose">
+    <h3>真實赤道 vs 天球赤道</h3>
+    <p><strong>真實赤道（Geographic Equator）</strong>：地球表面上，距離南北兩極等距的大圓。緯度 0°。</p>
+    <p><strong>天球赤道（Celestial Equator）</strong>：把地球赤道平面無限延伸到天球上的大圓。它是天球上赤緯 0° 的圓。</p>
+    <p>這兩者是「同一個平面」的兩種表示，一個在地球表面，一個投影到無限遠的天球上。</p>
+
+    <div class="callout gold">
+      <p>🔑 <strong>關鍵記憶</strong>：地軸傾斜 23.5°，代表天球赤道和黃道（太陽的視運動路徑）之間夾角正好也是 <strong>23.5°</strong>。</p>
+    </div>
+
+    <h3>黃道面（Ecliptic Plane）</h3>
+    <p>地球繞太陽公轉的軌道平面叫<strong>黃道面</strong>。從地球看出去，太陽在天球上走的路徑就叫<strong>黃道（Ecliptic）</strong>。</p>
+    <p>因為地軸傾斜 23.5°，黃道面和赤道面不一樣，它們之間的夾角正好等於地軸傾角。</p>
+
+    <h3>為什麼「看起來」是那樣？</h3>
+    <p>站在地球上看，我們感覺不到地球在動（慣性！），反而是天空在繞我們轉。因此：</p>
+    <p>→ 地球自西向東自轉，天空「看起來」從<em>東升西落</em>。<br>→ 地球公轉，太陽「看起來」在黃道上每天東移約 1°，一年繞一圈。</p>
+  </div>
+
+  <div class="key-facts">
+    <div class="fact"><div class="fact-val">23.5°</div><div class="fact-label">地軸傾角（黃赤交角）</div></div>
+    <div class="fact"><div class="fact-val">66.5°</div><div class="fact-label">地軸與黃道面夾角</div></div>
+    <div class="fact"><div class="fact-val">365.25天</div><div class="fact-label">地球公轉週期</div></div>
+    <div class="fact"><div class="fact-val">~1°/天</div><div class="fact-label">太陽沿黃道東移速率</div></div>
+  </div>
+
+  <div class="quiz-section">
+    <h3>// QUIZ · Chapter 02</h3>
+    <div class="quiz-item">
+      <div class="quiz-q">Q3. 黃道面與天球赤道的夾角是多少？這個角度等於什麼？</div>
+      <div class="quiz-opts">
+        <button class="quiz-opt" onclick="ans(this,false,'90° 是赤道與地軸的夾角，不是黃赤交角。')">A. 90°，等於地軸與赤道的夾角</button>
+        <button class="quiz-opt" onclick="ans(this,true,'黃赤交角 = 地軸傾角 = 23.5°，這是同一個角度的不同描述。')">B. 23.5°，等於地軸的傾斜角度</button>
+        <button class="quiz-opt" onclick="ans(this,false,'47° 是夏至太陽赤緯 (+23.5°) 與冬至 (−23.5°) 的差，不是黃赤交角。')">C. 47°，是夏至與冬至太陽高度差</button>
+      </div>
+      <div class="quiz-explain"></div>
+    </div>
+    <div class="quiz-item">
+      <div class="quiz-q">Q4. 若地軸傾角為 0°（即地軸完全垂直於公轉軌道面），下列何者正確？</div>
+      <div class="quiz-opts">
+        <button class="quiz-opt" onclick="ans(this,false,'太陽方向改變是因為公轉，與地軸傾斜無關。')">A. 太陽將停止在天球上移動</button>
+        <button class="quiz-opt" onclick="ans(this,true,'地軸為 0° 時黃道與天赤道重合，太陽全年在赤道上，無四季。')">B. 黃道與天赤道重合，地球上無四季變化</button>
+        <button class="quiz-opt" onclick="ans(this,false,'南北天極的位置由自轉軸決定，傾角為 0° 只改變黃道位置。')">C. 南北天極將消失</button>
+      </div>
+      <div class="quiz-explain"></div>
+    </div>
+  </div>
+</section>
+
+<!-- =========== CHAPTER 2 =========== -->
+<section class="chapter" id="ch2">
+  <div class="ch-header">
+    <div class="ch-tag">Chapter 03 · Equator vs Ecliptic</div>
+    <h2>天赤道 vs 黃道</h2>
+    <p>天球上最重要的兩條大圓——它們在哪裡交叉？交叉點代表什麼？</p>
+  </div>
+
+  <div class="canvas-wrap">
+    <canvas id="c2" width="800" height="420"></canvas>
+    <div class="canvas-label">天赤道（藍）與黃道（紅）在天球上的關係，可拖曳旋轉</div>
+  </div>
+
+  <div class="controls">
+    <div class="ctrl-group">
+      <label>旋轉角</label>
+      <input type="range" min="0" max="360" value="30" id="c2rot" oninput="draw2(+this.value)">
+    </div>
+    <div class="ctrl-group">
+      <label>仰角</label>
+      <input type="range" min="10" max="80" value="35" id="c2elev" oninput="draw2(+document.getElementById('c2rot').value)">
+    </div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-line" style="background:var(--equator)"></div>天赤道</div>
+      <div class="legend-item"><div class="legend-line" style="background:var(--ecliptic)"></div>黃道</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#fff"></div>春分點 ♈</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#ff8f00"></div>秋分點 ♎</div>
+    </div>
+  </div>
+
+  <div class="prose">
+    <h3>兩條最重要的大圓</h3>
+    <p><strong>天赤道</strong>：把地球赤道投影到天球，赤緯永遠是 0°，是天球坐標的基準。</p>
+    <p><strong>黃道</strong>：太陽在天球上的視運動軌跡。因為地軸傾 23.5°，黃道會在天赤道南北各 23.5° 範圍內擺動。</p>
+
+    <h3>春分點 & 秋分點</h3>
+    <p>兩圓相交於<strong>兩個點</strong>，稱為<em>分點（Equinox）</em>：</p>
+    <p><strong>春分點（Vernal Equinox）♈</strong>：太陽從南往北穿越天赤道的點。赤經 0h，赤緯 0°。是整個天球坐標系的<em>原點</em>。（約 3 月 20 日）</p>
+    <p><strong>秋分點（Autumnal Equinox）♎</strong>：太陽從北往南穿越天赤道的點。（約 9 月 22 日）</p>
+
+    <div class="callout red">
+      <p>⚠️ <strong>注意</strong>：春分點現在實際上在雙魚座，不在白羊座 ♈！這是因為<em>歲差（Precession）</em>——地軸像陀螺般緩慢搖擺，週期約 26,000 年，讓春分點緩慢西移。</p>
+    </div>
+
+    <h3>夏至點 & 冬至點</h3>
+    <p>黃道距天赤道最遠的兩點：</p>
+    <p>• <strong>夏至點</strong>（約 6/21）：太陽到達赤緯 <em>+23.5°</em>，北半球白晝最長。<br>
+    • <strong>冬至點</strong>（約 12/21）：太陽到達赤緯 <em>−23.5°</em>，北半球白晝最短。</p>
+  </div>
+
+  <div class="key-facts">
+    <div class="fact"><div class="fact-val">0h / 0°</div><div class="fact-label">春分點（赤經/赤緯）</div></div>
+    <div class="fact"><div class="fact-val">+23.5°</div><div class="fact-label">夏至太陽赤緯</div></div>
+    <div class="fact"><div class="fact-val">−23.5°</div><div class="fact-label">冬至太陽赤緯</div></div>
+    <div class="fact"><div class="fact-val">~26,000年</div><div class="fact-label">歲差週期</div></div>
+  </div>
+
+  <div class="quiz-section">
+    <h3>// QUIZ · Chapter 03</h3>
+    <div class="quiz-item">
+      <div class="quiz-q">Q5. 天赤道與黃道相交於兩點，分別叫做什麼？</div>
+      <div class="quiz-opts">
+        <button class="quiz-opt" onclick="ans(this,false,'夏至點和冬至點是黃道距赤道最遠的點，不是交點。')">A. 夏至點與冬至點</button>
+        <button class="quiz-opt" onclick="ans(this,true,'兩圓交點是春分點（太陽由南往北穿越）和秋分點（由北往南穿越）。')">B. 春分點與秋分點</button>
+        <button class="quiz-opt" onclick="ans(this,false,'天頂和天底是觀測者正上方和正下方的點，不是兩圓的交點。')">C. 天頂與天底</button>
+      </div>
+      <div class="quiz-explain"></div>
+    </div>
+    <div class="quiz-item">
+      <div class="quiz-q">Q6. 春分點是什麼坐標系統的原點？它的赤緯是多少？</div>
+      <div class="quiz-opts">
+        <button class="quiz-opt" onclick="ans(this,false,'春分點的赤緯是 0°，在天赤道上，不是 +23.5°。')">A. 黃道坐標系；赤緯 +23.5°</button>
+        <button class="quiz-opt" onclick="ans(this,true,'春分點是赤道坐標系（赤經赤緯）的原點，赤經 0h，赤緯 0°。')">B. 赤道坐標系；赤緯 0°</button>
+        <button class="quiz-opt" onclick="ans(this,false,'地平坐標系以觀測地點的天頂和地平圈為基準，原點不是春分點。')">C. 地平坐標系；赤緯 −23.5°</button>
+      </div>
+      <div class="quiz-explain"></div>
+    </div>
+  </div>
+</section>
+
+<!-- =========== CHAPTER 3 =========== -->
+<section class="chapter" id="ch3">
+  <div class="ch-header">
+    <div class="ch-tag">Chapter 04 · Star Rotation</div>
+    <h2>星星的轉動</h2>
+    <p>為什麼星星繞著北極星轉？不同緯度的人看到的旋轉有何不同？</p>
+  </div>
+
+  <div class="canvas-wrap">
+    <canvas id="c3" width="800" height="420"></canvas>
+    <div class="canvas-label">模擬觀測者所見的星空旋轉，可調整觀測緯度</div>
+  </div>
+
+  <div class="controls">
+    <div class="ctrl-group">
+      <label>觀測緯度</label>
+      <input type="range" min="-80" max="80" value="25" id="latSlider" oninput="updateLat(+this.value)">
+      <span id="latVal">25°N</span>
+    </div>
+    <div class="ctrl-group">
+      <label>時間流速</label>
+      <input type="range" min="1" max="20" value="5" id="speedSlider" oninput="updateSpeed(+this.value)">
+      <span id="speedVal">5x</span>
+    </div>
+    <div class="ctrl-group">
+      <button class="btn active" id="c3rotBtn" onclick="toggleRot(3)">播放</button>
+    </div>
+  </div>
+
+  <div class="prose">
+    <h3>為什麼星星轉？</h3>
+    <p>其實是<strong>地球在轉</strong>，但站在地球上感覺是天空在繞我們轉。地球由西向東自轉，所以星空看起來從<em>東升西落</em>，整體繞著<strong>天極</strong>旋轉，24 小時一圈（恆星日是 23h 56min）。</p>
+
+    <h3>不同緯度，看法大不同</h3>
+    <p><strong>北極點（90°N）</strong>：北天極在正頭頂（天頂），所有星星水平繞圈，沒有升落，永遠看不到南天半球。</p>
+    <p><strong>赤道（0°）</strong>：北天極在正北地平線，南天極在正南地平線。所有星星都會升起和落下，垂直升落。</p>
+    <p><strong>台灣（約 25°N）</strong>：北天極在北方仰角 25°。北極附近的星是<em>拱極星</em>（不落下），赤道以南的星會升起落下。</p>
+
+    <div class="callout">
+      <p>💡 <strong>拱極星條件</strong>：某顆星的赤緯 Dec 若滿足 <strong>Dec > 90° − 觀測緯度</strong>，它就是拱極星，永不落地平線下。<br>在台北（25°N）：Dec > 65° 的星永不落下。</p>
+    </div>
+
+    <h3>一張星圖怎麼判斷南北極？</h3>
+    <p>拿到一張長時間曝光的星跡照片（Star Trails）或星圖，找<strong>同心圓弧的圓心</strong>，那就是天極所在。若圓弧密集且弧度小代表靠近極點的星，若弧度大代表靠近天赤道的星。</p>
+    <p>北半球星跡照：圓心在照片的北方（通常照片上方），附近會有一顆幾乎不動的亮星——<em>北極星（Polaris）</em>，赤緯 +89.3°。</p>
+
+    <h3>如何辨別旋轉方向？</h3>
+    <p>面向北方看北半球星跡：星星<strong>逆時針</strong>繞北極星轉。<br>面向南方看南天：星星<strong>順時針</strong>繞南天極（老人星附近）轉。</p>
+  </div>
+
+  <div class="quiz-section">
+    <h3>// QUIZ · Chapter 04</h3>
+    <div class="quiz-item">
+      <div class="quiz-q">Q7. 在台北（緯度 25°N）觀測，北天極的仰角是多少？</div>
+      <div class="quiz-opts">
+        <button class="quiz-opt" onclick="ans(this,false,'90° 是天頂，北天極仰角等於觀測緯度，不是 90°。')">A. 90°</button>
+        <button class="quiz-opt" onclick="ans(this,true,'北天極仰角 = 觀測緯度，在台北（25°N）就是 25°。')">B. 25°</button>
+        <button class="quiz-opt" onclick="ans(this,false,'0° 代表天極在地平線上，這只在赤道才成立。')">C. 0°</button>
+      </div>
+      <div class="quiz-explain"></div>
+    </div>
+    <div class="quiz-item">
+      <div class="quiz-q">Q8. 一顆恆星赤緯為 +70°，在緯度 30°N 的觀測地點，它是拱極星嗎？</div>
+      <div class="quiz-opts">
+        <button class="quiz-opt" onclick="ans(this,true,'拱極條件：Dec > 90° − 緯度 = 60°。該星赤緯 70° > 60°，所以是拱極星。')">A. 是，因為 70° > 90° − 30° = 60°</button>
+        <button class="quiz-opt" onclick="ans(this,false,'條件應是赤緯大於 (90° − 觀測緯度)，不是直接比較赤緯和緯度。')">B. 否，因為 70° > 30°（赤緯太大）</button>
+        <button class="quiz-opt" onclick="ans(this,false,'赤緯正值代表在天赤道北邊，不影響是否為拱極星的判斷。')">C. 否，因為該星在北天球</button>
+      </div>
+      <div class="quiz-explain"></div>
+    </div>
+    <div class="quiz-item">
+      <div class="quiz-q">Q9. 在北半球，面向北方觀看星星繞北極星的旋轉方向是？</div>
+      <div class="quiz-opts">
+        <button class="quiz-opt" onclick="ans(this,false,'順時針是面向南方時南天的旋轉方向，面北是逆時針。')">A. 順時針</button>
+        <button class="quiz-opt" onclick="ans(this,true,'地球自西向東轉，面北看星空是逆時針旋轉。')">B. 逆時針</button>
+        <button class="quiz-opt" onclick="ans(this,false,'不同緯度面北看都是逆時針，不是隨機方向。')">C. 隨觀測緯度不同而不同</button>
+      </div>
+      <div class="quiz-explain"></div>
+    </div>
+  </div>
+</section>
+
+<!-- =========== CHAPTER 4 =========== -->
+<section class="chapter" id="ch4">
+  <div class="ch-header">
+    <div class="ch-tag">Chapter 05 · Sun's Path</div>
+    <h2>太陽的視運動路徑</h2>
+    <p>太陽每天在天球上的路徑叫「日弧」——它隨季節和觀測緯度劇烈改變。</p>
+  </div>
+
+  <div class="canvas-wrap">
+    <canvas id="c4" width="800" height="420"></canvas>
+    <div class="canvas-label">太陽日弧模擬，不同季節（藍=冬至 橘=春秋分 紅=夏至）</div>
+  </div>
+
+  <div class="controls">
+    <div class="ctrl-group">
+      <label>觀測緯度</label>
+      <input type="range" min="-70" max="70" value="25" id="sunLatSlider" oninput="drawSunPath(+this.value)">
+      <span id="sunLatVal">25°N</span>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-line" style="background:#4fc3f7"></div>冬至日弧</div>
+      <div class="legend-item"><div class="legend-line" style="background:#69f0ae"></div>春/秋分日弧</div>
+      <div class="legend-item"><div class="legend-line" style="background:#ff8f00"></div>夏至日弧</div>
+    </div>
+  </div>
+
+  <div class="prose">
+    <h3>什麼是日弧？</h3>
+    <p>太陽因地球自轉，每天從地平線上畫出一條弧線，稱為<strong>日弧（Solar Arc）</strong>。日弧的<em>高度、長度、方向</em>取決於兩件事：①觀測者的緯度，②當天太陽的赤緯（即季節）。</p>
+
+    <h3>春秋分（赤緯 0°）</h3>
+    <p>太陽在天赤道上，<strong>正東升起，正西落下</strong>，白晝等於 12 小時（全球皆同）。日弧是一條均分天空的弧線。</p>
+
+    <h3>夏至（北半球，赤緯 +23.5°）</h3>
+    <p>太陽偏北，<strong>東北升起，西北落下</strong>，日弧偏高偏長，白晝最長。北極圈以北（緯度 > 66.5°）出現永晝。</p>
+
+    <h3>冬至（北半球，赤緯 −23.5°）</h3>
+    <p>太陽偏南，<strong>東南升起，西南落下</strong>，日弧偏低偏短，白晝最短。南極圈以南出現永晝（南半球夏天）。</p>
+
+    <div class="callout gold">
+      <p>📐 <strong>正午太陽高度公式</strong>（北半球）：<br>
+      H = 90° − |觀測緯度 − 太陽赤緯|<br>
+      例如台北（25°N）夏至：H = 90° − |25° − 23.5°| = 88.5°（幾乎在頭頂！）<br>
+      台北冬至：H = 90° − |25° − (−23.5°)| = 41.5°</p>
+    </div>
+
+    <h3>特殊情況：赤道觀測者</h3>
+    <p>在赤道（0°），太陽永遠從正東附近升起，正西附近落下。春秋分時正午太陽在<em>正頭頂</em>。白晝全年接近 12 小時。</p>
+  </div>
+
+  <div class="quiz-section">
+    <h3>// QUIZ · Chapter 05</h3>
+    <div class="quiz-item">
+      <div class="quiz-q">Q10. 在北半球（緯度 40°N），夏至日太陽從哪個方向升起？</div>
+      <div class="quiz-opts">
+        <button class="quiz-opt" onclick="ans(this,false,'正東只在春秋分時成立。夏至太陽赤緯為正，升起方向偏北。')">A. 正東</button>
+        <button class="quiz-opt" onclick="ans(this,true,'夏至太陽赤緯 +23.5°，北半球觀測者看太陽從東偏北方升起。')">B. 東偏北</button>
+        <button class="quiz-opt" onclick="ans(this,false,'東偏南是冬至的升起方向，夏至則偏北。')">C. 東偏南</button>
+      </div>
+      <div class="quiz-explain"></div>
+    </div>
+    <div class="quiz-item">
+      <div class="quiz-q">Q11. 用公式計算：台北（25°N）冬至（太陽赤緯 −23.5°）正午太陽高度是多少？</div>
+      <div class="quiz-opts">
+        <button class="quiz-opt" onclick="ans(this,false,'88.5° 是夏至的正午高度，冬至計算：90° − |25°−(−23.5°)| = 90° − 48.5° = 41.5°。')">A. 88.5°</button>
+        <button class="quiz-opt" onclick="ans(this,true,'H = 90° − |25° − (−23.5°)| = 90° − 48.5° = 41.5°，冬至太陽低懸。')">B. 41.5°</button>
+        <button class="quiz-opt" onclick="ans(this,false,'65° 不符合公式計算結果。')">C. 65°</button>
+      </div>
+      <div class="quiz-explain"></div>
+    </div>
+  </div>
+</section>
+
+<!-- =========== CHAPTER 5 =========== -->
+<section class="chapter" id="ch5">
+  <div class="ch-header">
+    <div class="ch-tag">Chapter 06 · Seasons</div>
+    <h2>四季與節氣</h2>
+    <p>地球公轉一圈，太陽走遍整條黃道，沿途劃分出廿四節氣。</p>
+  </div>
+
+  <div class="canvas-wrap">
+    <canvas id="c5" width="800" height="420"></canvas>
+    <div class="canvas-label">地球公轉四季示意，點擊各位置查看節氣資訊</div>
+  </div>
+
+  <div class="controls">
+    <div class="ctrl-group">
+      <label>公轉動畫</label>
+      <button class="btn active" id="c5rotBtn" onclick="toggleRot(5)">播放</button>
+    </div>
+    <div id="seasonInfo" style="font-family:'Space Mono',monospace;font-size:0.7rem;color:var(--gold);padding:0.4rem 0.75rem;border:1px solid var(--border);background:var(--panel)">
+      點擊軌道上的位置查看節氣
+    </div>
+  </div>
+
+  <div class="prose">
+    <h3>為什麼有四季？</h3>
+    <p>四季的根本原因是<strong>地軸傾斜 23.5°</strong>，而非地球離太陽的遠近（事實上地球在 1 月最接近太陽，北半球卻是冬天！）。</p>
+    <p>地軸傾斜導致：① 不同季節陽光的<em>入射角</em>不同（斜射 vs 直射），② 白晝時間長短不同（日照時數）。這兩個因素決定了北半球夏熱冬冷。</p>
+
+    <h3>四大節點</h3>
+    <p>• <strong>春分（3/20）</strong>：赤緯 0°，晝夜等長，春季起點<br>
+    • <strong>夏至（6/21）</strong>：赤緯 +23.5°，北半球最長白晝<br>
+    • <strong>秋分（9/22）</strong>：赤緯 0°，晝夜等長，秋季起點<br>
+    • <strong>冬至（12/21）</strong>：赤緯 −23.5°，北半球最短白晝</p>
+
+    <div class="callout">
+      <p>💡 <strong>南半球</strong>：和北半球季節相反。北半球夏至時，南半球是冬至，因為太陽在北半球正上方，南半球只能斜射且白晝短。</p>
+    </div>
+
+    <h3>廿四節氣</h3>
+    <p>廿四節氣是把黃道 360° 等分成 24 段，每 15° 一個節氣，是中國古代根據太陽視運動制定的農曆補充系統。每個節氣對應特定的太陽赤經。</p>
+  </div>
+
+  <div class="key-facts">
+    <div class="fact"><div class="fact-val">近日點</div><div class="fact-label">1月初，約1.47億km</div></div>
+    <div class="fact"><div class="fact-val">遠日點</div><div class="fact-label">7月初，約1.52億km</div></div>
+    <div class="fact"><div class="fact-val">3.5%</div><div class="fact-label">遠近點距離差，不影響四季</div></div>
+    <div class="fact"><div class="fact-val">23.5°</div><div class="fact-label">才是四季的真正原因</div></div>
+  </div>
+
+  <div class="quiz-section">
+    <h3>// QUIZ · Chapter 06</h3>
+    <div class="quiz-item">
+      <div class="quiz-q">Q12. 地球在 1 月初距太陽最近（近日點），但北半球卻是冬天，為什麼？</div>
+      <div class="quiz-opts">
+        <button class="quiz-opt" onclick="ans(this,false,'距離確實稍近，但 3.5% 的差異對地表溫度影響極小，且南半球那時是夏天，矛盾了。')">A. 因為此時地球距太陽比夏天稍遠，輻射減弱</button>
+        <button class="quiz-opt" onclick="ans(this,true,'因為 1 月時北半球朝向遠離太陽，陽光斜射且白晝短，這才是決定季節的關鍵。')">B. 因為北半球朝向偏離太陽，陽光斜射且白晝短</button>
+        <button class="quiz-opt" onclick="ans(this,false,'大氣層的影響對四季變化的貢獻微乎其微，主因是傾角。')">C. 因為冬天大氣層較薄，吸熱少</button>
+      </div>
+      <div class="quiz-explain"></div>
+    </div>
+    <div class="quiz-item">
+      <div class="quiz-q">Q13. 廿四節氣是如何劃分的？</div>
+      <div class="quiz-opts">
+        <button class="quiz-opt" onclick="ans(this,false,'農曆月份是月相週期，與節氣無關。節氣是太陽黃道位置的劃分。')">A. 依據農曆月份，每月兩個節氣</button>
+        <button class="quiz-opt" onclick="ans(this,true,'廿四節氣是把太陽黃道（360°）等分成 24 段，每 15° 為一個節氣。')">B. 把太陽黃道 360° 等分 24 段，每 15° 一節氣</button>
+        <button class="quiz-opt" onclick="ans(this,false,'節氣的間隔不是等時間，而是等角度（太陽的黃經）。')">C. 依據氣溫變化，每 15 天一個節氣</button>
+      </div>
+      <div class="quiz-explain"></div>
+    </div>
+  </div>
+</section>
+
+<!-- =========== CHAPTER 6 =========== -->
+<section class="chapter" id="ch6">
+  <div class="ch-header">
+    <div class="ch-tag">Chapter 07 · Find the Poles</div>
+    <h2>從一張圖鎖定南北天極</h2>
+    <p>看懂星跡照片或星圖，快速找到天極的實用技法。</p>
+  </div>
+
+  <div class="canvas-wrap">
+    <canvas id="c6" width="800" height="420"></canvas>
+    <div class="canvas-label">模擬長曝星跡照片，點擊猜測天極位置</div>
+  </div>
+
+  <div class="controls">
+    <div class="ctrl-group">
+      <label>曝光時間</label>
+      <input type="range" min="10" max="180" value="60" id="expSlider" oninput="draw6(+this.value)">
+      <span id="expVal">60°</span>
+    </div>
+    <div class="ctrl-group">
+      <label>觀測緯度</label>
+      <input type="range" min="10" max="70" value="35" id="pole6Lat" oninput="draw6(+document.getElementById('expSlider').value)">
+      <span id="pole6LatVal">35°N</span>
+    </div>
+    <div class="ctrl-group">
+      <button class="btn" onclick="revealPole()">顯示天極</button>
+    </div>
+  </div>
+
+  <div class="prose">
+    <h3>方法一：找同心圓弧的圓心</h3>
+    <p>在長曝光星跡照中，所有星星都繞天極旋轉，形成圓弧。<strong>圓弧的圓心</strong>就是天極位置。找多條弧線延長後的匯聚點。</p>
+    <p>實用技巧：找最短的弧（離天極最近的星），它的弧中心就是天極。</p>
+
+    <h3>方法二：亮度最強、弧最短的星</h3>
+    <p>北天極附近有<strong>北極星（Polaris）</strong>，肉眼可見約 2 等星。它離北天極約 0.7°，在星跡照中形成一個小小的亮圓，幾乎不動。</p>
+    <p>南天極附近<em>沒有</em>明顯亮星，最近的是 Sigma Octantis（5.5 等，肉眼勉強可見）。找南天極主要靠南十字座方向推算。</p>
+
+    <h3>方法三：南十字座（Southern Cross）</h3>
+    <p>在南半球或低緯度地區，可用<strong>南十字座（Crux）</strong>來找南天極：</p>
+    <p>① 找到南十字座（4 顆主星形成小十字）。<br>
+    ② 沿十字長軸方向向南延伸約 <em>4.5 倍長軸長度</em>，即為南天極。</p>
+
+    <h3>方法四：看圓弧旋轉方向判斷南北</h3>
+    <p>• 圓弧繞圓心<strong>逆時針</strong>：北天極（面北觀測）<br>
+    • 圓弧繞圓心<strong>順時針</strong>：南天極（面南觀測）<br>
+    • 天極仰角 = 觀測緯度（可用弧形在天空中的高度估計）</p>
+
+    <div class="callout gold">
+      <p>🔭 <strong>快速記憶口訣</strong>：「北逆南順，仰角等緯；弧心天極，弧長測時。」<br>
+      弧長（度數）= 旋轉速率（15°/h）× 曝光時間（小時）</p>
+    </div>
+  </div>
+
+  <div class="quiz-section">
+    <h3>// QUIZ · Chapter 07</h3>
+    <div class="quiz-item">
+      <div class="quiz-q">Q14. 一張星跡照片中，圓弧繞圓心順時針旋轉。這是哪個半球拍攝的？天極在哪裡？</div>
+      <div class="quiz-opts">
+        <button class="quiz-opt" onclick="ans(this,false,'北半球面北看是逆時針，順時針代表面向南天極，是南半球拍攝。')">A. 北半球，天極在圓弧圓心</button>
+        <button class="quiz-opt" onclick="ans(this,true,'順時針旋轉代表南天極，拍攝地點在南半球，天極即是圓心。')">B. 南半球，天極在圓弧圓心</button>
+        <button class="quiz-opt" onclick="ans(this,false,'旋轉方向明確指示南北半球，不是隨機的。')">C. 無法判斷，需要更多資訊</button>
+      </div>
+      <div class="quiz-explain"></div>
+    </div>
+    <div class="quiz-item">
+      <div class="quiz-q">Q15. 一張星跡照，圓弧長度約 45°，估計曝光了多久？（地球自轉速率：15°/小時）</div>
+      <div class="quiz-opts">
+        <button class="quiz-opt" onclick="ans(this,false,'45° ÷ 15°/h = 3 小時，不是 1 小時。')">A. 約 1 小時</button>
+        <button class="quiz-opt" onclick="ans(this,true,'45° ÷ 15°/h = 3 小時，弧長除以自轉速率即曝光時間。')">B. 約 3 小時</button>
+        <button class="quiz-opt" onclick="ans(this,false,'6 小時會產生 90° 的弧長。')">C. 約 6 小時</button>
+      </div>
+      <div class="quiz-explain"></div>
+    </div>
+    <div class="quiz-item">
+      <div class="quiz-q">Q16. 在南半球，找南天極最常用的星座是？</div>
+      <div class="quiz-opts">
+        <button class="quiz-opt" onclick="ans(this,false,'獵戶座在天赤道附近，不用於找南天極。')">A. 獵戶座</button>
+        <button class="quiz-opt" onclick="ans(this,false,'大熊座在北半球高緯度，可用來找北極星，不是南天極。')">B. 大熊座</button>
+        <button class="quiz-opt" onclick="ans(this,true,'南十字座長軸延伸約 4.5 倍，即可指向南天極位置。')">C. 南十字座</button>
+      </div>
+      <div class="quiz-explain"></div>
+    </div>
+  </div>
+</section>
+
+<!-- =========== CHAPTER 7 =========== -->
+<section class="chapter" id="ch7">
+  <div class="ch-header">
+    <div class="ch-tag">Chapter 08 · Final Exam</div>
+    <h2>綜合測驗</h2>
+    <p>整合所有章節，挑戰進階題目。</p>
+  </div>
+
+  <div id="finalQuizScore" style="font-family:'Space Mono',monospace;font-size:0.8rem;color:var(--gold);margin-bottom:1.5rem;padding:0.6rem 1rem;border:1px solid var(--border);background:var(--panel);">
+    完成所有題目後查看得分
+  </div>
+
+  <!-- Final quiz questions -->
+  <div class="quiz-item">
+    <div class="quiz-q">FQ1. 下圖描述：一觀測者在緯度 60°N，觀察到一顆星星永遠不落下地平線。該星的赤緯最小可能是多少？</div>
+    <div class="quiz-opts">
+      <button class="quiz-opt" onclick="ans(this,false,'拱極條件是 Dec > 90° − 緯度 = 30°，不是 60°。')">A. +60°</button>
+      <button class="quiz-opt" onclick="ans(this,true,'拱極星條件：Dec > 90° − 60° = 30°。剛好 +30° 的星在地平線上刮一下，嚴格說要 > 30°。')">B. 剛好超過 +30°</button>
+      <button class="quiz-opt" onclick="ans(this,false,'0° 是赤道星，在 60°N 每天都會升落，不是拱極星。')">C. 0°（在天赤道上）</button>
+    </div>
+    <div class="quiz-explain"></div>
+  </div>
+
+  <div class="quiz-item">
+    <div class="quiz-q">FQ2. 在赤道（0°）觀測，春分當天正午，太陽在哪裡？</div>
+    <div class="quiz-opts">
+      <button class="quiz-opt" onclick="ans(this,false,'赤道的北方地平線對應的是北天極方向，不是太陽位置。')">A. 正北方地平線</button>
+      <button class="quiz-opt" onclick="ans(this,true,'春分太陽在天赤道上（赤緯 0°），赤道觀測者天赤道過天頂，正午太陽在正頭頂。')">B. 正頭頂（天頂）</button>
+      <button class="quiz-opt" onclick="ans(this,false,'正南地平線代表太陽在赤緯 -90°，只有南極點才會這樣。')">C. 正南方地平線</button>
+    </div>
+    <div class="quiz-explain"></div>
+  </div>
+
+  <div class="quiz-item">
+    <div class="quiz-q">FQ3. 假設歲差消除，春分點固定在白羊座 ♈。一顆位於赤經 6h、赤緯 +30° 的星，它在黃道上嗎？</div>
+    <div class="quiz-opts">
+      <button class="quiz-opt" onclick="ans(this,false,'在黃道上意味著黃緯 = 0，黃道只在特定赤緯值，不是所有 +30° 的星都在黃道上。')">A. 是，赤緯 +30° 的星都在黃道上</button>
+      <button class="quiz-opt" onclick="ans(this,true,'黃道是特定的大圓（赤緯在 0° 到 ±23.5° 之間擺動），赤經 6h 對應夏至點（赤緯 +23.5°），不是 +30°，所以不在黃道上。')">B. 不一定，要看該赤經對應的黃道赤緯是否是 +30°</button>
+      <button class="quiz-opt" onclick="ans(this,false,'赤經 6h 是夏至點，黃道在此處赤緯是 +23.5°，不是 +30°，所以不在黃道上。')">C. 是，因為赤緯 +30° 在夏至點黃道範圍內</button>
+    </div>
+    <div class="quiz-explain"></div>
+  </div>
+
+  <div class="quiz-item">
+    <div class="quiz-q">FQ4. 地球的近日點在 1 月初，但此時北半球是冬天。如果地軸傾角突然變為 0°，且地球軌道不變，北半球 1 月份的天氣會如何改變？</div>
+    <div class="quiz-opts">
+      <button class="quiz-opt" onclick="ans(this,false,'傾角 0° 消除了季節，1 月的日照與其他月份相同，但因為近日點，全年日照微弱偏多（非冬天）。不過這個影響很小，主要是消除了寒冬酷夏。')">A. 1 月變成最熱，因為近日點接收到最多太陽輻射</button>
+      <button class="quiz-opt" onclick="ans(this,true,'傾角 0° 後無四季，全年氣候接近均一。1 月因為近日點會稍微比 7 月暖，但四季差異幾乎消失。')">B. 四季消失，1 月氣候接近全年平均，略微比 7 月稍暖</button>
+      <button class="quiz-opt" onclick="ans(this,false,'天氣完全不變需要所有條件都不變，傾角改變會大幅影響日照。')">C. 天氣完全不變，因為近日點和遠日點的影響才是季節主因</button>
+    </div>
+    <div class="quiz-explain"></div>
+  </div>
+
+  <div class="quiz-item">
+    <div class="quiz-q">FQ5. 一張星跡照片顯示所有圓弧長度約 90°，圓心在畫面上方偏右，旋轉方向為逆時針。推斷：拍攝地點在哪個半球？曝光多久？觀測者面朝哪個方向？</div>
+    <div class="quiz-opts">
+      <button class="quiz-opt" onclick="ans(this,true,'逆時針 → 北天極 → 北半球；90° ÷ 15°/h = 6 小時；面向北方看北極星。')">A. 北半球，曝光 6 小時，面北拍攝</button>
+      <button class="quiz-opt" onclick="ans(this,false,'順時針才是南天極，逆時針是北天極。')">B. 南半球，曝光 6 小時，面南拍攝</button>
+      <button class="quiz-opt" onclick="ans(this,false,'90° ÷ 15°/h = 6 小時，不是 3 小時。')">C. 北半球，曝光 3 小時，面北拍攝</button>
+    </div>
+    <div class="quiz-explain"></div>
+  </div>
+
+  <div style="margin-top:1.5rem;text-align:center;">
+    <button class="btn" onclick="calcFinalScore()" style="font-size:0.85rem;padding:0.6rem 2rem;">計算得分</button>
+  </div>
+
+</section>
+
+</main>
+
+<script>
+// ===== QUIZ LOGIC =====
+let finalAnswered = {};
+
+function ans(btn, correct, explain) {
+  const item = btn.closest('.quiz-item');
+  if (item.querySelector('.correct') || item.querySelector('.wrong')) return;
+  const opts = item.querySelectorAll('.quiz-opt');
+  opts.forEach(o => o.disabled = true);
+  btn.classList.add(correct ? 'correct' : 'wrong');
+  const ex = item.querySelector('.quiz-explain');
+  ex.textContent = (correct ? '✓ 正確！' : '✗ 錯誤。') + ' ' + explain;
+  ex.classList.add('show');
+
+  // track for final
+  const chap = item.closest('.chapter');
+  if (chap && chap.id === 'ch7') {
+    const items = [...document.querySelectorAll('#ch7 .quiz-item')];
+    finalAnswered[items.indexOf(item)] = correct;
+  }
+}
+
+function calcFinalScore() {
+  const total = document.querySelectorAll('#ch7 .quiz-item').length;
+  const correct = Object.values(finalAnswered).filter(Boolean).length;
+  const answered = Object.keys(finalAnswered).length;
+  document.getElementById('finalQuizScore').textContent =
+    `得分：${correct} / ${answered} 題正確（共 ${total} 題）${answered < total ? ' — 尚有題目未作答' : ''}`;
+}
+
+// ===== NAV =====
+function showChap(i) {
+  document.querySelectorAll('.chapter').forEach((c,j) => c.classList.toggle('active', i===j));
+  document.querySelectorAll('#chapNav button').forEach((b,j) => b.classList.toggle('active', i===j));
+  setTimeout(() => {
+    if(i===0) drawCh0();
+    if(i===1) drawCh1();
+    if(i===2) draw2(30);
+    if(i===3) startCh3();
+    if(i===4) drawSunPath(25);
+    if(i===5) startCh5();
+    if(i===6) draw6(60);
+  }, 50);
+}
+
+// ===== CHAPTER 0 : Basic Celestial Sphere =====
+let rot0 = 0, anim0 = true, raf0;
+function drawCh0() {
+  const cv = document.getElementById('c0');
+  const W = cv.offsetWidth * 1;
+  const H = 420 * 1;
+  cv.width = W; cv.height = H;
+  const ctx = cv.getContext('2d');
+  const sx = W / 800, sy = H / 420;
+  ctx.scale(sx, sy);
+  const w = 800, h = 420;
+  ctx.clearRect(0, 0, w, h);
+
+  const cx = w / 2, cy = h / 2;
+  const R = 170;
+
+  // Draw sphere outline
+  ctx.beginPath();
+  ctx.arc(cx, cy, R, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(79,195,247,0.12)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  const ang = rot0 * Math.PI / 180;
+
+  // Equator ellipse
+  drawEllipse(ctx, cx, cy, R, R * 0.25, ang, '#4fc3f7', 2, false);
+
+  // Meridian circles
+  for (let i = 0; i < 4; i++) {
+    const a = ang + i * Math.PI / 4;
+    drawEllipse(ctx, cx, cy, R * Math.cos(i * Math.PI / 4), R, a, 'rgba(79,195,247,0.15)', 1, false);
+  }
+
+  // Rotation axis
+  const axLen = R + 30;
+  ctx.beginPath();
+  ctx.moveTo(cx, cy - axLen);
+  ctx.lineTo(cx, cy + axLen);
+  ctx.strokeStyle = 'rgba(255,213,79,0.4)';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([4, 4]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // North/South Pole labels
+  ctx.fillStyle = '#ffd54f';
+  ctx.font = '600 12px Space Mono, monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('北天極 (NCP)', cx, cy - axLen - 10);
+  ctx.fillText('南天極 (SCP)', cx, cy + axLen + 18);
+
+  // Observer at center
+  ctx.beginPath();
+  ctx.arc(cx, cy, 5, 0, Math.PI * 2);
+  ctx.fillStyle = '#69f0ae';
+  ctx.fill();
+  ctx.fillStyle = '#69f0ae';
+  ctx.font = '11px Noto Serif TC, serif';
+  ctx.fillText('觀測者', cx + 14, cy + 4);
+
+  // Zenith
+  ctx.beginPath();
+  ctx.moveTo(cx, cy);
+  ctx.lineTo(cx + 40, cy - 130);
+  ctx.strokeStyle = 'rgba(255,213,79,0.6)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([3, 3]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.beginPath();
+  ctx.arc(cx + 40, cy - 130, 4, 0, Math.PI * 2);
+  ctx.fillStyle = '#ffd54f';
+  ctx.fill();
+  ctx.fillStyle = '#ffd54f';
+  ctx.font = '11px Space Mono, monospace';
+  ctx.textAlign = 'left';
+  ctx.fillText('天頂', cx + 47, cy - 126);
+
+  // Stars
+  const stars = [
+    {ra: 0.5, dec: 0.6}, {ra: 1.2, dec: -0.3}, {ra: 2.0, dec: 0.8},
+    {ra: 3.5, dec: 0.1}, {ra: 4.1, dec: -0.7}, {ra: 5.0, dec: 0.5},
+    {ra: 0.2, dec: -0.5}, {ra: 1.8, dec: 0.4}, {ra: 2.8, dec: -0.6}
+  ];
+  stars.forEach(s => {
+    const ra = s.ra + ang;
+    const dec = s.dec;
+    const x = cx + R * Math.cos(dec) * Math.cos(ra);
+    const y = cy - R * (Math.sin(dec) * 0.6 + Math.cos(dec) * Math.sin(ra) * 0.25);
+    if (Math.cos(dec) * Math.sin(ra) > -0.3) {
+      ctx.beginPath();
+      ctx.arc(x, y, 2, 0, Math.PI * 2);
+      ctx.fillStyle = 'white';
+      ctx.fill();
+    }
+  });
+
+  // Equator label
+  ctx.fillStyle = '#4fc3f7';
+  ctx.font = '11px Space Mono, monospace';
+  ctx.textAlign = 'right';
+  ctx.fillText('天赤道', cx + R - 10, cy - R * 0.22);
+
+  if (anim0) {
+    rot0 += 0.3;
+    raf0 = requestAnimationFrame(() => { try{ drawCh0(); }catch(e){} });
+  }
+}
+
+function drawEllipse(ctx, cx, cy, rx, ry, angle, color, lw, dashed) {
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(angle);
+  // draw ellipse via bezier (iOS Safari compat)
+  ctx.beginPath();
+  const kappa = 0.5522848;
+  const ex2 = rx, ey2 = ry * 0.28;
+  ctx.moveTo(-ex2, 0);
+  ctx.bezierCurveTo(-ex2, -ey2*kappa, -ex2*kappa, -ey2, 0, -ey2);
+  ctx.bezierCurveTo(ex2*kappa, -ey2, ex2, -ey2*kappa, ex2, 0);
+  ctx.bezierCurveTo(ex2, ey2*kappa, ex2*kappa, ey2, 0, ey2);
+  ctx.bezierCurveTo(-ex2*kappa, ey2, -ex2, ey2*kappa, -ex2, 0);
+  ctx.strokeStyle = color;
+  ctx.lineWidth = lw;
+  if (dashed) ctx.setLineDash([4, 4]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.restore();
+}
+
+// ===== CHAPTER 1 : Tilt =====
+let tilt1 = 23.5, orbit1 = 0;
+function drawCh1() {
+  const cv = document.getElementById('c1');
+  const W = cv.offsetWidth * 1;
+  const H = 420 * 1;
+  cv.width = W; cv.height = H;
+  const ctx = cv.getContext('2d');
+  ctx.scale(W / 800, H / 420);
+  const w = 800, h = 420;
+  ctx.clearRect(0, 0, w, h);
+
+  const cx = w / 2, cy = h / 2;
+  const orbitR = 150;
+  const angle = orbit1 * Math.PI / 180;
+
+  // Sun
+  const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, 32);
+  grad.addColorStop(0, '#fff7e6');
+  grad.addColorStop(0.4, '#ff8f00');
+  grad.addColorStop(1, 'rgba(255,143,0,0)');
+  ctx.beginPath();
+  ctx.arc(cx, cy, 32, 0, Math.PI * 2);
+  ctx.fillStyle = grad;
+  ctx.fill();
+  ctx.fillStyle = '#ff8f00';
+  ctx.font = 'bold 12px Space Mono';
+  ctx.textAlign = 'center';
+  ctx.fillText('太陽', cx, cy + 46);
+
+  // Orbit ellipse
+  // orbit ellipse bezier
+  ctx.beginPath();
+  (function(){const ox=cx,oy=cy,rx2=orbitR,ry2=orbitR*0.35,k=0.5522848;
+  ctx.moveTo(ox-rx2,oy);
+  ctx.bezierCurveTo(ox-rx2,oy-ry2*k,ox-rx2*k,oy-ry2,ox,oy-ry2);
+  ctx.bezierCurveTo(ox+rx2*k,oy-ry2,ox+rx2,oy-ry2*k,ox+rx2,oy);
+  ctx.bezierCurveTo(ox+rx2,oy+ry2*k,ox+rx2*k,oy+ry2,ox,oy+ry2);
+  ctx.bezierCurveTo(ox-rx2*k,oy+ry2,ox-rx2,oy+ry2*k,ox-rx2,oy);})();
+  ctx.strokeStyle = 'rgba(255,213,79,0.2)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // Ecliptic plane label
+  ctx.fillStyle = 'rgba(255,213,79,0.4)';
+  ctx.font = '10px Space Mono';
+  ctx.textAlign = 'left';
+  ctx.fillText('黃道面（公轉軌道面）', cx - orbitR + 5, cy - orbitR * 0.35 - 6);
+
+  // Earth position
+  const ex = cx + orbitR * Math.cos(angle);
+  const ey = cy + orbitR * 0.35 * Math.sin(angle);
+
+  // Tilt axis (relative to vertical by tilt angle)
+  const tiltRad = tilt1 * Math.PI / 180;
+  const axLen = 38;
+  const axDx = Math.sin(tiltRad) * axLen;
+  const axDy = Math.cos(tiltRad) * axLen;
+
+  // Earth
+  ctx.beginPath();
+  ctx.arc(ex, ey, 18, 0, Math.PI * 2);
+  ctx.fillStyle = '#1565c0';
+  ctx.fill();
+  ctx.strokeStyle = '#4fc3f7';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // Equator line on earth
+  ctx.beginPath();
+  ctx.moveTo(ex - 18 * Math.cos(tiltRad), ey - 18 * Math.sin(tiltRad) * 0.3);
+  ctx.lineTo(ex + 18 * Math.cos(tiltRad), ey + 18 * Math.sin(tiltRad) * 0.3);
+  ctx.strokeStyle = '#4fc3f7';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // Earth axis
+  ctx.beginPath();
+  ctx.moveTo(ex - axDx, ey + axDy);
+  ctx.lineTo(ex + axDx, ey - axDy);
+  ctx.strokeStyle = '#ffd54f';
+  ctx.lineWidth = 2;
+  ctx.setLineDash([]);
+  ctx.stroke();
+
+  // North/South labels on axis
+  ctx.fillStyle = '#ffd54f';
+  ctx.font = '10px Space Mono';
+  ctx.textAlign = 'center';
+  ctx.fillText('N', ex + axDx, ey - axDy - 8);
+  ctx.fillText('S', ex - axDx, ey + axDy + 14);
+
+  // Tilt angle arc
+  ctx.beginPath();
+  ctx.arc(ex, ey, 25, -Math.PI / 2, -Math.PI / 2 + tiltRad);
+  ctx.strokeStyle = '#69f0ae';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  ctx.fillStyle = '#69f0ae';
+  ctx.font = 'bold 11px Space Mono';
+  ctx.textAlign = 'left';
+  ctx.fillText(tilt1 + '°', ex + 28, ey - 12);
+
+  // Sunlight rays
+  const dx = ex - cx, dy = ey - cy;
+  const len = Math.sqrt(dx * dx + dy * dy);
+  const nx = dx / len, ny = dy / len;
+  for (let i = -2; i <= 2; i++) {
+    const perpX = -ny * i * 8, perpY = nx * i * 8;
+    ctx.beginPath();
+    ctx.moveTo(cx + nx * 32 + perpX, cy + ny * 32 + perpY);
+    ctx.lineTo(ex - nx * 20 + perpX, ey - ny * 20 + perpY);
+    ctx.strokeStyle = 'rgba(255,213,79,0.3)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
+  // Labels
+  ctx.fillStyle = var2hex('--text');
+  ctx.font = '12px Noto Serif TC';
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#4fc3f7';
+  ctx.fillText('地球', ex, ey + 30);
+
+  // Season label
+  const seasons = ['春分 ♈', '夏至', '秋分 ♎', '冬至'];
+  const sIdx = Math.floor(((orbit1 + 45) % 360) / 90);
+  ctx.fillStyle = '#ffd54f';
+  ctx.font = 'bold 13px Noto Serif TC';
+  ctx.fillText(seasons[sIdx % 4], ex, ey - 38);
+}
+
+function var2hex(v) { return '#cdd9f0'; }
+
+function updateTilt(v) {
+  tilt1 = +v;
+  document.getElementById('tiltVal').textContent = v + '°';
+  drawCh1();
+}
+function updateOrbit(v) {
+  orbit1 = +v;
+  document.getElementById('orbitVal').textContent = v + '°';
+  drawCh1();
+}
+
+// ===== CHAPTER 2 : Equator vs Ecliptic =====
+function draw2(rotDeg) {
+  const cv = document.getElementById('c2');
+  const W = cv.offsetWidth * 1;
+  const H = 420 * 1;
+  cv.width = W; cv.height = H;
+  const ctx = cv.getContext('2d');
+  ctx.scale(W / 800, H / 420);
+  const w = 800, h = 420;
+  ctx.clearRect(0, 0, w, h);
+
+  const cx = w / 2, cy = h / 2;
+  const R = 165;
+  const elev = +document.getElementById('c2elev').value;
+  const cosE = Math.cos(elev * Math.PI / 180);
+  const sinE = Math.sin(elev * Math.PI / 180);
+  const rot = rotDeg * Math.PI / 180;
+
+  // Draw sphere
+  ctx.beginPath();
+  ctx.arc(cx, cy, R, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(79,195,247,0.08)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // Axes (dashed)
+  ctx.beginPath();
+  ctx.moveTo(cx, cy - R - 20);
+  ctx.lineTo(cx, cy + R + 20);
+  ctx.strokeStyle = 'rgba(255,213,79,0.3)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4, 4]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Draw great circle helper
+  function drawGC(incline, color, lw, label) {
+    const pts = [];
+    for (let i = 0; i <= 360; i++) {
+      const a = i * Math.PI / 180;
+      // Spherical coords: on great circle with inclination
+      const cosA = Math.cos(a);
+      const sinA = Math.sin(a);
+      const x3 = cosA;
+      const y3 = sinA * Math.cos(incline);
+      const z3 = sinA * Math.sin(incline);
+      // Rotate around Y axis
+      const x4 = x3 * Math.cos(rot) - z3 * Math.sin(rot);
+      const z4 = x3 * Math.sin(rot) + z3 * Math.cos(rot);
+      // Project
+      const px = cx + R * (x4 * cosE - y3 * sinE * 0.5);
+      const py = cy - R * (y3 * cosE * 0.5 + x4 * sinE * 0.3 + z4 * 0.3);
+      pts.push({x: px, y: py, z: z4, front: z4 > 0});
+    }
+
+    // Back half
+    ctx.beginPath();
+    let started = false;
+    pts.forEach((p, i) => {
+      if (!p.front) {
+        if (!started) { ctx.moveTo(p.x, p.y); started = true; }
+        else ctx.lineTo(p.x, p.y);
+      } else { started = false; }
+    });
+    ctx.strokeStyle = color.replace(')', ',0.3)').replace('rgb', 'rgba');
+    ctx.lineWidth = lw;
+    ctx.setLineDash([4, 4]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Front half
+    ctx.beginPath();
+    started = false;
+    pts.forEach((p, i) => {
+      if (p.front) {
+        if (!started) { ctx.moveTo(p.x, p.y); started = true; }
+        else ctx.lineTo(p.x, p.y);
+      } else { started = false; }
+    });
+    ctx.strokeStyle = color;
+    ctx.lineWidth = lw;
+    ctx.stroke();
+  }
+
+  // Celestial equator
+  drawGC(0, '#4fc3f7', 2, '天赤道');
+
+  // Ecliptic (inclined 23.5°)
+  const inc = 23.5 * Math.PI / 180;
+  drawGC(inc, '#ff6b6b', 2, '黃道');
+
+  // Labels
+  ctx.fillStyle = '#4fc3f7';
+  ctx.font = 'bold 12px Space Mono';
+  ctx.textAlign = 'left';
+  ctx.fillText('天赤道', cx + R - 10, cy - 8);
+  ctx.fillStyle = '#ff6b6b';
+  ctx.fillText('黃道', cx + R - 60, cy - 35);
+
+  // Vernal equinox point (intersection)
+  const veX = cx + R * Math.cos(rot) * cosE;
+  const veY = cy - R * Math.sin(rot) * 0.3;
+  ctx.beginPath();
+  ctx.arc(veX, veY, 6, 0, Math.PI * 2);
+  ctx.fillStyle = '#fff';
+  ctx.fill();
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 11px Space Mono';
+  ctx.textAlign = 'center';
+  ctx.fillText('♈ 春分點', veX, veY - 12);
+
+  // Autumnal equinox
+  const aeX = cx - R * Math.cos(rot) * cosE;
+  const aeY = cy + R * Math.sin(rot) * 0.3;
+  ctx.beginPath();
+  ctx.arc(aeX, aeY, 5, 0, Math.PI * 2);
+  ctx.fillStyle = '#ff8f00';
+  ctx.fill();
+  ctx.fillStyle = '#ff8f00';
+  ctx.font = '10px Space Mono';
+  ctx.textAlign = 'center';
+  ctx.fillText('♎ 秋分點', aeX, aeY + 16);
+
+  // Angle label
+  ctx.strokeStyle = '#69f0ae';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.arc(cx, cy + 5, 40, -Math.PI / 4, -Math.PI / 4 + inc);
+  ctx.stroke();
+  ctx.fillStyle = '#69f0ae';
+  ctx.font = 'bold 12px Space Mono';
+  ctx.textAlign = 'center';
+  ctx.fillText('23.5°', cx + 55, cy - 5);
+
+  // North/south labels
+  ctx.fillStyle = '#ffd54f';
+  ctx.font = '11px Space Mono';
+  ctx.textAlign = 'center';
+  ctx.fillText('北天極', cx, cy - R - 28);
+  ctx.fillText('南天極', cx, cy + R + 18);
+}
+
+// ===== CHAPTER 3 : Star Rotation =====
+let lat3 = 25, speed3 = 5, t3 = 0, anim3 = true, raf3;
+const stars3 = [];
+for (let i = 0; i < 120; i++) {
+  const dec = (Math.random() - 0.5) * 180;
+  const ra = Math.random() * 360;
+  const mag = Math.random() * 3;
+  stars3.push({ra, dec, mag});
+}
+
+function drawCh3() {
+  const cv = document.getElementById('c3');
+  const W = cv.offsetWidth * 1;
+  const H = 420 * 1;
+  cv.width = W; cv.height = H;
+  const ctx = cv.getContext('2d');
+  ctx.scale(W / 800, H / 420);
+  const w = 800, h = 420;
+  ctx.clearRect(0, 0, w, h);
+
+  // Background
+  ctx.fillStyle = '#04080f';
+  ctx.fillRect(0, 0, w, h);
+
+  const cx = w / 2, cy = h * 0.55;
+  const R = Math.min(w, h) * 0.42;
+
+  // Horizon circle clip
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(cx, cy, R, 0, Math.PI * 2);
+  ctx.clip();
+
+  // Sky background
+  const skyGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, R);
+  skyGrad.addColorStop(0, '#04080f');
+  skyGrad.addColorStop(1, '#0a1520');
+  ctx.fillStyle = skyGrad;
+  ctx.fillRect(cx - R, cy - R, R * 2, R * 2);
+
+  // Project stars
+  const latRad = lat3 * Math.PI / 180;
+  const rot = t3 * Math.PI / 180;
+
+  stars3.forEach(s => {
+    const decR = s.dec * Math.PI / 180;
+    const raR = (s.ra + rot) * Math.PI / 180;
+
+    // Convert equatorial to horizontal
+    const sinAlt = Math.sin(decR) * Math.sin(latRad) + Math.cos(decR) * Math.cos(latRad) * Math.cos(raR);
+    const alt = Math.asin(Math.max(-1, Math.min(1, sinAlt)));
+    if (alt < 0) return;
+
+    const cosAz = (Math.sin(decR) - Math.sin(alt) * Math.sin(latRad)) / (Math.cos(alt) * Math.cos(latRad) + 0.0001);
+    let az = Math.acos(Math.max(-1, Math.min(1, cosAz)));
+    if (Math.sin(raR) > 0) az = 2 * Math.PI - az;
+
+    const r = R * (1 - alt / (Math.PI / 2));
+    const px = cx + r * Math.sin(az);
+    const py = cy - r * Math.cos(az);
+
+    const size = (3 - s.mag) * 0.8 + 0.5;
+    ctx.beginPath();
+    ctx.arc(px, py, size, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255,255,255,${0.5 + (3 - s.mag) * 0.15})`;
+    ctx.fill();
+  });
+
+  // North Pole star (Polaris)
+  const polarDecR = 89.3 * Math.PI / 180;
+  const polarRaR = rot * Math.PI / 180;
+  const sinAltP = Math.sin(polarDecR) * Math.sin(latRad) + Math.cos(polarDecR) * Math.cos(latRad) * Math.cos(polarRaR);
+  const altP = Math.asin(Math.max(-1, Math.min(1, sinAltP)));
+  if (altP > 0) {
+    const cosAzP = (Math.sin(polarDecR) - Math.sin(altP) * Math.sin(latRad)) / (Math.cos(altP) * Math.cos(latRad) + 0.001);
+    const rP = R * (1 - altP / (Math.PI / 2));
+    const pxP = cx + rP * Math.sin(0);
+    const pyP = cy - rP * Math.cos(0);
+    ctx.beginPath();
+    ctx.arc(pxP, pyP, 4, 0, Math.PI * 2);
+    ctx.fillStyle = '#ffd54f';
+    ctx.fill();
+    ctx.fillStyle = '#ffd54f';
+    ctx.font = '10px Space Mono';
+    ctx.textAlign = 'left';
+    ctx.fillText('北極星', pxP + 8, pyP + 4);
+  }
+
+  ctx.restore();
+
+  // Horizon ring
+  ctx.beginPath();
+  ctx.arc(cx, cy, R, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(79,195,247,0.4)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Cardinal directions
+  const dirs = [['N 北', 0], ['E 東', Math.PI / 2], ['S 南', Math.PI], ['W 西', -Math.PI / 2]];
+  dirs.forEach(([label, angle]) => {
+    const px = cx + (R + 18) * Math.sin(angle);
+    const py = cy - (R + 18) * Math.cos(angle);
+    ctx.fillStyle = '#4fc3f7';
+    ctx.font = '11px Space Mono';
+    ctx.textAlign = 'center';
+    ctx.fillText(label, px, py + 4);
+  });
+
+  // NCP marker on horizon
+  const ncpAlt = lat3;
+  const ncpR = R * (1 - ncpAlt / 90);
+  ctx.beginPath();
+  ctx.arc(cx, cy - ncpR, 3, 0, Math.PI * 2);
+  ctx.fillStyle = '#ffd54f';
+  ctx.fill();
+  ctx.fillStyle = '#ffd54f';
+  ctx.font = '10px Space Mono';
+  ctx.textAlign = 'left';
+  ctx.fillText(`北天極 (仰角${lat3}°)`, cx + 6, cy - ncpR + 4);
+
+  if (anim3) {
+    t3 += speed3 * 0.05;
+    raf3 = requestAnimationFrame(() => { try{ drawCh3(); }catch(e){} });
+  }
+}
+
+function startCh3() {
+  if (raf3) cancelAnimationFrame(raf3);
+  anim3 = true;
+  document.getElementById('c3rotBtn').textContent = '暫停';
+  document.getElementById('c3rotBtn').classList.add('active');
+  drawCh3();
+}
+
+function updateLat(v) {
+  lat3 = v;
+  document.getElementById('latVal').textContent = v >= 0 ? v + '°N' : Math.abs(v) + '°S';
+}
+function updateSpeed(v) {
+  speed3 = v;
+  document.getElementById('speedVal').textContent = v + 'x';
+}
+
+// ===== CHAPTER 4 : Sun Path =====
+function drawSunPath(lat) {
+  lat = +lat;
+  document.getElementById('sunLatVal').textContent = lat >= 0 ? lat + '°N' : Math.abs(lat) + '°S';
+
+  const cv = document.getElementById('c4');
+  const W = cv.offsetWidth * 1;
+  const H = 420 * 1;
+  cv.width = W; cv.height = H;
+  const ctx = cv.getContext('2d');
+  ctx.scale(W / 800, H / 420);
+  const w = 800, h = 420;
+  ctx.clearRect(0, 0, w, h);
+
+  ctx.fillStyle = '#080f1e';
+  ctx.fillRect(0, 0, w, h);
+
+  const cx = w / 2, cy = h * 0.75;
+  const R = 160;
+
+  // Ground
+  ctx.fillStyle = 'rgba(79,195,247,0.06)';
+  ctx.fillRect(cx - R - 30, cy, R * 2 + 60, 3);
+  ctx.fillStyle = '#4fc3f7';
+  ctx.font = '10px Space Mono';
+  ctx.textAlign = 'left';
+  ctx.fillText('地平線', cx + R - 10, cy - 6);
+
+  const latRad = lat * Math.PI / 180;
+
+  // Draw sun arc for given solar declination
+  function drawArc(decDeg, color, label) {
+    const decRad = decDeg * Math.PI / 180;
+    const pts = [];
+    const info = { riseAz: null, setAz: null, noon: null };
+
+    for (let ha = -180; ha <= 180; ha += 2) {
+      const haR = ha * Math.PI / 180;
+      const sinAlt = Math.sin(decRad) * Math.sin(latRad) + Math.cos(decRad) * Math.cos(latRad) * Math.cos(haR);
+      const alt = Math.asin(Math.max(-1, Math.min(1, sinAlt)));
+      if (alt < 0) continue;
+
+      const cosAz = (Math.sin(decRad) - Math.sin(alt) * Math.sin(latRad)) / (Math.cos(alt) * Math.cos(latRad) + 0.001);
+      let az = Math.acos(Math.max(-1, Math.min(1, cosAz)));
+      if (ha < 0) az = 2 * Math.PI - az;
+
+      const r = R * (1 - alt / (Math.PI * 0.5));
+      const px = cx + r * Math.sin(az - Math.PI);
+      const py = cy - R * (alt / (Math.PI * 0.5));
+      pts.push({px, py, alt, az});
+      if (ha === 0) info.noon = {px, py, alt: alt * 180 / Math.PI};
+    }
+
+    if (pts.length < 2) return;
+
+    ctx.beginPath();
+    pts.forEach((p, i) => {
+      if (i === 0) ctx.moveTo(p.px, p.py);
+      else ctx.lineTo(p.px, p.py);
+    });
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    // Sun at noon
+    if (info.noon) {
+      ctx.beginPath();
+      ctx.arc(info.noon.px, info.noon.py, 8, 0, Math.PI * 2);
+      ctx.fillStyle = color;
+      ctx.fill();
+      ctx.fillStyle = color;
+      ctx.font = '10px Space Mono';
+      ctx.textAlign = 'center';
+      ctx.fillText(label, info.noon.px, info.noon.py - 14);
+      ctx.fillText(`正午高度 ${info.noon.alt.toFixed(1)}°`, info.noon.px, info.noon.py - 26);
+    }
+  }
+
+  // Winter solstice
+  drawArc(-23.5, '#4fc3f7', '冬至');
+  // Equinoxes
+  drawArc(0, '#69f0ae', '春/秋分');
+  // Summer solstice
+  drawArc(23.5, '#ff8f00', '夏至');
+
+  // Cardinal directions on horizon
+  const dirs2 = [['N 北', 0], ['E 東', Math.PI / 2], ['S 南', Math.PI], ['W 西', -Math.PI / 2]];
+  dirs2.forEach(([label, angle]) => {
+    const px = cx + (R + 20) * Math.sin(angle);
+    const py = cy;
+    ctx.fillStyle = '#4fc3f7';
+    ctx.font = '11px Space Mono';
+    ctx.textAlign = 'center';
+    ctx.fillText(label, px, py + 18);
+  });
+
+  // Zenith
+  ctx.beginPath();
+  ctx.arc(cx, cy - R, 4, 0, Math.PI * 2);
+  ctx.fillStyle = '#ffd54f';
+  ctx.fill();
+  ctx.fillStyle = '#ffd54f';
+  ctx.font = '10px Space Mono';
+  ctx.textAlign = 'center';
+  ctx.fillText('天頂', cx, cy - R - 10);
+
+  // Vertical line
+  ctx.beginPath();
+  ctx.moveTo(cx, cy);
+  ctx.lineTo(cx, cy - R);
+  ctx.strokeStyle = 'rgba(255,213,79,0.2)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([3, 3]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Lat label
+  ctx.fillStyle = '#dim';
+  ctx.font = '11px Space Mono';
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#5a6a8a';
+  ctx.fillText(`觀測緯度 ${lat >= 0 ? lat + '°N' : Math.abs(lat) + '°S'}`, 20, 20);
+}
+
+// ===== CHAPTER 5 : Seasons =====
+let t5 = 0, anim5 = true, raf5;
+
+function drawCh5() {
+  const cv = document.getElementById('c5');
+  const W = cv.offsetWidth * 1;
+  const H = 420 * 1;
+  cv.width = W; cv.height = H;
+  const ctx = cv.getContext('2d');
+  ctx.scale(W / 800, H / 420);
+  const w = 800, h = 420;
+  ctx.clearRect(0, 0, w, h);
+
+  const cx = w / 2, cy = h / 2;
+  const orbitR = 160;
+
+  // Sun glow
+  const sg = ctx.createRadialGradient(cx, cy, 0, cx, cy, 50);
+  sg.addColorStop(0, 'rgba(255,200,0,0.8)');
+  sg.addColorStop(0.4, 'rgba(255,143,0,0.3)');
+  sg.addColorStop(1, 'rgba(255,143,0,0)');
+  ctx.fillStyle = sg;
+  ctx.fillRect(cx - 50, cy - 50, 100, 100);
+
+  ctx.beginPath();
+  ctx.arc(cx, cy, 22, 0, Math.PI * 2);
+  ctx.fillStyle = '#ff8f00';
+  ctx.fill();
+  ctx.fillStyle = '#ffd54f';
+  ctx.font = 'bold 12px Noto Serif TC';
+  ctx.textAlign = 'center';
+  ctx.fillText('太陽', cx, cy + 4);
+
+  // Orbit
+  ctx.beginPath();
+  (function(){const ox=cx,oy=cy,rx2=orbitR,ry2=orbitR*0.38,k=0.5522848;
+  ctx.moveTo(ox-rx2,oy);
+  ctx.bezierCurveTo(ox-rx2,oy-ry2*k,ox-rx2*k,oy-ry2,ox,oy-ry2);
+  ctx.bezierCurveTo(ox+rx2*k,oy-ry2,ox+rx2,oy-ry2*k,ox+rx2,oy);
+  ctx.bezierCurveTo(ox+rx2,oy+ry2*k,ox+rx2*k,oy+ry2,ox,oy+ry2);
+  ctx.bezierCurveTo(ox-rx2*k,oy+ry2,ox-rx2,oy+ry2*k,ox-rx2,oy);})();
+  ctx.strokeStyle = 'rgba(255,213,79,0.15)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  const seasons = [
+    { label: '春分', date: '3/20', color: '#69f0ae', dec: 0 },
+    { label: '夏至', date: '6/21', color: '#ff8f00', dec: 23.5 },
+    { label: '秋分', date: '9/22', color: '#ffd54f', dec: 0 },
+    { label: '冬至', date: '12/21', color: '#4fc3f7', dec: -23.5 }
+  ];
+
+  seasons.forEach((s, i) => {
+    const a = (i / 4) * Math.PI * 2 - Math.PI / 2;
+    const ex = cx + orbitR * Math.cos(a);
+    const ey = cy + orbitR * 0.38 * Math.sin(a);
+
+    // Earth
+    ctx.beginPath();
+    ctx.arc(ex, ey, 14, 0, Math.PI * 2);
+    ctx.fillStyle = '#1565c0';
+    ctx.fill();
+    ctx.strokeStyle = s.color;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Axis
+    const tiltR = 23.5 * Math.PI / 180;
+    ctx.beginPath();
+    ctx.moveTo(ex - Math.sin(tiltR) * 18, ey + Math.cos(tiltR) * 18);
+    ctx.lineTo(ex + Math.sin(tiltR) * 18, ey - Math.cos(tiltR) * 18);
+    ctx.strokeStyle = '#ffd54f';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    ctx.fillStyle = s.color;
+    ctx.font = 'bold 12px Noto Serif TC';
+    ctx.textAlign = 'center';
+    ctx.fillText(s.label, ex, ey - 22);
+    ctx.fillStyle = '#5a6a8a';
+    ctx.font = '10px Space Mono';
+    ctx.fillText(s.date, ex, ey - 10);
+    ctx.fillStyle = s.color;
+    ctx.font = '10px Space Mono';
+    ctx.fillText(`赤緯${s.dec > 0 ? '+' : ''}${s.dec}°`, ex, ey + 28);
+  });
+
+  // Moving Earth
+  const ang = t5 * Math.PI / 180 - Math.PI / 2;
+  const mex = cx + orbitR * Math.cos(ang);
+  const mey = cy + orbitR * 0.38 * Math.sin(ang);
+
+  const glow = ctx.createRadialGradient(mex, mey, 0, mex, mey, 20);
+  glow.addColorStop(0, 'rgba(79,195,247,0.4)');
+  glow.addColorStop(1, 'rgba(79,195,247,0)');
+  ctx.fillStyle = glow;
+  ctx.fillRect(mex - 20, mey - 20, 40, 40);
+
+  ctx.beginPath();
+  ctx.arc(mex, mey, 10, 0, Math.PI * 2);
+  ctx.fillStyle = '#1976d2';
+  ctx.fill();
+  ctx.strokeStyle = '#4fc3f7';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Near/far perihelion label
+  if (t5 % 360 > 340 || t5 % 360 < 20) {
+    document.getElementById('seasonInfo').textContent = '近日點（1月）：離太陽最近，但北半球是冬天！';
+  } else if (t5 % 360 > 160 && t5 % 360 < 200) {
+    document.getElementById('seasonInfo').textContent = '遠日點（7月）：離太陽最遠，但北半球是夏天！';
+  } else {
+    const deg = t5 % 360;
+    const sidx = Math.floor(((deg + 45) % 360) / 90);
+    const snames = ['春季（北半球）', '夏季（北半球）', '秋季（北半球）', '冬季（北半球）'];
+    document.getElementById('seasonInfo').textContent = '目前季節：' + snames[sidx % 4];
+  }
+
+  if (anim5) {
+    t5 += 0.5;
+    raf5 = requestAnimationFrame(() => { try{ drawCh5(); }catch(e){} });
+  }
+}
+
+function startCh5() {
+  if (raf5) cancelAnimationFrame(raf5);
+  anim5 = true;
+  document.getElementById('c5rotBtn').textContent = '暫停';
+  document.getElementById('c5rotBtn').classList.add('active');
+  drawCh5();
+}
+
+// ===== CHAPTER 6 : Star Trails =====
+let poleRevealed = false;
+let _poleX6 = 400, _poleY6 = 200;
+function draw6(expDeg) {
+  expDeg = +expDeg;
+  const lat6 = +document.getElementById('pole6Lat').value;
+  document.getElementById('expVal').textContent = expDeg + '°';
+  document.getElementById('pole6LatVal').textContent = lat6 + '°N';
+  poleRevealed = false;
+
+  const cv = document.getElementById('c6');
+  const W = cv.offsetWidth * 1;
+  const H = 420 * 1;
+  cv.width = W; cv.height = H;
+  const ctx = cv.getContext('2d');
+  ctx.scale(W / 800, H / 420);
+  const w = 800, h = 420;
+
+  ctx.fillStyle = '#04080f';
+  ctx.fillRect(0, 0, w, h);
+
+  // Simulate star trails from above (polar view perspective)
+  const pcx = w / 2 + (Math.random() - 0.5) * 60;
+  const pcy = h * (1 - lat6 / 90) * 0.6 + 30;
+  _poleX6 = pcx;
+  _poleY6 = pcy;
+
+  // Stars at various distances from pole
+  const trailStars = [];
+  for (let i = 0; i < 50; i++) {
+    const d = 20 + Math.random() * (Math.min(w, h) * 0.45);
+    const startAngle = Math.random() * Math.PI * 2;
+    const bright = Math.random();
+    trailStars.push({ d, startAngle, bright });
+  }
+
+  trailStars.forEach(s => {
+    const arcRad = expDeg * Math.PI / 180;
+    // Draw arc
+    ctx.beginPath();
+    ctx.arc(pcx, pcy, s.d, s.startAngle, s.startAngle + arcRad);
+    const brightness = Math.floor(100 + s.bright * 155);
+    ctx.strokeStyle = `rgba(${brightness},${brightness},${Math.floor(brightness * 0.85)},${0.4 + s.bright * 0.5})`;
+    ctx.lineWidth = 0.8 + s.bright * 1.5;
+    ctx.stroke();
+  });
+
+  // Horizon
+  const horizY = h * 0.88;
+  ctx.fillStyle = 'rgba(79,195,247,0.12)';
+  ctx.fillRect(0, horizY, w, h - horizY);
+  ctx.strokeStyle = 'rgba(79,195,247,0.4)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(0, horizY);
+  ctx.lineTo(w, horizY);
+  ctx.stroke();
+  ctx.fillStyle = '#4fc3f7';
+  ctx.font = '10px Space Mono';
+  ctx.textAlign = 'right';
+  ctx.fillText('地平線', w - 10, horizY - 5);
+
+  // Exposure arc label
+  const expArcR = 100;
+  ctx.beginPath();
+  ctx.arc(60, 60, expArcR, 0, expDeg * Math.PI / 180);
+  ctx.strokeStyle = 'rgba(255,213,79,0.3)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  ctx.fillStyle = '#ffd54f';
+  ctx.font = '10px Space Mono';
+  ctx.textAlign = 'center';
+  ctx.fillText(`弧長 ${expDeg}°`, 60 + expArcR * 0.7, 45);
+  ctx.fillText(`≈ ${(expDeg / 15).toFixed(1)}h 曝光`, 60 + expArcR * 0.7, 58);
+}
+
+function revealPole() {
+  const cv = document.getElementById('c6');
+  const ctx = cv.getContext('2d');
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(_poleX6, _poleY6, 8, 0, Math.PI * 2);
+  ctx.fillStyle = '#ffd54f';
+  ctx.fill();
+  ctx.strokeStyle = '#ff8f00';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.fillStyle = '#ffd54f';
+  ctx.font = 'bold 13px Space Mono';
+  ctx.textAlign = 'center';
+  ctx.fillText('← 天極在這裡！', _poleX6 + 80, _poleY6 + 5);
+  ctx.restore();
+}
+
+// ===== ROTATION TOGGLE =====
+let rotStates = { 0: true, 3: true, 5: true };
+function toggleRot(ch) {
+  if (ch === 0) {
+    anim0 = !anim0;
+    document.getElementById('c0rotBtn').textContent = anim0 ? 'ON' : 'OFF';
+    document.getElementById('c0rotBtn').classList.toggle('active', anim0);
+    if (anim0) drawCh0();
+    else cancelAnimationFrame(raf0);
+  }
+  if (ch === 3) {
+    anim3 = !anim3;
+    document.getElementById('c3rotBtn').textContent = anim3 ? '暫停' : '播放';
+    document.getElementById('c3rotBtn').classList.toggle('active', anim3);
+    if (anim3) drawCh3();
+    else cancelAnimationFrame(raf3);
+  }
+  if (ch === 5) {
+    anim5 = !anim5;
+    document.getElementById('c5rotBtn').textContent = anim5 ? '暫停' : '播放';
+    document.getElementById('c5rotBtn').classList.toggle('active', anim5);
+    if (anim5) drawCh5();
+    else cancelAnimationFrame(raf5);
+  }
+}
+
+// ===== INIT =====
+window.addEventListener('load', () => { try { drawCh0(); draw2(30); drawSunPath(25); draw6(60); } catch(e){ console.error('init error',e); } });
+
+// Chapter-specific init on nav
+const chapInits = [drawCh0, drawCh1, () => draw2(30), startCh3, () => drawSunPath(25), startCh5, () => draw6(60), null];
+</script>
+</body>
+</html>
