@@ -1,0 +1,1653 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C++ 電腦防禦程式設計教學</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #0a0e14;
+    --panel:    #0f1520;
+    --border:   #1c2a3a;
+    --accent:   #00d4ff;
+    --accent2:  #ff4757;
+    --accent3:  #2ed573;
+    --accent4:  #ffa502;
+    --text:     #c9d1d9;
+    --muted:    #58697e;
+    --code-bg:  #070b10;
+    --warning:  #ff6b35;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  /* ── Header ── */
+  header {
+    background: linear-gradient(135deg, #0f1520 0%, #0a1628 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 28px 40px;
+    position: sticky; top: 0; z-index: 100;
+    display: flex; align-items: center; gap: 20px;
+  }
+  .shield-icon {
+    font-size: 36px;
+    filter: drop-shadow(0 0 12px var(--accent));
+    animation: pulse 3s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%,100% { filter: drop-shadow(0 0 8px var(--accent)); }
+    50%      { filter: drop-shadow(0 0 20px var(--accent)); }
+  }
+  header h1 {
+    font-size: 22px; font-weight: 700; color: #fff;
+    letter-spacing: .5px;
+  }
+  header p { color: var(--muted); font-size: 13px; margin-top: 3px; }
+  .badge {
+    margin-left: auto;
+    background: rgba(0,212,255,.12);
+    border: 1px solid rgba(0,212,255,.3);
+    color: var(--accent);
+    font-size: 11px; font-weight: 700;
+    padding: 4px 12px; border-radius: 20px;
+    letter-spacing: 1px;
+  }
+
+  /* ── Layout ── */
+  .layout { display: flex; min-height: calc(100vh - 85px); }
+
+  /* ── Sidebar ── */
+  nav {
+    width: 280px; flex-shrink: 0;
+    background: var(--panel);
+    border-right: 1px solid var(--border);
+    padding: 24px 0;
+    position: sticky; top: 85px;
+    height: calc(100vh - 85px);
+    overflow-y: auto;
+  }
+  .nav-section-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 2px;
+    color: var(--muted); text-transform: uppercase;
+    padding: 16px 20px 6px;
+  }
+  nav a {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 20px;
+    color: var(--muted); text-decoration: none; font-size: 13px;
+    border-left: 3px solid transparent;
+    transition: all .2s;
+  }
+  nav a:hover, nav a.active {
+    color: var(--accent); background: rgba(0,212,255,.06);
+    border-left-color: var(--accent);
+  }
+  nav a .nav-num {
+    background: var(--border); border-radius: 4px;
+    font-size: 10px; font-family: 'JetBrains Mono', monospace;
+    padding: 1px 6px; color: var(--muted); flex-shrink: 0;
+  }
+  nav a.active .nav-num { background: rgba(0,212,255,.2); color: var(--accent); }
+
+  /* ── Main ── */
+  main {
+    flex: 1; padding: 40px 50px;
+    max-width: 900px;
+  }
+
+  /* ── Chapter ── */
+  .chapter { display: none; }
+  .chapter.active { display: block; }
+
+  .chapter-header {
+    display: flex; align-items: flex-start; gap: 16px;
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .chapter-icon {
+    font-size: 40px; flex-shrink: 0;
+    filter: drop-shadow(0 0 10px rgba(0,212,255,.4));
+  }
+  .chapter-meta { flex: 1; }
+  .chapter-tag {
+    font-size: 11px; font-weight: 700; letter-spacing: 2px;
+    color: var(--accent); text-transform: uppercase; margin-bottom: 4px;
+  }
+  .chapter-meta h2 { font-size: 26px; font-weight: 700; color: #fff; }
+  .chapter-meta p  { color: var(--muted); margin-top: 6px; font-size: 14px; }
+
+  /* ── Content blocks ── */
+  .section { margin-bottom: 36px; }
+  .section h3 {
+    font-size: 16px; font-weight: 700; color: var(--accent);
+    margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+  }
+  .section h3::before {
+    content: '▸'; color: var(--accent4); font-size: 12px;
+  }
+  .section p { color: var(--text); margin-bottom: 10px; }
+
+  .callout {
+    border-left: 3px solid var(--accent4);
+    background: rgba(255,165,2,.06);
+    padding: 14px 18px; border-radius: 0 8px 8px 0;
+    margin: 16px 0; font-size: 14px;
+  }
+  .callout.danger {
+    border-color: var(--accent2);
+    background: rgba(255,71,87,.06);
+  }
+  .callout.success {
+    border-color: var(--accent3);
+    background: rgba(46,213,115,.06);
+  }
+  .callout .callout-title {
+    font-weight: 700; font-size: 13px;
+    margin-bottom: 4px; letter-spacing: .5px;
+  }
+  .callout.warning .callout-title { color: var(--accent4); }
+  .callout.danger  .callout-title { color: var(--accent2); }
+  .callout.success .callout-title { color: var(--accent3); }
+
+  /* ── Code ── */
+  .code-block {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 16px 0;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .code-header {
+    background: rgba(255,255,255,.03);
+    border-bottom: 1px solid var(--border);
+    padding: 8px 16px;
+    display: flex; align-items: center; gap: 10px;
+    font-size: 12px; color: var(--muted);
+  }
+  .code-header .lang-badge {
+    background: rgba(0,212,255,.15);
+    color: var(--accent); padding: 2px 10px;
+    border-radius: 4px; font-size: 11px; font-weight: 700;
+  }
+  .code-header .copy-btn {
+    margin-left: auto;
+    background: none; border: 1px solid var(--border);
+    color: var(--muted); font-size: 11px;
+    padding: 3px 10px; border-radius: 4px; cursor: pointer;
+    transition: all .2s;
+  }
+  .code-header .copy-btn:hover { color: var(--accent); border-color: var(--accent); }
+  pre {
+    padding: 20px; overflow-x: auto;
+    font-size: 13px; line-height: 1.75;
+    color: #abb2bf;
+  }
+
+  /* syntax-like coloring */
+  .kw  { color: #c678dd; }
+  .ty  { color: #e5c07b; }
+  .fn  { color: #61afef; }
+  .str { color: #98c379; }
+  .cm  { color: #5c6370; font-style: italic; }
+  .num { color: #d19a66; }
+  .pp  { color: #e06c75; }
+
+  /* ── Concept cards ── */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 14px; margin: 16px 0;
+  }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px; padding: 18px;
+    transition: border-color .2s;
+  }
+  .card:hover { border-color: rgba(0,212,255,.3); }
+  .card-icon { font-size: 24px; margin-bottom: 8px; }
+  .card h4 { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+  .card p  { font-size: 13px; color: var(--muted); }
+
+  /* ── Step list ── */
+  .steps { counter-reset: step; }
+  .step {
+    display: flex; gap: 16px;
+    margin-bottom: 20px;
+    counter-increment: step;
+  }
+  .step-num {
+    width: 32px; height: 32px; flex-shrink: 0;
+    background: rgba(0,212,255,.12);
+    border: 1px solid rgba(0,212,255,.3);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .step-content h4 { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+  .step-content p  { font-size: 13px; color: var(--muted); }
+
+  /* ── Threat table ── */
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+  th {
+    background: rgba(0,212,255,.08);
+    color: var(--accent); text-align: left;
+    padding: 10px 14px; font-size: 12px; letter-spacing: 1px; text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 10px 14px; border-bottom: 1px solid rgba(28,42,58,.8);
+    color: var(--text); vertical-align: top;
+  }
+  tr:hover td { background: rgba(255,255,255,.02); }
+
+  /* ── Nav buttons ── */
+  .nav-btns {
+    display: flex; gap: 12px; margin-top: 48px;
+    padding-top: 24px; border-top: 1px solid var(--border);
+  }
+  .nav-btn {
+    padding: 10px 22px; border-radius: 8px; cursor: pointer;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 13px; font-weight: 700; transition: all .2s;
+    border: none;
+  }
+  .nav-btn.prev {
+    background: var(--panel); color: var(--muted);
+    border: 1px solid var(--border);
+  }
+  .nav-btn.prev:hover { color: var(--text); border-color: var(--text); }
+  .nav-btn.next {
+    background: linear-gradient(135deg, rgba(0,212,255,.2), rgba(0,212,255,.1));
+    color: var(--accent); border: 1px solid rgba(0,212,255,.3);
+    margin-left: auto;
+  }
+  .nav-btn.next:hover { background: rgba(0,212,255,.25); }
+
+  /* ── Progress ── */
+  .progress-bar {
+    height: 3px; background: var(--border);
+    position: sticky; top: 85px; z-index: 99;
+  }
+  .progress-fill {
+    height: 100%; background: var(--accent);
+    transition: width .4s;
+  }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="shield-icon">🛡️</div>
+  <div>
+    <h1>C++ 電腦防禦程式設計</h1>
+    <p>從零開始，寫出能抵禦病毒的系統級防護程式</p>
+  </div>
+  <div class="badge">10 章節</div>
+</header>
+
+<div class="progress-bar"><div class="progress-fill" id="progress" style="width:10%"></div></div>
+
+<div class="layout">
+  <nav id="sidebar">
+    <div class="nav-section-label">基礎篇</div>
+    <a href="#" class="active" onclick="go(0,this)"><span class="nav-num">01</span>為何選 C++？環境建置</a>
+    <a href="#" onclick="go(1,this)"><span class="nav-num">02</span>系統 API 與 Windows 核心</a>
+    <a href="#" onclick="go(2,this)"><span class="nav-num">03</span>程序與執行緒監控</a>
+    <div class="nav-section-label">防禦核心</div>
+    <a href="#" onclick="go(3,this)"><span class="nav-num">04</span>開機啟動與服務常駐</a>
+    <a href="#" onclick="go(4,this)"><span class="nav-num">05</span>檔案系統監視</a>
+    <a href="#" onclick="go(5,this)"><span class="nav-num">06</span>登錄檔防護</a>
+    <div class="nav-section-label">進階篇</div>
+    <a href="#" onclick="go(6,this)"><span class="nav-num">07</span>程序注入偵測</a>
+    <a href="#" onclick="go(7,this)"><span class="nav-num">08</span>強制終止惡意程序</a>
+    <a href="#" onclick="go(8,this)"><span class="nav-num">09</span>網路流量監控</a>
+    <a href="#" onclick="go(9,this)"><span class="nav-num">10</span>整合：完整防禦框架</a>
+  </nav>
+
+  <main>
+
+    <!-- ══════════════ Chapter 0 ══════════════ -->
+    <div class="chapter active" id="ch0">
+      <div class="chapter-header">
+        <div class="chapter-icon">⚡</div>
+        <div class="chapter-meta">
+          <div class="chapter-tag">Chapter 01 · 基礎篇</div>
+          <h2>為何選 C++？環境建置</h2>
+          <p>了解為什麼 C++ 是寫防毒/防火牆程式的最佳選擇，並建立開發環境。</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>C++ 在資安領域的優勢</h3>
+        <div class="cards">
+          <div class="card">
+            <div class="card-icon">🔩</div>
+            <h4>直接呼叫系統 API</h4>
+            <p>可直接呼叫 Windows API（CreateProcess、RegOpenKey 等），控制系統底層行為。</p>
+          </div>
+          <div class="card">
+            <div class="card-icon">⚡</div>
+            <h4>速度極快</h4>
+            <p>防毒軟體需要即時掃描，C++ 的執行效能遠高於 Python / Java。</p>
+          </div>
+          <div class="card">
+            <div class="card-icon">🛡️</div>
+            <h4>記憶體控制</h4>
+            <p>可直接讀寫記憶體，偵測程序注入（Injection）等進階攻擊手法。</p>
+          </div>
+          <div class="card">
+            <div class="card-icon">🔧</div>
+            <h4>驅動程式開發</h4>
+            <p>Windows Kernel Driver（.sys）也以 C++ 為基礎，可做到最深層防護。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>你遭遇的病毒分析</h3>
+        <p>根據你描述的症狀，這是一種典型的 <strong>Persistence Malware（持久化惡意程式）</strong>：</p>
+        <table>
+          <tr><th>症狀</th><th>病毒技術</th><th>防禦方向</th></tr>
+          <tr><td>鎖定系統管理員帳號</td><td>修改 SAM 登錄檔、停用 Admin 帳號</td><td>監控登錄檔存取</td></tr>
+          <tr><td>鎖定 CMD / PowerShell</td><td>修改 Group Policy、Image File Execution Options</td><td>監控 HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options</td></tr>
+          <tr><td>刪除後自動重啟</td><td>Watchdog 程序互相守護、排程任務、服務</td><td>在開機早期注入防護，先一步終止</td></tr>
+        </table>
+      </div>
+
+      <div class="section">
+        <h3>開發環境安裝</h3>
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-content">
+              <h4>安裝 Visual Studio 2022（建議）</h4>
+              <p>選擇「使用 C++ 的桌面開發」工作負載。免費社群版即可。</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-content">
+              <h4>或安裝 MinGW + VS Code</h4>
+              <p>輕量替代方案：安裝 MSYS2，執行 <code>pacman -S mingw-w64-x86_64-gcc</code>。</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-content">
+              <h4>安裝 Windows SDK</h4>
+              <p>包含所有 Windows API 標頭檔（<code>&lt;windows.h&gt;</code>、<code>&lt;tlhelp32.h&gt;</code> 等）。</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-content">
+              <h4>建立第一個測試專案</h4>
+              <p>新建 Win32 Console Application，確保可以編譯 Hello World。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>第一支 C++ 程式：取得系統資訊</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="lang-badge">C++</span>
+            <span>system_info.cpp — 取得電腦基本資訊</span>
+            <button class="copy-btn" onclick="copyCode(this)">複製</button>
+          </div>
+          <pre><span class="pp">#include</span> <span class="str">&lt;windows.h&gt;</span>
+<span class="pp">#include</span> <span class="str">&lt;iostream&gt;</span>
+<span class="pp">#include</span> <span class="str">&lt;string&gt;</span>
+<span class="kw">using namespace</span> <span class="ty">std</span>;
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="cm">// 取得電腦名稱</span>
+    <span class="ty">char</span> computerName[<span class="num">256</span>];
+    <span class="ty">DWORD</span> size = <span class="kw">sizeof</span>(computerName);
+    <span class="fn">GetComputerNameA</span>(computerName, &amp;size);
+    cout &lt;&lt; <span class="str">"電腦名稱: "</span> &lt;&lt; computerName &lt;&lt; endl;
+
+    <span class="cm">// 取得 Windows 版本資訊</span>
+    <span class="ty">OSVERSIONINFOEX</span> osInfo = {};
+    osInfo.dwOSVersionInfoSize = <span class="kw">sizeof</span>(osInfo);
+    <span class="cm">// 使用 RtlGetVersion（更準確）</span>
+    <span class="ty">NTSTATUS</span>(<span class="ty">WINAPI</span> *<span class="fn">RtlGetVersion</span>)(PRTL_OSVERSIONINFOW) =
+        (<span class="kw">decltype</span>(<span class="fn">RtlGetVersion</span>))<span class="fn">GetProcAddress</span>(
+            <span class="fn">GetModuleHandle</span>(L<span class="str">"ntdll"</span>), <span class="str">"RtlGetVersion"</span>);
+
+    <span class="kw">if</span> (<span class="fn">RtlGetVersion</span>) {
+        <span class="ty">RTL_OSVERSIONINFOW</span> rtlOsInfo = {};
+        rtlOsInfo.dwOSVersionInfoSize = <span class="kw">sizeof</span>(rtlOsInfo);
+        <span class="fn">RtlGetVersion</span>(&amp;rtlOsInfo);
+        cout &lt;&lt; <span class="str">"Windows 版本: "</span>
+             &lt;&lt; rtlOsInfo.dwMajorVersion &lt;&lt; <span class="str">"."</span>
+             &lt;&lt; rtlOsInfo.dwMinorVersion &lt;&lt; endl;
+    }
+
+    <span class="cm">// 取得記憶體資訊</span>
+    <span class="ty">MEMORYSTATUSEX</span> memStatus = {};
+    memStatus.dwLength = <span class="kw">sizeof</span>(memStatus);
+    <span class="fn">GlobalMemoryStatusEx</span>(&amp;memStatus);
+    cout &lt;&lt; <span class="str">"記憶體使用率: "</span> &lt;&lt; memStatus.dwMemoryLoad &lt;&lt; <span class="str">"%"</span> &lt;&lt; endl;
+    cout &lt;&lt; <span class="str">"總實體記憶體: "</span>
+         &lt;&lt; (memStatus.ullTotalPhys / <span class="num">1024</span> / <span class="num">1024</span>) &lt;&lt; <span class="str">" MB"</span> &lt;&lt; endl;
+
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre>
+        </div>
+        <div class="callout success">
+          <div class="callout-title">✅ 學習重點</div>
+          <code>&lt;windows.h&gt;</code> 包含所有 Windows API。這支程式展示了如何呼叫系統函數取得資訊——防禦程式的第一步。
+        </div>
+      </div>
+      <div class="nav-btns"><button class="nav-btn next" onclick="go(1)">下一章：系統 API 與 Windows 核心 →</button></div>
+    </div>
+
+    <!-- ══════════════ Chapter 1 ══════════════ -->
+    <div class="chapter" id="ch1">
+      <div class="chapter-header">
+        <div class="chapter-icon">🔧</div>
+        <div class="chapter-meta">
+          <div class="chapter-tag">Chapter 02 · 基礎篇</div>
+          <h2>系統 API 與 Windows 核心概念</h2>
+          <p>掌握 Windows API 的核心概念，這是所有防禦程式的基石。</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Windows API 架構</h3>
+        <div class="cards">
+          <div class="card">
+            <div class="card-icon">📦</div>
+            <h4>User Mode（使用者模式）</h4>
+            <p>一般應用程式執行的層級。你的防禦程式大部分在這裡運作。</p>
+          </div>
+          <div class="card">
+            <div class="card-icon">⚙️</div>
+            <h4>Kernel Mode（核心模式）</h4>
+            <p>作業系統核心層級。防毒軟體的驅動程式在這裡，具有最高權限。</p>
+          </div>
+          <div class="card">
+            <div class="card-icon">🔑</div>
+            <h4>HANDLE（控制代碼）</h4>
+            <p>Windows 用來代表資源（程序、檔案、登錄機碼）的識別碼。</p>
+          </div>
+          <div class="card">
+            <div class="card-icon">🎯</div>
+            <h4>PID（程序 ID）</h4>
+            <p>每個執行中程序的唯一識別數字，用來定位和操控程序。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>重要的 Windows API 函數總覽</h3>
+        <table>
+          <tr><th>函數</th><th>用途</th><th>標頭</th></tr>
+          <tr><td><code>CreateToolhelp32Snapshot</code></td><td>列舉所有執行中程序</td><td>tlhelp32.h</td></tr>
+          <tr><td><code>OpenProcess</code></td><td>取得程序的控制代碼</td><td>windows.h</td></tr>
+          <tr><td><code>TerminateProcess</code></td><td>強制終止程序</td><td>windows.h</td></tr>
+          <tr><td><code>RegOpenKeyEx</code></td><td>開啟登錄機碼</td><td>windows.h</td></tr>
+          <tr><td><code>ReadDirectoryChangesW</code></td><td>監視資料夾變更</td><td>windows.h</td></tr>
+          <tr><td><code>CreateService</code></td><td>建立 Windows 服務</td><td>winsvc.h</td></tr>
+          <tr><td><code>SetWindowsHookEx</code></td><td>系統級事件 Hook</td><td>windows.h</td></tr>
+        </table>
+      </div>
+
+      <div class="section">
+        <h3>錯誤處理：防禦程式的必備技能</h3>
+        <p>系統 API 失敗時，必須使用 <code>GetLastError()</code> 取得錯誤碼。</p>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="lang-badge">C++</span>
+            <span>error_handling.cpp</span>
+            <button class="copy-btn" onclick="copyCode(this)">複製</button>
+          </div>
+          <pre><span class="pp">#include</span> <span class="str">&lt;windows.h&gt;</span>
+<span class="pp">#include</span> <span class="str">&lt;iostream&gt;</span>
+<span class="pp">#include</span> <span class="str">&lt;string&gt;</span>
+<span class="kw">using namespace</span> <span class="ty">std</span>;
+
+<span class="cm">// 輔助函數：將錯誤碼轉換成可讀訊息</span>
+<span class="ty">string</span> <span class="fn">GetWinError</span>(<span class="ty">DWORD</span> errorCode) {
+    <span class="ty">LPSTR</span> msgBuf = <span class="kw">nullptr</span>;
+    <span class="fn">FormatMessageA</span>(
+        FORMAT_MESSAGE_ALLOCATE_BUFFER |
+        FORMAT_MESSAGE_FROM_SYSTEM |
+        FORMAT_MESSAGE_IGNORE_INSERTS,
+        <span class="kw">nullptr</span>,
+        errorCode,
+        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+        (LPSTR)&amp;msgBuf, <span class="num">0</span>, <span class="kw">nullptr</span>
+    );
+    <span class="ty">string</span> result = msgBuf ? msgBuf : <span class="str">"未知錯誤"</span>;
+    <span class="fn">LocalFree</span>(msgBuf);
+    <span class="kw">return</span> result;
+}
+
+<span class="cm">// 嘗試以系統管理員權限開啟程序</span>
+<span class="ty">HANDLE</span> <span class="fn">SafeOpenProcess</span>(<span class="ty">DWORD</span> pid) {
+    <span class="ty">HANDLE</span> hProcess = <span class="fn">OpenProcess</span>(
+        PROCESS_ALL_ACCESS, <span class="num">FALSE</span>, pid
+    );
+
+    <span class="kw">if</span> (hProcess == <span class="kw">nullptr</span>) {
+        <span class="ty">DWORD</span> err = <span class="fn">GetLastError</span>();
+        cerr &lt;&lt; <span class="str">"[錯誤] 無法開啟程序 PID="</span> &lt;&lt; pid
+             &lt;&lt; <span class="str">" 錯誤碼:"</span> &lt;&lt; err
+             &lt;&lt; <span class="str">" ("</span> &lt;&lt; <span class="fn">GetWinError</span>(err) &lt;&lt; <span class="str">")"</span> &lt;&lt; endl;
+        <span class="kw">return</span> <span class="kw">nullptr</span>;
+    }
+    <span class="kw">return</span> hProcess;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="cm">// 測試取得自身程序的 HANDLE</span>
+    <span class="ty">DWORD</span> myPid = <span class="fn">GetCurrentProcessId</span>();
+    cout &lt;&lt; <span class="str">"自身 PID: "</span> &lt;&lt; myPid &lt;&lt; endl;
+
+    <span class="ty">HANDLE</span> hSelf = <span class="fn">SafeOpenProcess</span>(myPid);
+    <span class="kw">if</span> (hSelf) {
+        cout &lt;&lt; <span class="str">"成功取得自身程序控制代碼"</span> &lt;&lt; endl;
+        <span class="fn">CloseHandle</span>(hSelf); <span class="cm">// 記得釋放！</span>
+    }
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre>
+        </div>
+        <div class="callout warning">
+          <div class="callout-title">⚠️ 權限問題</div>
+          對系統保護的程序（如防毒軟體、系統程序）呼叫 API 需要<strong>系統管理員權限</strong>，並可能需要啟用 <code>SeDebugPrivilege</code>。
+        </div>
+      </div>
+      <div class="nav-btns">
+        <button class="nav-btn prev" onclick="go(0)">← 上一章</button>
+        <button class="nav-btn next" onclick="go(2)">下一章：程序監控 →</button>
+      </div>
+    </div>
+
+    <!-- ══════════════ Chapter 2 ══════════════ -->
+    <div class="chapter" id="ch2">
+      <div class="chapter-header">
+        <div class="chapter-icon">🔍</div>
+        <div class="chapter-meta">
+          <div class="chapter-tag">Chapter 03 · 基礎篇</div>
+          <h2>程序與執行緒監控</h2>
+          <p>學習如何列舉、監控所有執行中的程序——找出病毒的第一步。</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>列舉所有執行中的程序</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="lang-badge">C++</span>
+            <span>process_monitor.cpp — 掃描所有程序</span>
+            <button class="copy-btn" onclick="copyCode(this)">複製</button>
+          </div>
+          <pre><span class="pp">#include</span> <span class="str">&lt;windows.h&gt;</span>
+<span class="pp">#include</span> <span class="str">&lt;tlhelp32.h&gt;</span>
+<span class="pp">#include</span> <span class="str">&lt;iostream&gt;</span>
+<span class="pp">#include</span> <span class="str">&lt;vector&gt;</span>
+<span class="pp">#include</span> <span class="str">&lt;string&gt;</span>
+<span class="kw">using namespace</span> <span class="ty">std</span>;
+
+<span class="kw">struct</span> <span class="ty">ProcessInfo</span> {
+    <span class="ty">DWORD</span>  pid;
+    <span class="ty">DWORD</span>  parentPid;
+    <span class="ty">string</span> name;
+    <span class="ty">DWORD</span>  threadCount;
+};
+
+<span class="cm">// 列出所有執行中程序</span>
+<span class="ty">vector</span>&lt;<span class="ty">ProcessInfo</span>&gt; <span class="fn">ListAllProcesses</span>() {
+    <span class="ty">vector</span>&lt;<span class="ty">ProcessInfo</span>&gt; result;
+
+    <span class="cm">// 建立程序快照</span>
+    <span class="ty">HANDLE</span> hSnap = <span class="fn">CreateToolhelp32Snapshot</span>(
+        TH32CS_SNAPPROCESS, <span class="num">0</span>
+    );
+    <span class="kw">if</span> (hSnap == INVALID_HANDLE_VALUE) <span class="kw">return</span> result;
+
+    <span class="ty">PROCESSENTRY32</span> pe32 = {};
+    pe32.dwSize = <span class="kw">sizeof</span>(pe32);
+
+    <span class="cm">// 取得第一個程序</span>
+    <span class="kw">if</span> (!<span class="fn">Process32First</span>(hSnap, &amp;pe32)) {
+        <span class="fn">CloseHandle</span>(hSnap);
+        <span class="kw">return</span> result;
+    }
+
+    <span class="kw">do</span> {
+        <span class="ty">ProcessInfo</span> info;
+        info.pid         = pe32.th32ProcessID;
+        info.parentPid   = pe32.th32ParentProcessID;
+        info.name        = pe32.szExeFile;
+        info.threadCount = pe32.cntThreads;
+        result.<span class="fn">push_back</span>(info);
+    } <span class="kw">while</span> (<span class="fn">Process32Next</span>(hSnap, &amp;pe32));
+
+    <span class="fn">CloseHandle</span>(hSnap);
+    <span class="kw">return</span> result;
+}
+
+<span class="cm">// 可疑程序名稱清單（可自行擴充）</span>
+<span class="ty">bool</span> <span class="fn">IsSuspicious</span>(<span class="kw">const</span> <span class="ty">string</span>&amp; name) {
+    <span class="ty">vector</span>&lt;<span class="ty">string</span>&gt; blacklist = {
+        <span class="str">"miner.exe"</span>, <span class="str">"keylogger.exe"</span>, <span class="str">"cryptolocker.exe"</span>,
+        <span class="str">"ransomware.exe"</span>, <span class="str">"trojan.exe"</span>
+        <span class="cm">// 實際使用時需要更完整的特徵資料庫</span>
+    };
+    <span class="kw">for</span> (<span class="kw">auto</span>&amp; b : blacklist) {
+        <span class="kw">if</span> (name == b) <span class="kw">return</span> <span class="kw">true</span>;
+    }
+    <span class="kw">return</span> <span class="kw">false</span>;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    cout &lt;&lt; <span class="str">"=== 程序掃描器 ===\n"</span>;
+    <span class="kw">auto</span> procs = <span class="fn">ListAllProcesses</span>();
+    cout &lt;&lt; <span class="str">"共偵測到 "</span> &lt;&lt; procs.<span class="fn">size</span>() &lt;&lt; <span class="str">" 個程序\n\n"</span>;
+
+    <span class="kw">for</span> (<span class="kw">auto</span>&amp; p : procs) {
+        <span class="kw">bool</span> sus = <span class="fn">IsSuspicious</span>(p.name);
+        <span class="kw">if</span> (sus)
+            cout &lt;&lt; <span class="str">"[⚠️ 可疑] "</span>;
+        cout &lt;&lt; <span class="str">"PID:"</span> &lt;&lt; p.pid
+             &lt;&lt; <span class="str">" PPID:"</span> &lt;&lt; p.parentPid
+             &lt;&lt; <span class="str">" Threads:"</span> &lt;&lt; p.threadCount
+             &lt;&lt; <span class="str">" Name:"</span> &lt;&lt; p.name &lt;&lt; <span class="str">"\n"</span>;
+    }
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>持續監控：偵測新啟動的程序</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="lang-badge">C++</span>
+            <span>process_watcher.cpp — 即時監控新程序</span>
+            <button class="copy-btn" onclick="copyCode(this)">複製</button>
+          </div>
+          <pre><span class="pp">#include</span> <span class="str">&lt;windows.h&gt;</span>
+<span class="pp">#include</span> <span class="str">&lt;tlhelp32.h&gt;</span>
+<span class="pp">#include</span> <span class="str">&lt;iostream&gt;</span>
+<span class="pp">#include</span> <span class="str">&lt;set&gt;</span>
+<span class="kw">using namespace</span> <span class="ty">std</span>;
+
+<span class="ty">set</span>&lt;<span class="ty">DWORD</span>&gt; <span class="fn">GetCurrentPIDs</span>() {
+    <span class="ty">set</span>&lt;<span class="ty">DWORD</span>&gt; pids;
+    <span class="ty">HANDLE</span> hSnap = <span class="fn">CreateToolhelp32Snapshot</span>(TH32CS_SNAPPROCESS, <span class="num">0</span>);
+    <span class="kw">if</span> (hSnap == INVALID_HANDLE_VALUE) <span class="kw">return</span> pids;
+
+    <span class="ty">PROCESSENTRY32</span> pe = { <span class="kw">sizeof</span>(pe) };
+    <span class="kw">if</span> (<span class="fn">Process32First</span>(hSnap, &amp;pe))
+        <span class="kw">do</span> { pids.<span class="fn">insert</span>(pe.th32ProcessID); }
+        <span class="kw">while</span> (<span class="fn">Process32Next</span>(hSnap, &amp;pe));
+    <span class="fn">CloseHandle</span>(hSnap);
+    <span class="kw">return</span> pids;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    cout &lt;&lt; <span class="str">"[監控啟動] 每秒偵測新程序...\n"</span>;
+    <span class="kw">auto</span> prev = <span class="fn">GetCurrentPIDs</span>();
+
+    <span class="kw">while</span> (<span class="kw">true</span>) {
+        <span class="fn">Sleep</span>(<span class="num">1000</span>); <span class="cm">// 每秒掃描一次</span>
+        <span class="kw">auto</span> curr = <span class="fn">GetCurrentPIDs</span>();
+
+        <span class="cm">// 找出新出現的 PID</span>
+        <span class="kw">for</span> (<span class="kw">auto</span> pid : curr) {
+            <span class="kw">if</span> (prev.<span class="fn">find</span>(pid) == prev.<span class="fn">end</span>()) {
+                cout &lt;&lt; <span class="str">"[新程序] PID: "</span> &lt;&lt; pid &lt;&lt; <span class="str">"\n"</span>;
+                <span class="cm">// TODO: 在這裡加入你的判斷邏輯</span>
+            }
+        }
+        prev = curr;
+    }
+}</pre>
+        </div>
+        <div class="callout success">
+          <div class="callout-title">✅ 這就是「Watchdog 的弱點」</div>
+          你描述的病毒使用兩個程序互相監視。這段程式可以讓你在它們啟動的瞬間偵測到，配合下一章的強制終止技術，就能在它站穩前消滅它。
+        </div>
+      </div>
+      <div class="nav-btns">
+        <button class="nav-btn prev" onclick="go(1)">← 上一章</button>
+        <button class="nav-btn next" onclick="go(3)">下一章：開機啟動與常駐 →</button>
+      </div>
+    </div>
+
+    <!-- ══════════════ Chapter 3 ══════════════ -->
+    <div class="chapter" id="ch3">
+      <div class="chapter-header">
+        <div class="chapter-icon">🚀</div>
+        <div class="chapter-meta">
+          <div class="chapter-tag">Chapter 04 · 防禦核心</div>
+          <h2>開機啟動與服務常駐</h2>
+          <p>讓你的防護程式比病毒更早啟動，並在後台持續守護系統。</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Windows 服務 vs 一般程式的差異</h3>
+        <div class="cards">
+          <div class="card">
+            <div class="card-icon">🏃</div>
+            <h4>一般啟動（不推薦）</h4>
+            <p>放在 HKCU\Software\Microsoft\Windows\CurrentVersion\Run，容易被病毒攔截或優先度相同。</p>
+          </div>
+          <div class="card">
+            <div class="card-icon">⚙️</div>
+            <h4>Windows 服務（推薦）</h4>
+            <p>開機時由 SCM（服務控制管理員）啟動，在用戶登入前就已執行，優先度高。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>建立 Windows 服務（核心程式碼）</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="lang-badge">C++</span>
+            <span>windows_service.cpp — 防護服務骨架</span>
+            <button class="copy-btn" onclick="copyCode(this)">複製</button>
+          </div>
+          <pre><span class="pp">#include</span> <span class="str">&lt;windows.h&gt;</span>
+<span class="pp">#include</span> <span class="str">&lt;winsvc.h&gt;</span>
+<span class="pp">#include</span> <span class="str">&lt;iostream&gt;</span>
+<span class="kw">using namespace</span> <span class="ty">std</span>;
+
+<span class="kw">const</span> <span class="ty">wchar_t</span>* SERVICE_NAME = L<span class="str">"GuardianShield"</span>;
+
+<span class="ty">SERVICE_STATUS</span>        g_ServiceStatus = {};
+<span class="ty">SERVICE_STATUS_HANDLE</span> g_StatusHandle  = <span class="kw">nullptr</span>;
+<span class="ty">HANDLE</span>                g_StopEvent     = <span class="kw">nullptr</span>;
+
+<span class="cm">// ── 服務控制處理器 ──</span>
+<span class="ty">VOID</span> WINAPI <span class="fn">ServiceCtrlHandler</span>(<span class="ty">DWORD</span> CtrlCode) {
+    <span class="kw">switch</span> (CtrlCode) {
+    <span class="kw">case</span> SERVICE_CONTROL_STOP:
+        g_ServiceStatus.dwCurrentState = SERVICE_STOP_PENDING;
+        <span class="fn">SetServiceStatus</span>(g_StatusHandle, &amp;g_ServiceStatus);
+        <span class="fn">SetEvent</span>(g_StopEvent); <span class="cm">// 通知主迴圈停止</span>
+        <span class="kw">break</span>;
+    }
+}
+
+<span class="cm">// ── 你的防護邏輯放在這裡 ──</span>
+<span class="ty">void</span> <span class="fn">DoProtection</span>() {
+    <span class="cm">// 每 5 秒執行一次掃描（後續章節會補充）</span>
+    <span class="fn">Sleep</span>(<span class="num">5000</span>);
+}
+
+<span class="cm">// ── 服務主函數 ──</span>
+<span class="ty">VOID</span> WINAPI <span class="fn">ServiceMain</span>(<span class="ty">DWORD</span> argc, <span class="ty">LPWSTR</span>* argv) {
+    <span class="cm">// 向 SCM 註冊控制處理器</span>
+    g_StatusHandle = <span class="fn">RegisterServiceCtrlHandler</span>(
+        SERVICE_NAME, <span class="fn">ServiceCtrlHandler</span>
+    );
+
+    g_ServiceStatus.dwServiceType  = SERVICE_WIN32_OWN_PROCESS;
+    g_ServiceStatus.dwCurrentState = SERVICE_START_PENDING;
+    <span class="fn">SetServiceStatus</span>(g_StatusHandle, &amp;g_ServiceStatus);
+
+    <span class="cm">// 建立停止事件</span>
+    g_StopEvent = <span class="fn">CreateEvent</span>(<span class="kw">nullptr</span>, <span class="kw">TRUE</span>, <span class="kw">FALSE</span>, <span class="kw">nullptr</span>);
+
+    <span class="cm">// 回報「執行中」</span>
+    g_ServiceStatus.dwCurrentState  = SERVICE_RUNNING;
+    g_ServiceStatus.dwControlsAccepted = SERVICE_ACCEPT_STOP;
+    <span class="fn">SetServiceStatus</span>(g_StatusHandle, &amp;g_ServiceStatus);
+
+    <span class="cm">// ── 防護主迴圈 ──</span>
+    <span class="kw">while</span> (<span class="fn">WaitForSingleObject</span>(g_StopEvent, <span class="num">0</span>) != WAIT_OBJECT_0) {
+        <span class="fn">DoProtection</span>(); <span class="cm">// 持續執行防護工作</span>
+    }
+
+    <span class="fn">CloseHandle</span>(g_StopEvent);
+    g_ServiceStatus.dwCurrentState = SERVICE_STOPPED;
+    <span class="fn">SetServiceStatus</span>(g_StatusHandle, &amp;g_ServiceStatus);
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="ty">SERVICE_TABLE_ENTRY</span> ServiceTable[] = {
+        { (<span class="ty">LPWSTR</span>)SERVICE_NAME, <span class="fn">ServiceMain</span> },
+        { <span class="kw">nullptr</span>, <span class="kw">nullptr</span> }
+    };
+    <span class="fn">StartServiceCtrlDispatcher</span>(ServiceTable);
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>安裝服務的指令（命令列）</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="lang-badge">CMD</span>
+            <span>以系統管理員身份執行</span>
+            <button class="copy-btn" onclick="copyCode(this)">複製</button>
+          </div>
+          <pre><span class="cm">:: 安裝服務（需系統管理員）</span>
+sc create GuardianShield binPath= "C:\Path\To\guardian.exe" start= auto
+
+<span class="cm">:: 設定開機自動啟動</span>
+sc config GuardianShield start= boot
+
+<span class="cm">:: 啟動服務</span>
+sc start GuardianShield
+
+<span class="cm">:: 查看狀態</span>
+sc query GuardianShield</pre>
+        </div>
+        <div class="callout danger">
+          <div class="callout-title">🔴 重要：對抗病毒的「先發制人」策略</div>
+          將服務啟動類型設為 <code>start= boot</code>（開機啟動）或 <code>start= system</code>（系統啟動）。這讓你的防護程式比病毒（通常是 <code>auto</code> 等級）更早執行，先封鎖它！
+        </div>
+      </div>
+      <div class="nav-btns">
+        <button class="nav-btn prev" onclick="go(2)">← 上一章</button>
+        <button class="nav-btn next" onclick="go(4)">下一章：檔案系統監視 →</button>
+      </div>
+    </div>
+
+    <!-- ══════════════ Chapter 4 ══════════════ -->
+    <div class="chapter" id="ch4">
+      <div class="chapter-header">
+        <div class="chapter-icon">📁</div>
+        <div class="chapter-meta">
+          <div class="chapter-tag">Chapter 05 · 防禦核心</div>
+          <h2>檔案系統監視</h2>
+          <p>即時監控檔案變化，偵測勒索軟體的加密行為或病毒植入。</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>使用 ReadDirectoryChangesW 監視資料夾</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="lang-badge">C++</span>
+            <span>file_monitor.cpp — 即時檔案監視</span>
+            <button class="copy-btn" onclick="copyCode(this)">複製</button>
+          </div>
+          <pre><span class="pp">#include</span> <span class="str">&lt;windows.h&gt;</span>
+<span class="pp">#include</span> <span class="str">&lt;iostream&gt;</span>
+<span class="pp">#include</span> <span class="str">&lt;string&gt;</span>
+<span class="kw">using namespace</span> <span class="ty">std</span>;
+
+<span class="ty">void</span> <span class="fn">MonitorDirectory</span>(<span class="kw">const</span> <span class="ty">wstring</span>&amp; path) {
+    <span class="ty">HANDLE</span> hDir = <span class="fn">CreateFile</span>(
+        path.<span class="fn">c_str</span>(),
+        FILE_LIST_DIRECTORY,
+        FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+        <span class="kw">nullptr</span>,
+        OPEN_EXISTING,
+        FILE_FLAG_BACKUP_SEMANTICS,
+        <span class="kw">nullptr</span>
+    );
+
+    <span class="kw">if</span> (hDir == INVALID_HANDLE_VALUE) {
+        cerr &lt;&lt; <span class="str">"無法開啟目錄監視\n"</span>;
+        <span class="kw">return</span>;
+    }
+
+    <span class="ty">BYTE</span> buffer[<span class="num">65536</span>];
+    <span class="ty">DWORD</span> bytesReturned;
+
+    wcout &lt;&lt; L<span class="str">"[監視中] "</span> &lt;&lt; path &lt;&lt; L<span class="str">"\n"</span>;
+
+    <span class="kw">while</span> (<span class="kw">true</span>) {
+        <span class="fn">ReadDirectoryChangesW</span>(
+            hDir, buffer, <span class="kw">sizeof</span>(buffer),
+            <span class="kw">TRUE</span>, <span class="cm">// 監視子目錄</span>
+            FILE_NOTIFY_CHANGE_FILE_NAME |
+            FILE_NOTIFY_CHANGE_DIR_NAME  |
+            FILE_NOTIFY_CHANGE_LAST_WRITE |
+            FILE_NOTIFY_CHANGE_CREATION,
+            &amp;bytesReturned, <span class="kw">nullptr</span>, <span class="kw">nullptr</span>
+        );
+
+        <span class="ty">FILE_NOTIFY_INFORMATION</span>* fni =
+            (<span class="ty">FILE_NOTIFY_INFORMATION</span>*)buffer;
+
+        <span class="kw">do</span> {
+            <span class="ty">wstring</span> fileName(
+                fni-&gt;FileName,
+                fni-&gt;FileNameLength / <span class="kw">sizeof</span>(<span class="ty">wchar_t</span>)
+            );
+
+            <span class="ty">wstring</span> action;
+            <span class="kw">switch</span> (fni-&gt;Action) {
+            <span class="kw">case</span> FILE_ACTION_ADDED:    action = L<span class="str">"新增"</span>; <span class="kw">break</span>;
+            <span class="kw">case</span> FILE_ACTION_REMOVED:  action = L<span class="str">"刪除"</span>; <span class="kw">break</span>;
+            <span class="kw">case</span> FILE_ACTION_MODIFIED: action = L<span class="str">"修改"</span>; <span class="kw">break</span>;
+            <span class="kw">case</span> FILE_ACTION_RENAMED_NEW_NAME:
+                                        action = L<span class="str">"重新命名"</span>; <span class="kw">break</span>;
+            }
+
+            wcout &lt;&lt; L<span class="str">"["</span> &lt;&lt; action &lt;&lt; L<span class="str">"] "</span> &lt;&lt; fileName &lt;&lt; L<span class="str">"\n"</span>;
+
+            <span class="cm">// ⚠️ 偵測可疑副檔名（勒索軟體常見）</span>
+            <span class="kw">if</span> (fileName.<span class="fn">find</span>(L<span class="str">".locked"</span>) != <span class="ty">wstring</span>::npos ||
+                fileName.<span class="fn">find</span>(L<span class="str">".encrypted"</span>) != <span class="ty">wstring</span>::npos ||
+                fileName.<span class="fn">find</span>(L<span class="str">".ransom"</span>) != <span class="ty">wstring</span>::npos) {
+                wcerr &lt;&lt; L<span class="str">"[🚨警告] 疑似勒索軟體加密行為！\n"</span>;
+                <span class="cm">// TODO: 觸發警報 / 終止程序</span>
+            }
+
+            <span class="kw">if</span> (fni-&gt;NextEntryOffset == <span class="num">0</span>) <span class="kw">break</span>;
+            fni = (<span class="ty">FILE_NOTIFY_INFORMATION</span>*)
+                ((BYTE*)fni + fni-&gt;NextEntryOffset);
+        } <span class="kw">while</span> (<span class="kw">true</span>);
+    }
+    <span class="fn">CloseHandle</span>(hDir);
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="cm">// 監視多個重要目錄</span>
+    <span class="fn">MonitorDirectory</span>(L<span class="str">"C:\\Windows\\System32"</span>);
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre>
+        </div>
+      </div>
+      <div class="nav-btns">
+        <button class="nav-btn prev" onclick="go(3)">← 上一章</button>
+        <button class="nav-btn next" onclick="go(5)">下一章：登錄檔防護 →</button>
+      </div>
+    </div>
+
+    <!-- ══════════════ Chapter 5 ══════════════ -->
+    <div class="chapter" id="ch5">
+      <div class="chapter-header">
+        <div class="chapter-icon">🗝️</div>
+        <div class="chapter-meta">
+          <div class="chapter-tag">Chapter 06 · 防禦核心</div>
+          <h2>登錄檔防護</h2>
+          <p>監控與保護登錄檔，防止病毒修改開機項目或封鎖 CMD/系統管理員。</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>關鍵登錄機碼：病毒最愛的藏身之處</h3>
+        <table>
+          <tr><th>路徑</th><th>作用</th><th>病毒用途</th></tr>
+          <tr><td><code>HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run</code></td><td>開機自動執行</td><td>加入自身到開機項</td></tr>
+          <tr><td><code>HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options</code></td><td>程式執行重導向</td><td>攔截 cmd.exe、regedit.exe</td></tr>
+          <tr><td><code>HKLM\SAM\SAM\Domains\Account</code></td><td>使用者帳號資料</td><td>鎖定/刪除管理員帳號</td></tr>
+          <tr><td><code>HKLM\SYSTEM\CurrentControlSet\Services</code></td><td>服務清單</td><td>新增惡意服務</td></tr>
+        </table>
+      </div>
+
+      <div class="section">
+        <h3>掃描開機項目</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="lang-badge">C++</span>
+            <span>registry_scan.cpp</span>
+            <button class="copy-btn" onclick="copyCode(this)">複製</button>
+          </div>
+          <pre><span class="pp">#include</span> <span class="str">&lt;windows.h&gt;</span>
+<span class="pp">#include</span> <span class="str">&lt;iostream&gt;</span>
+<span class="pp">#include</span> <span class="str">&lt;string&gt;</span>
+<span class="kw">using namespace</span> <span class="ty">std</span>;
+
+<span class="ty">void</span> <span class="fn">ScanRunKeys</span>() {
+    <span class="kw">const</span> <span class="ty">wchar_t</span>* runKeys[] = {
+        L<span class="str">"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run"</span>,
+        L<span class="str">"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\RunOnce"</span>
+    };
+
+    <span class="kw">for</span> (<span class="kw">auto</span>* keyPath : runKeys) {
+        <span class="ty">HKEY</span> hKey;
+        <span class="kw">if</span> (<span class="fn">RegOpenKeyEx</span>(HKEY_LOCAL_MACHINE, keyPath,
+                <span class="num">0</span>, KEY_READ, &amp;hKey) != ERROR_SUCCESS)
+            <span class="kw">continue</span>;
+
+        wcout &lt;&lt; L<span class="str">"\n[掃描] HKLM\\"</span> &lt;&lt; keyPath &lt;&lt; L<span class="str">"\n"</span>;
+
+        <span class="ty">DWORD</span> index = <span class="num">0</span>;
+        <span class="ty">wchar_t</span> valueName[<span class="num">256</span>], valueData[<span class="num">1024</span>];
+        <span class="ty">DWORD</span> nameLen, dataLen, type;
+
+        <span class="kw">while</span> (<span class="kw">true</span>) {
+            nameLen = <span class="num">256</span>; dataLen = <span class="kw">sizeof</span>(valueData);
+            <span class="ty">LONG</span> ret = <span class="fn">RegEnumValue</span>(
+                hKey, index++, valueName, &amp;nameLen,
+                <span class="kw">nullptr</span>, &amp;type,
+                (<span class="ty">LPBYTE</span>)valueData, &amp;dataLen
+            );
+            <span class="kw">if</span> (ret != ERROR_SUCCESS) <span class="kw">break</span>;
+
+            wcout &lt;&lt; L<span class="str">"  名稱: "</span> &lt;&lt; valueName &lt;&lt; L<span class="str">"\n"</span>;
+            wcout &lt;&lt; L<span class="str">"  路徑: "</span> &lt;&lt; valueData &lt;&lt; L<span class="str">"\n"</span>;
+
+            <span class="cm">// 偵測可疑路徑（在 Temp 目錄的可執行檔往往可疑）</span>
+            <span class="ty">wstring</span> data(valueData);
+            <span class="kw">if</span> (data.<span class="fn">find</span>(L<span class="str">"\\Temp\\"</span>) != <span class="ty">wstring</span>::npos ||
+                data.<span class="fn">find</span>(L<span class="str">"\\AppData\\Local\\Temp"</span>) != <span class="ty">wstring</span>::npos) {
+                wcout &lt;&lt; L<span class="str">"  [⚠️ 可疑] 路徑在 Temp 目錄！\n"</span>;
+            }
+        }
+        <span class="fn">RegCloseKey</span>(hKey);
+    }
+}
+
+<span class="cm">// 偵測 IFEO（CMD/Task Manager 被攔截的病毒手法）</span>
+<span class="ty">void</span> <span class="fn">CheckIFEO</span>() {
+    <span class="kw">const</span> <span class="ty">wchar_t</span>* targets[] = {
+        L<span class="str">"cmd.exe"</span>, L<span class="str">"taskmgr.exe"</span>,
+        L<span class="str">"regedit.exe"</span>, L<span class="str">"msconfig.exe"</span>
+    };
+    <span class="kw">const</span> <span class="ty">wstring</span> basePath =
+        L<span class="str">"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Image File Execution Options\\"</span>;
+
+    wcout &lt;&lt; L<span class="str">"\n[IFEO 掃描] 確認系統工具是否被攔截:\n"</span>;
+    <span class="kw">for</span> (<span class="kw">auto</span>* t : targets) {
+        <span class="ty">HKEY</span> hKey;
+        <span class="ty">wstring</span> fullPath = basePath + t;
+        <span class="kw">if</span> (<span class="fn">RegOpenKeyEx</span>(HKEY_LOCAL_MACHINE,
+                fullPath.<span class="fn">c_str</span>(), <span class="num">0</span>, KEY_READ, &amp;hKey)
+                == ERROR_SUCCESS) {
+            <span class="ty">wchar_t</span> debugger[<span class="num">512</span>];
+            <span class="ty">DWORD</span> len = <span class="kw">sizeof</span>(debugger);
+            <span class="kw">if</span> (<span class="fn">RegQueryValueEx</span>(hKey, L<span class="str">"Debugger"</span>,
+                    <span class="kw">nullptr</span>, <span class="kw">nullptr</span>,
+                    (<span class="ty">LPBYTE</span>)debugger, &amp;len)
+                    == ERROR_SUCCESS) {
+                wcout &lt;&lt; L<span class="str">"  [🚨攔截] "</span> &lt;&lt; t
+                      &lt;&lt; L<span class="str">" 被重導向至: "</span> &lt;&lt; debugger &lt;&lt; L<span class="str">"\n"</span>;
+                <span class="cm">// TODO: 自動刪除這個惡意 Debugger 值</span>
+            } <span class="kw">else</span> {
+                wcout &lt;&lt; L<span class="str">"  [✅正常] "</span> &lt;&lt; t &lt;&lt; L<span class="str">"\n"</span>;
+            }
+            <span class="fn">RegCloseKey</span>(hKey);
+        } <span class="kw">else</span> {
+            wcout &lt;&lt; L<span class="str">"  [✅正常] "</span> &lt;&lt; t &lt;&lt; L<span class="str">"\n"</span>;
+        }
+    }
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="fn">ScanRunKeys</span>();
+    <span class="fn">CheckIFEO</span>();
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre>
+        </div>
+        <div class="callout danger">
+          <div class="callout-title">🔴 你的 CMD 被鎖住的原因就是這個！</div>
+          IFEO（Image File Execution Options）是病毒最常用來封鎖 <code>cmd.exe</code>、<code>taskmgr.exe</code> 的方法。這段程式可以直接偵測並揭露這種攻擊。
+        </div>
+      </div>
+      <div class="nav-btns">
+        <button class="nav-btn prev" onclick="go(4)">← 上一章</button>
+        <button class="nav-btn next" onclick="go(6)">下一章：程序注入偵測 →</button>
+      </div>
+    </div>
+
+    <!-- ══════════════ Chapter 6 ══════════════ -->
+    <div class="chapter" id="ch6">
+      <div class="chapter-header">
+        <div class="chapter-icon">💉</div>
+        <div class="chapter-meta">
+          <div class="chapter-tag">Chapter 07 · 進階篇</div>
+          <h2>程序注入偵測</h2>
+          <p>偵測 DLL 注入、程式碼注入等進階攻擊——這是現代惡意軟體最常用的技術。</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>程序注入的常見類型</h3>
+        <div class="cards">
+          <div class="card">
+            <div class="card-icon">💊</div>
+            <h4>DLL Injection</h4>
+            <p>將惡意 DLL 載入到合法程序（如 explorer.exe）中執行，借殼逃避偵測。</p>
+          </div>
+          <div class="card">
+            <div class="card-icon">🧠</div>
+            <h4>Process Hollowing</h4>
+            <p>啟動合法程序後，清空其記憶體並替換成惡意程式碼。</p>
+          </div>
+          <div class="card">
+            <div class="card-icon">🪝</div>
+            <h4>SetWindowsHookEx</h4>
+            <p>在其他程序中安裝鍵盤/滑鼠 Hook，記錄使用者輸入。</p>
+          </div>
+          <div class="card">
+            <div class="card-icon">📝</div>
+            <h4>WriteProcessMemory</h4>
+            <p>直接將 Shellcode 寫入另一個程序的記憶體並執行。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>掃描程序已載入的 DLL 模組</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="lang-badge">C++</span>
+            <span>dll_scanner.cpp — 偵測可疑 DLL</span>
+            <button class="copy-btn" onclick="copyCode(this)">複製</button>
+          </div>
+          <pre><span class="pp">#include</span> <span class="str">&lt;windows.h&gt;</span>
+<span class="pp">#include</span> <span class="str">&lt;tlhelp32.h&gt;</span>
+<span class="pp">#include</span> <span class="str">&lt;psapi.h&gt;</span>
+<span class="pp">#include</span> <span class="str">&lt;iostream&gt;</span>
+<span class="pp">#include</span> <span class="str">&lt;string&gt;</span>
+<span class="pp">#include</span> <span class="str">&lt;vector&gt;</span>
+<span class="pp">#pragma comment(lib, "psapi.lib")</span>
+<span class="kw">using namespace</span> <span class="ty">std</span>;
+
+<span class="cm">// 取得程序所有已載入的 DLL 清單</span>
+<span class="ty">vector</span>&lt;<span class="ty">wstring</span>&gt; <span class="fn">GetProcessModules</span>(<span class="ty">DWORD</span> pid) {
+    <span class="ty">vector</span>&lt;<span class="ty">wstring</span>&gt; modules;
+
+    <span class="ty">HANDLE</span> hProc = <span class="fn">OpenProcess</span>(
+        PROCESS_QUERY_INFORMATION | PROCESS_VM_READ,
+        <span class="kw">FALSE</span>, pid
+    );
+    <span class="kw">if</span> (!hProc) <span class="kw">return</span> modules;
+
+    <span class="ty">HMODULE</span> hMods[<span class="num">1024</span>];
+    <span class="ty">DWORD</span> cbNeeded;
+
+    <span class="kw">if</span> (<span class="fn">EnumProcessModules</span>(hProc, hMods, <span class="kw">sizeof</span>(hMods), &amp;cbNeeded)) {
+        <span class="ty">DWORD</span> count = cbNeeded / <span class="kw">sizeof</span>(HMODULE);
+        <span class="kw">for</span> (<span class="ty">DWORD</span> i = <span class="num">0</span>; i &lt; count; i++) {
+            <span class="ty">wchar_t</span> modName[MAX_PATH];
+            <span class="kw">if</span> (<span class="fn">GetModuleFileNameEx</span>(
+                    hProc, hMods[i], modName, MAX_PATH))
+                modules.<span class="fn">push_back</span>(modName);
+        }
+    }
+    <span class="fn">CloseHandle</span>(hProc);
+    <span class="kw">return</span> modules;
+}
+
+<span class="cm">// 判斷 DLL 路徑是否可疑</span>
+<span class="ty">bool</span> <span class="fn">IsSuspiciousDll</span>(<span class="kw">const</span> <span class="ty">wstring</span>&amp; path) {
+    <span class="cm">// 不在 System32 或 Program Files 的 DLL 值得注意</span>
+    <span class="kw">if</span> (path.<span class="fn">find</span>(L<span class="str">"\\Temp\\"</span>) != <span class="ty">wstring</span>::npos) <span class="kw">return</span> <span class="kw">true</span>;
+    <span class="kw">if</span> (path.<span class="fn">find</span>(L<span class="str">"\\AppData\\Local\\Temp"</span>) != <span class="ty">wstring</span>::npos) <span class="kw">return</span> <span class="kw">true</span>;
+    <span class="kw">if</span> (path.<span class="fn">find</span>(L<span class="str">"\\Downloads\\"</span>) != <span class="ty">wstring</span>::npos) <span class="kw">return</span> <span class="kw">true</span>;
+    <span class="kw">return</span> <span class="kw">false</span>;
+}
+
+<span class="ty">void</span> <span class="fn">ScanProcessForInjection</span>(<span class="ty">DWORD</span> pid, <span class="kw">const</span> <span class="ty">string</span>&amp; procName) {
+    <span class="kw">auto</span> mods = <span class="fn">GetProcessModules</span>(pid);
+    <span class="kw">for</span> (<span class="kw">auto</span>&amp; mod : mods) {
+        <span class="kw">if</span> (<span class="fn">IsSuspiciousDll</span>(mod)) {
+            cout &lt;&lt; <span class="str">"[🚨注入偵測] 程序: "</span> &lt;&lt; procName
+                 &lt;&lt; <span class="str">" (PID:"</span> &lt;&lt; pid &lt;&lt; <span class="str">")\n"</span>;
+            wcout &lt;&lt; L<span class="str">"  可疑 DLL: "</span> &lt;&lt; mod &lt;&lt; L<span class="str">"\n"</span>;
+        }
+    }
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    cout &lt;&lt; <span class="str">"[DLL 注入掃描器]\n"</span>;
+
+    <span class="ty">HANDLE</span> hSnap = <span class="fn">CreateToolhelp32Snapshot</span>(TH32CS_SNAPPROCESS, <span class="num">0</span>);
+    <span class="ty">PROCESSENTRY32</span> pe = { <span class="kw">sizeof</span>(pe) };
+    <span class="kw">if</span> (<span class="fn">Process32First</span>(hSnap, &amp;pe)) {
+        <span class="kw">do</span> {
+            <span class="fn">ScanProcessForInjection</span>(pe.th32ProcessID, pe.szExeFile);
+        } <span class="kw">while</span> (<span class="fn">Process32Next</span>(hSnap, &amp;pe));
+    }
+    <span class="fn">CloseHandle</span>(hSnap);
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre>
+        </div>
+      </div>
+      <div class="nav-btns">
+        <button class="nav-btn prev" onclick="go(5)">← 上一章</button>
+        <button class="nav-btn next" onclick="go(7)">下一章：強制終止惡意程序 →</button>
+      </div>
+    </div>
+
+    <!-- ══════════════ Chapter 7 ══════════════ -->
+    <div class="chapter" id="ch7">
+      <div class="chapter-header">
+        <div class="chapter-icon">⚔️</div>
+        <div class="chapter-meta">
+          <div class="chapter-tag">Chapter 08 · 進階篇</div>
+          <h2>強制終止惡意程序</h2>
+          <p>偵測到威脅後，如何在病毒的 Watchdog 反應前，搶先終止它。</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>提升權限：啟用 SeDebugPrivilege</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="lang-badge">C++</span>
+            <span>privilege.cpp — 取得除錯權限</span>
+            <button class="copy-btn" onclick="copyCode(this)">複製</button>
+          </div>
+          <pre><span class="pp">#include</span> <span class="str">&lt;windows.h&gt;</span>
+<span class="pp">#include</span> <span class="str">&lt;iostream&gt;</span>
+<span class="kw">using namespace</span> <span class="ty">std</span>;
+
+<span class="cm">// 啟用指定的權限（對抗受保護的惡意程序）</span>
+<span class="ty">bool</span> <span class="fn">EnablePrivilege</span>(<span class="kw">const</span> <span class="ty">wchar_t</span>* privName) {
+    <span class="ty">HANDLE</span> hToken;
+    <span class="kw">if</span> (!<span class="fn">OpenProcessToken</span>(
+            <span class="fn">GetCurrentProcess</span>(),
+            TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY,
+            &amp;hToken))
+        <span class="kw">return</span> <span class="kw">false</span>;
+
+    <span class="ty">TOKEN_PRIVILEGES</span> tp = {};
+    <span class="fn">LookupPrivilegeValue</span>(<span class="kw">nullptr</span>, privName, &amp;tp.Privileges[<span class="num">0</span>].Luid);
+    tp.PrivilegeCount = <span class="num">1</span>;
+    tp.Privileges[<span class="num">0</span>].Attributes = SE_PRIVILEGE_ENABLED;
+
+    <span class="ty">bool</span> ok = <span class="fn">AdjustTokenPrivileges</span>(
+        hToken, <span class="kw">FALSE</span>, &amp;tp, <span class="kw">sizeof</span>(tp), <span class="kw">nullptr</span>, <span class="kw">nullptr</span>
+    ) &amp;&amp; <span class="fn">GetLastError</span>() == ERROR_SUCCESS;
+
+    <span class="fn">CloseHandle</span>(hToken);
+    <span class="kw">return</span> ok;
+}
+
+<span class="cm">// 以提升的權限終止程序</span>
+<span class="ty">bool</span> <span class="fn">KillProcess</span>(<span class="ty">DWORD</span> pid) {
+    <span class="cm">// 先嘗試啟用除錯權限</span>
+    <span class="fn">EnablePrivilege</span>(SE_DEBUG_NAME);
+
+    <span class="ty">HANDLE</span> hProc = <span class="fn">OpenProcess</span>(
+        PROCESS_TERMINATE, <span class="kw">FALSE</span>, pid
+    );
+    <span class="kw">if</span> (!hProc) {
+        cerr &lt;&lt; <span class="str">"[錯誤] 無法開啟程序 PID="</span> &lt;&lt; pid &lt;&lt; <span class="str">"\n"</span>;
+        <span class="kw">return</span> <span class="kw">false</span>;
+    }
+
+    <span class="ty">bool</span> ok = <span class="fn">TerminateProcess</span>(hProc, <span class="num">1</span>) != <span class="num">0</span>;
+    <span class="fn">CloseHandle</span>(hProc);
+    <span class="kw">return</span> ok;
+}
+
+<span class="cm">// 同時終止多個相互守護的程序</span>
+<span class="ty">void</span> <span class="fn">KillWatchdogPair</span>(<span class="ty">DWORD</span> pid1, <span class="ty">DWORD</span> pid2) {
+    cout &lt;&lt; <span class="str">"[⚔️] 同步終止 Watchdog 程序對...\n"</span>;
+    <span class="cm">// 先暫停兩個程序（讓它們無法重啟對方）</span>
+    <span class="ty">HANDLE</span> h1 = <span class="fn">OpenProcess</span>(PROCESS_ALL_ACCESS, <span class="kw">FALSE</span>, pid1);
+    <span class="ty">HANDLE</span> h2 = <span class="fn">OpenProcess</span>(PROCESS_ALL_ACCESS, <span class="kw">FALSE</span>, pid2);
+
+    <span class="cm">// 掛起（暫停）兩個程序</span>
+    <span class="kw">using</span> <span class="ty">fnNtSuspend</span> = <span class="ty">LONG</span>(NTAPI*)(<span class="ty">HANDLE</span>);
+    <span class="kw">auto</span> <span class="fn">NtSuspendProcess</span> = (<span class="ty">fnNtSuspend</span>)<span class="fn">GetProcAddress</span>(
+        <span class="fn">GetModuleHandle</span>(L<span class="str">"ntdll"</span>), <span class="str">"NtSuspendProcess"</span>
+    );
+    <span class="kw">if</span> (<span class="fn">NtSuspendProcess</span>) {
+        <span class="kw">if</span> (h1) <span class="fn">NtSuspendProcess</span>(h1); <span class="cm">// 先凍結</span>
+        <span class="kw">if</span> (h2) <span class="fn">NtSuspendProcess</span>(h2); <span class="cm">// 再凍結</span>
+    }
+    <span class="cm">// 再終止</span>
+    <span class="kw">if</span> (h1) { <span class="fn">TerminateProcess</span>(h1, <span class="num">1</span>); <span class="fn">CloseHandle</span>(h1); }
+    <span class="kw">if</span> (h2) { <span class="fn">TerminateProcess</span>(h2, <span class="num">1</span>); <span class="fn">CloseHandle</span>(h2); }
+    cout &lt;&lt; <span class="str">"[✅] Watchdog 程序對已終止\n"</span>;
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="cm">// 範例：終止 PID 1234 和 5678（病毒的 Watchdog 對）</span>
+    <span class="fn">KillWatchdogPair</span>(<span class="num">1234</span>, <span class="num">5678</span>);
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre>
+        </div>
+        <div class="callout success">
+          <div class="callout-title">✅ 這就是對抗「刪除後自動重啟」的核心技術！</div>
+          先用 <code>NtSuspendProcess</code> 同時凍結兩個互相守護的程序，讓它們無法重啟對方，再一起終止。這破解了 Watchdog 互守機制。
+        </div>
+      </div>
+      <div class="nav-btns">
+        <button class="nav-btn prev" onclick="go(6)">← 上一章</button>
+        <button class="nav-btn next" onclick="go(8)">下一章：網路流量監控 →</button>
+      </div>
+    </div>
+
+    <!-- ══════════════ Chapter 8 ══════════════ -->
+    <div class="chapter" id="ch8">
+      <div class="chapter-header">
+        <div class="chapter-icon">🌐</div>
+        <div class="chapter-meta">
+          <div class="chapter-tag">Chapter 09 · 進階篇</div>
+          <h2>網路流量監控</h2>
+          <p>偵測病毒的 C2（Command and Control）連線，阻止資料外洩。</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>使用 IP Helper API 列舉連線</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="lang-badge">C++</span>
+            <span>network_monitor.cpp</span>
+            <button class="copy-btn" onclick="copyCode(this)">複製</button>
+          </div>
+          <pre><span class="pp">#include</span> <span class="str">&lt;windows.h&gt;</span>
+<span class="pp">#include</span> <span class="str">&lt;iphlpapi.h&gt;</span>
+<span class="pp">#include</span> <span class="str">&lt;winsock2.h&gt;</span>
+<span class="pp">#include</span> <span class="str">&lt;ws2tcpip.h&gt;</span>
+<span class="pp">#include</span> <span class="str">&lt;iostream&gt;</span>
+<span class="pp">#include</span> <span class="str">&lt;set&gt;</span>
+<span class="pp">#pragma comment(lib, "iphlpapi.lib")</span>
+<span class="pp">#pragma comment(lib, "ws2_32.lib")</span>
+<span class="kw">using namespace</span> <span class="ty">std</span>;
+
+<span class="cm">// 已知 C2 / 惡意 IP 黑名單（示範用）</span>
+<span class="ty">set</span>&lt;<span class="ty">string</span>&gt; maliciousIPs = {
+    <span class="str">"192.168.1.100"</span>, <span class="cm">// 替換成實際黑名單</span>
+    <span class="str">"10.0.0.99"</span>
+};
+
+<span class="ty">string</span> <span class="fn">IpToString</span>(<span class="ty">DWORD</span> ip) {
+    <span class="kw">struct</span> <span class="ty">in_addr</span> addr;
+    addr.s_addr = ip;
+    <span class="kw">return</span> <span class="fn">inet_ntoa</span>(addr);
+}
+
+<span class="ty">void</span> <span class="fn">MonitorConnections</span>() {
+    <span class="ty">DWORD</span> size = <span class="num">0</span>;
+    <span class="fn">GetExtendedTcpTable</span>(<span class="kw">nullptr</span>, &amp;size, <span class="kw">FALSE</span>,
+        AF_INET, TCP_TABLE_OWNER_PID_ALL, <span class="num">0</span>);
+
+    <span class="ty">vector</span>&lt;<span class="ty">BYTE</span>&gt; buf(size);
+    <span class="kw">auto</span>* table = (<span class="ty">MIB_TCPTABLE_OWNER_PID</span>*)buf.<span class="fn">data</span>();
+
+    <span class="kw">if</span> (<span class="fn">GetExtendedTcpTable</span>(table, &amp;size, <span class="kw">FALSE</span>,
+            AF_INET, TCP_TABLE_OWNER_PID_ALL, <span class="num">0</span>)
+            != NO_ERROR) <span class="kw">return</span>;
+
+    cout &lt;&lt; <span class="str">"=== 網路連線掃描 ===\n"</span>;
+    <span class="kw">for</span> (<span class="ty">DWORD</span> i = <span class="num">0</span>; i &lt; table-&gt;dwNumEntries; i++) {
+        <span class="kw">auto</span>&amp; row = table-&gt;table[i];
+        <span class="kw">if</span> (row.dwState != MIB_TCP_STATE_ESTAB) <span class="kw">continue</span>;
+
+        <span class="ty">string</span> remoteIP = <span class="fn">IpToString</span>(row.dwRemoteAddr);
+        <span class="ty">int</span>    remotePort = <span class="fn">ntohs</span>((<span class="ty">u_short</span>)row.dwRemotePort);
+        <span class="ty">DWORD</span>  pid = row.dwOwningPid;
+
+        cout &lt;&lt; <span class="str">"PID:"</span> &lt;&lt; pid
+             &lt;&lt; <span class="str">" → "</span> &lt;&lt; remoteIP &lt;&lt; <span class="str">":"</span> &lt;&lt; remotePort;
+
+        <span class="kw">if</span> (maliciousIPs.<span class="fn">count</span>(remoteIP)) {
+            cout &lt;&lt; <span class="str">"  [🚨 C2 連線！]"</span>;
+            <span class="cm">// TODO: 封鎖 + 終止對應程序</span>
+        }
+        cout &lt;&lt; <span class="str">"\n"</span>;
+    }
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    <span class="ty">WSADATA</span> wsa;
+    <span class="fn">WSAStartup</span>(MAKEWORD(<span class="num">2</span>,<span class="num">2</span>), &amp;wsa);
+    <span class="fn">MonitorConnections</span>();
+    <span class="fn">WSACleanup</span>();
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre>
+        </div>
+      </div>
+      <div class="nav-btns">
+        <button class="nav-btn prev" onclick="go(7)">← 上一章</button>
+        <button class="nav-btn next" onclick="go(9)">下一章：整合框架 →</button>
+      </div>
+    </div>
+
+    <!-- ══════════════ Chapter 9 ══════════════ -->
+    <div class="chapter" id="ch9">
+      <div class="chapter-header">
+        <div class="chapter-icon">🏰</div>
+        <div class="chapter-meta">
+          <div class="chapter-tag">Chapter 10 · 整合</div>
+          <h2>完整防禦框架</h2>
+          <p>將所有技術整合成一個多執行緒防護系統，電腦一開機就守護你。</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>系統架構設計</h3>
+        <div class="cards">
+          <div class="card">
+            <div class="card-icon">🧵</div>
+            <h4>多執行緒設計</h4>
+            <p>每個監控模組跑在獨立執行緒：程序監控、檔案監控、登錄檔監控、網路監控。</p>
+          </div>
+          <div class="card">
+            <div class="card-icon">📊</div>
+            <h4>事件佇列</h4>
+            <p>各模組偵測到威脅後，將事件推送到共享佇列，由主執行緒統一處理。</p>
+          </div>
+          <div class="card">
+            <div class="card-icon">📝</div>
+            <h4>日誌系統</h4>
+            <p>所有偵測到的事件記錄到加密日誌，事後分析或供資安人員審查。</p>
+          </div>
+          <div class="card">
+            <div class="card-icon">🔔</div>
+            <h4>告警機制</h4>
+            <p>偵測到高危威脅時，透過系統托盤通知或聲音提醒使用者。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>整合框架骨架</h3>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="lang-badge">C++</span>
+            <span>guardian_shield.cpp — 完整防護框架</span>
+            <button class="copy-btn" onclick="copyCode(this)">複製</button>
+          </div>
+          <pre><span class="pp">#include</span> <span class="str">&lt;windows.h&gt;</span>
+<span class="pp">#include</span> <span class="str">&lt;thread&gt;</span>
+<span class="pp">#include</span> <span class="str">&lt;mutex&gt;</span>
+<span class="pp">#include</span> <span class="str">&lt;queue&gt;</span>
+<span class="pp">#include</span> <span class="str">&lt;atomic&gt;</span>
+<span class="pp">#include</span> <span class="str">&lt;iostream&gt;</span>
+<span class="pp">#include</span> <span class="str">&lt;fstream&gt;</span>
+<span class="pp">#include</span> <span class="str">&lt;chrono&gt;</span>
+<span class="kw">using namespace</span> <span class="ty">std</span>;
+
+<span class="cm">// ── 全域狀態 ──</span>
+<span class="ty">atomic</span>&lt;<span class="ty">bool</span>&gt; g_running{ <span class="kw">true</span> };
+<span class="ty">mutex</span>         g_logMutex;
+<span class="ty">mutex</span>         g_queueMutex;
+<span class="ty">queue</span>&lt;<span class="ty">string</span>&gt; g_eventQueue;
+
+<span class="cm">// ── 日誌系統 ──</span>
+<span class="ty">void</span> <span class="fn">Log</span>(<span class="kw">const</span> <span class="ty">string</span>&amp; msg, <span class="ty">bool</span> alert = <span class="kw">false</span>) {
+    <span class="kw">auto</span> now = <span class="ty">chrono</span>::<span class="fn">system_clock::now</span>();
+    <span class="kw">auto</span> t   = <span class="ty">chrono</span>::<span class="fn">system_clock::to_time_t</span>(now);
+
+    <span class="ty">lock_guard</span>&lt;<span class="ty">mutex</span>&gt; lk(g_logMutex);
+    <span class="kw">if</span> (alert) cout &lt;&lt; <span class="str">"[🚨ALERT] "</span>;
+    <span class="kw">else</span>       cout &lt;&lt; <span class="str">"[INFO]    "</span>;
+    cout &lt;&lt; msg &lt;&lt; <span class="str">"\n"</span>;
+
+    <span class="ty">ofstream</span> logFile(<span class="str">"guardian.log"</span>, ios::app);
+    logFile &lt;&lt; ctime(&amp;t) &lt;&lt; (alert?<span class="str">"ALERT: "</span>:<span class="str">"INFO:  "</span>) &lt;&lt; msg &lt;&lt; <span class="str">"\n"</span>;
+}
+
+<span class="cm">// ── 事件推送 ──</span>
+<span class="ty">void</span> <span class="fn">PushEvent</span>(<span class="kw">const</span> <span class="ty">string</span>&amp; ev) {
+    <span class="ty">lock_guard</span>&lt;<span class="ty">mutex</span>&gt; lk(g_queueMutex);
+    g_eventQueue.<span class="fn">push</span>(ev);
+}
+
+<span class="cm">// ── 程序監控執行緒 ──</span>
+<span class="ty">void</span> <span class="fn">ProcessMonitorThread</span>() {
+    <span class="fn">Log</span>(<span class="str">"程序監控執行緒啟動"</span>);
+    <span class="cm">// 整合 Chapter 3 的程式碼</span>
+    <span class="kw">while</span> (g_running) {
+        <span class="cm">// ListAllProcesses() + 可疑檢查 + PushEvent</span>
+        <span class="fn">Sleep</span>(<span class="num">2000</span>);
+    }
+}
+
+<span class="cm">// ── 檔案監控執行緒 ──</span>
+<span class="ty">void</span> <span class="fn">FileMonitorThread</span>() {
+    <span class="fn">Log</span>(<span class="str">"檔案系統監控執行緒啟動"</span>);
+    <span class="cm">// 整合 Chapter 5 的 MonitorDirectory</span>
+    <span class="kw">while</span> (g_running) {
+        <span class="cm">// ReadDirectoryChangesW 已是阻塞式呼叫，在內部等待</span>
+        <span class="fn">Sleep</span>(<span class="num">100</span>);
+    }
+}
+
+<span class="cm">// ── 登錄檔監控執行緒 ──</span>
+<span class="ty">void</span> <span class="fn">RegistryMonitorThread</span>() {
+    <span class="fn">Log</span>(<span class="str">"登錄檔監控執行緒啟動"</span>);
+    <span class="ty">HANDLE</span> hKey;
+    <span class="fn">RegOpenKeyEx</span>(HKEY_LOCAL_MACHINE,
+        L<span class="str">"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run"</span>,
+        <span class="num">0</span>, KEY_NOTIFY, &amp;hKey);
+
+    <span class="kw">while</span> (g_running) {
+        <span class="cm">// RegNotifyChangeKeyValue 等待登錄檔變更</span>
+        <span class="ty">LONG</span> ret = <span class="fn">RegNotifyChangeKeyValue</span>(
+            hKey, <span class="kw">TRUE</span>,
+            REG_NOTIFY_CHANGE_LAST_SET |
+            REG_NOTIFY_CHANGE_NAME,
+            <span class="kw">nullptr</span>, <span class="kw">FALSE</span>
+        );
+        <span class="kw">if</span> (ret == ERROR_SUCCESS) {
+            <span class="fn">PushEvent</span>(<span class="str">"ALERT:登錄檔 Run 機碼被修改！"</span>);
+        }
+    }
+    <span class="fn">RegCloseKey</span>(hKey);
+}
+
+<span class="cm">// ── 主事件處理迴圈 ──</span>
+<span class="ty">void</span> <span class="fn">EventDispatcher</span>() {
+    <span class="kw">while</span> (g_running) {
+        <span class="ty">string</span> ev;
+        {
+            <span class="ty">lock_guard</span>&lt;<span class="ty">mutex</span>&gt; lk(g_queueMutex);
+            <span class="kw">if</span> (!g_eventQueue.<span class="fn">empty</span>()) {
+                ev = g_eventQueue.<span class="fn">front</span>();
+                g_eventQueue.<span class="fn">pop</span>();
+            }
+        }
+        <span class="kw">if</span> (!ev.<span class="fn">empty</span>()) {
+            <span class="ty">bool</span> isAlert = ev.<span class="fn">find</span>(<span class="str">"ALERT"</span>) != <span class="ty">string</span>::npos;
+            <span class="fn">Log</span>(ev, isAlert);
+            <span class="kw">if</span> (isAlert) {
+                <span class="cm">// 觸發聲音警報</span>
+                <span class="fn">MessageBeep</span>(MB_ICONEXCLAMATION);
+            }
+        }
+        <span class="fn">Sleep</span>(<span class="num">100</span>);
+    }
+}
+
+<span class="ty">int</span> <span class="fn">main</span>() {
+    cout &lt;&lt; R<span class="str">"(
+  ╔═══════════════════════════════════╗
+  ║   Guardian Shield v1.0            ║
+  ║   C++ 電腦防禦系統               ║
+  ╚═══════════════════════════════════╝
+)"</span>;
+
+    <span class="fn">Log</span>(<span class="str">"Guardian Shield 防護系統啟動"</span>);
+
+    <span class="cm">// 啟動各監控執行緒</span>
+    <span class="ty">thread</span> t1(<span class="fn">ProcessMonitorThread</span>);
+    <span class="ty">thread</span> t2(<span class="fn">FileMonitorThread</span>);
+    <span class="ty">thread</span> t3(<span class="fn">RegistryMonitorThread</span>);
+    <span class="ty">thread</span> t4(<span class="fn">EventDispatcher</span>);
+
+    <span class="cm">// 等待 Ctrl+C 或服務停止信號</span>
+    cout &lt;&lt; <span class="str">"防護系統執行中...按 Enter 停止\n"</span>;
+    cin.<span class="fn">get</span>();
+    g_running = <span class="kw">false</span>;
+
+    t1.<span class="fn">join</span>(); t2.<span class="fn">join</span>();
+    t3.<span class="fn">join</span>(); t4.<span class="fn">join</span>();
+    <span class="fn">Log</span>(<span class="str">"Guardian Shield 已停止"</span>);
+    <span class="kw">return</span> <span class="num">0</span>;
+}</pre>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>學習路線圖：接下來的進階方向</h3>
+        <div class="cards">
+          <div class="card">
+            <div class="card-icon">🔩</div>
+            <h4>Kernel Driver 開發</h4>
+            <p>學習 WDK（Windows Driver Kit），寫出核心層驅動程式，獲得最高防護能力。</p>
+          </div>
+          <div class="card">
+            <div class="card-icon">🔬</div>
+            <h4>惡意軟體逆向分析</h4>
+            <p>學習 x64dbg、IDA Pro，分析病毒的行為模式，製作更精準的偵測規則。</p>
+          </div>
+          <div class="card">
+            <div class="card-icon">📋</div>
+            <h4>YARA 規則整合</h4>
+            <p>使用 YARA 引擎進行基於特徵的惡意程式掃描，與你的 C++ 框架整合。</p>
+          </div>
+          <div class="card">
+            <div class="card-icon">🏆</div>
+            <h4>CTF 資安競賽</h4>
+            <p>參加 CTF（奪旗賽）實戰練習，在合法環境中磨練攻防技術。</p>
+          </div>
+        </div>
+        <div class="callout success">
+          <div class="callout-title">🎉 恭喜完成全部章節！</div>
+          你現在已經掌握了：程序監控、服務常駐、檔案監視、登錄檔防護、程序注入偵測、強制終止、網路監控七大核心技術。針對你遭遇的病毒，Chapters 5、6、8 是最直接對應的解法。
+        </div>
+      </div>
+      <div class="nav-btns">
+        <button class="nav-btn prev" onclick="go(8)">← 上一章</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  const chapters = document.querySelectorAll('.chapter');
+  const navLinks  = document.querySelectorAll('nav a');
+  const progress  = document.getElementById('progress');
+
+  function go(idx, el) {
+    chapters.forEach(c => c.classList.remove('active'));
+    navLinks.forEach(a => a.classList.remove('active'));
+    chapters[idx].classList.add('active');
+    (el || navLinks[idx]).classList.add('active');
+    progress.style.width = ((idx + 1) / chapters.length * 100) + '%';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function copyCode(btn) {
+    const pre = btn.closest('.code-block').querySelector('pre');
+    navigator.clipboard.writeText(pre.innerText).then(() => {
+      btn.textContent = '已複製！';
+      setTimeout(() => btn.textContent = '複製', 1500);
+    });
+  }
+</script>
+</body>
+</html>
