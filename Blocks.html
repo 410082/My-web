@@ -2,13 +2,14 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<title>作文稿紙</title>
+<title>作文稿紙（直式）</title>
 <style>
   :root{
     --red: #c0392b;
     --red-faint: #e8b4ac;
     --paper: #fffdf8;
     --ink: #2b2b2b;
+    --cell-mm: 8mm;
   }
   *{ box-sizing:border-box; }
   body{
@@ -25,7 +26,7 @@
   /* ---------- 工具列（不列印） ---------- */
   .toolbar{
     width:100%;
-    max-width:900px;
+    max-width:960px;
     background:#2b2b2b;
     color:#f4f1ea;
     border-radius:10px;
@@ -55,7 +56,8 @@
     flex-basis:100%; font-size:11.5px; color:#9c9789; line-height:1.6; margin-top:4px;
   }
 
-  /* ---------- 紙張 ---------- */
+  /* ---------- 紙張（每頁一張） ---------- */
+  #pages{ display:flex; flex-direction:column; gap:24px; align-items:center; }
   .paper{
     background:var(--paper);
     width:297mm;
@@ -85,27 +87,30 @@
     width:64px; border:none; border-bottom:1px solid #ccc; background:transparent;
     font-family:inherit; font-size:13px; text-align:center; padding:2px 0;
   }
+  .page-badge{
+    display:flex; justify-content:flex-end; font-size:11px; color:#999; margin-bottom:6px;
+  }
 
-  /* ---------- 格線 ---------- */
-  .gridwrap{ display:flex; justify-content:center; }
-  .rownums{
-    display:flex; flex-direction:column; padding-right:4px; flex:none;
+  /* ---------- 直式格線：由右至左排欄，欄內由上至下 ---------- */
+  .body-wrap{ display:flex; justify-content:center; }
+  .grid-body{
+    display:flex;
+    flex-direction:row;
+    padding-top:1px;
+    padding-left:1px;
   }
-  .rownum{
-    display:flex; align-items:center; justify-content:flex-end;
-    font-size:10px; color:#c9a58f;
-  }
-  .grid{
-    flex:none;
-    display:grid;
-    border-top:1px solid var(--red);
-    border-left:1px solid var(--red);
+  .column{
+    display:flex;
+    flex-direction:column;
+    margin-left:-1px;
   }
   .cell{
-    border-right:1px solid var(--red);
-    border-bottom:1px solid var(--red);
+    width:var(--cell-mm);
+    aspect-ratio:1/1;
+    border:1px solid var(--red);
+    margin-top:-1px;
     text-align:center;
-    font-size: calc(var(--cell-mm, 8mm) * 0.5);
+    font-size: calc(var(--cell-mm) * 0.5);
     font-family:inherit;
     color:var(--ink);
     background:transparent;
@@ -115,20 +120,24 @@
     min-width:0;
   }
   .cell:focus{ background:#fdf0d5; }
-  .cell.col-mark{ border-right:1px solid var(--red-faint); }
 
   .footer{
-    margin-top:10px;
+    margin-top:8px;
     display:flex;
     justify-content:space-between;
     font-size:11px;
     color:#999;
   }
+  #globalCount{
+    width:100%; max-width:960px; text-align:center; font-size:12px; color:#6b6b6b; margin-bottom:4px;
+  }
 
   @media print{
     body{ background:#fff; padding:0; }
-    .toolbar{ display:none !important; }
-    .paper{ box-shadow:none; width:auto; padding:6mm 8mm; }
+    .toolbar, #globalCount{ display:none !important; }
+    #pages{ gap:0; }
+    .paper{ box-shadow:none; width:auto; padding:6mm 8mm; page-break-after:always; }
+    .paper:last-child{ page-break-after:auto; }
     @page{ size:A4 landscape; margin:8mm; }
   }
 </style>
@@ -137,171 +146,218 @@
 
   <div class="toolbar no-print">
     <div class="field">
-      <label>每行格數（欄）</label>
-      <input type="number" id="cols" value="28" min="5" max="40">
+      <label>每欄字數（直）</label>
+      <input type="number" id="rowsPerCol" value="20" min="5" max="35">
     </div>
     <div class="field">
-      <label>總行數（列）</label>
-      <input type="number" id="rows" value="14" min="5" max="30">
+      <label>每頁欄數（橫）</label>
+      <input type="number" id="colsPerPage" value="28" min="5" max="45">
     </div>
     <div class="field">
       <label>格子大小（mm）</label>
       <input type="number" id="cellsize" value="8" min="5" max="15" step="0.5">
     </div>
-    <button class="btn-secondary" id="rebuild">重新建立格線</button>
+    <button class="btn-secondary" id="rebuild">重新建立（回到第1頁）</button>
+    <button class="btn-secondary" id="addPageBtn">手動新增一頁</button>
     <button class="btn-secondary" id="clearAll">清空作答</button>
     <button class="btn-primary" id="printBtn">列印 / 輸出 PDF</button>
     <div class="hint">
-      操作方式：點一格即可選取該格，用手寫輸入法（或任何輸入法）輸入一個字後會自動跳到下一格；按「空白鍵」會跳過一格並留白；空格為空時按「Backspace」會退回上一格。輸入完成後按上方「列印 / 輸出 PDF」，在列印視窗的「印表機」選單選擇「另存為 PDF」即可。
+      書寫方向為傳統直式：每欄由上至下填字，一欄填滿後自動跳到「左邊」下一欄；欄用完後會自動新增下一頁繼續書寫。
+      點格子可直接選取；輸入一字（可用手寫輸入法）自動下移一格；空白鍵留白並下移一格；欄底按 Enter 直接跳到下一欄開頭；方向鍵可上下（同欄）、左右（跨欄）移動；Backspace 於空格時會退回上一格。
+      寫完後按「列印 / 輸出 PDF」，於列印視窗的印表機選擇「另存為 PDF」即可，各頁會自動分頁列印。
     </div>
   </div>
 
-  <div class="paper" id="paper">
-    <div class="head">
-      <div class="title-box">
-        <label>題目</label>
-        <input type="text" id="topic" placeholder="請輸入作文題目">
-      </div>
-      <div class="meta">
-        <div class="field"><label>班級</label><input type="text"></div>
-        <div class="field"><label>座號</label><input type="text"></div>
-        <div class="field"><label>姓名</label><input type="text"></div>
-      </div>
-    </div>
-
-    <div class="gridwrap">
-      <div class="rownums" id="rownums"></div>
-      <div class="grid" id="grid"></div>
-    </div>
-
-    <div class="footer">
-      <span id="count">已填字數：0 / 0</span>
-      <span>每行 <span id="colsLabel">20</span> 字 × <span id="rowsLabel">20</span> 行</span>
-    </div>
-  </div>
+  <div id="globalCount">總計已填字數：0 / 0（共 1 頁）</div>
+  <div id="pages"></div>
 
 <script>
 (function(){
-  const gridEl = document.getElementById('grid');
-  const rownumsEl = document.getElementById('rownums');
-  const colsInput = document.getElementById('cols');
-  const rowsInput = document.getElementById('rows');
+  const pagesEl = document.getElementById('pages');
+  const rowsInput = document.getElementById('rowsPerCol');   // 每欄字數
+  const colsInput = document.getElementById('colsPerPage');  // 每頁欄數
   const cellsizeInput = document.getElementById('cellsize');
-  const countEl = document.getElementById('count');
-  const colsLabel = document.getElementById('colsLabel');
-  const rowsLabel = document.getElementById('rowsLabel');
+  const globalCountEl = document.getElementById('globalCount');
 
-  let COLS = parseInt(colsInput.value, 10);
-  let ROWS = parseInt(rowsInput.value, 10);
+  let ROWS = parseInt(rowsInput.value, 10);   // 每欄字數（欄高）
+  let COLS = parseInt(colsInput.value, 10);   // 每頁欄數
   let CELLMM = parseFloat(cellsizeInput.value) || 8;
-  let cells = [];
 
-  function buildGrid(rows, cols, cellmm){
-    gridEl.innerHTML = '';
-    rownumsEl.innerHTML = '';
-    gridEl.style.setProperty('--cell-mm', cellmm + 'mm');
-    gridEl.style.gridTemplateColumns = `repeat(${cols}, ${cellmm}mm)`;
-    cells = [];
-    const total = rows * cols;
-    for(let i=0;i<total;i++){
-      const inp = document.createElement('input');
-      inp.type = 'text';
-      inp.maxLength = 2; // 保留 2 是為了容納組字過程，實際只留最後一個字
-      inp.className = 'cell';
-      inp.dataset.i = i;
-      inp.autocomplete = 'off';
-      inp.style.aspectRatio = '1 / 1';
-      gridEl.appendChild(inp);
+  let cells = [];      // 全域「閱讀順序」flat 陣列：頁1(欄0上→下,欄1上→下,...) , 頁2...
+  let pageCount = 0;
+
+  function setCellMM(mm){
+    document.documentElement.style.setProperty('--cell-mm', mm + 'mm');
+  }
+
+  function buildPage(pageNumber){
+    const paper = document.createElement('div');
+    paper.className = 'paper';
+
+    if(pageNumber === 1){
+      const head = document.createElement('div');
+      head.className = 'head';
+      head.innerHTML = `
+        <div class="title-box">
+          <label>題目</label>
+          <input type="text" id="topic" placeholder="請輸入作文題目">
+        </div>
+        <div class="meta">
+          <div class="field"><label>班級</label><input type="text"></div>
+          <div class="field"><label>座號</label><input type="text"></div>
+          <div class="field"><label>姓名</label><input type="text"></div>
+        </div>`;
+      paper.appendChild(head);
+    } else {
+      const badge = document.createElement('div');
+      badge.className = 'page-badge';
+      badge.textContent = `第 ${pageNumber} 頁`;
+      paper.appendChild(badge);
+    }
+
+    const bodyWrap = document.createElement('div');
+    bodyWrap.className = 'body-wrap';
+    const gridBody = document.createElement('div');
+    gridBody.className = 'grid-body';
+    bodyWrap.appendChild(gridBody);
+    paper.appendChild(bodyWrap);
+
+    const footer = document.createElement('div');
+    footer.className = 'footer';
+    footer.innerHTML = `<span>第 ${pageNumber} 頁</span><span>每欄 ${ROWS} 字 × 每頁 ${COLS} 欄</span>`;
+    paper.appendChild(footer);
+
+    // 依「閱讀欄序」c = 0..COLS-1（c=0 為最右欄，最先填寫）建立每欄的輸入格，
+    // 但 DOM 附加順序需為視覺由左至右（v = COLS-1-c 由小到大附加），
+    // 這樣一般（非反向）flex 排列即可讓 c=0 顯示在最右邊。
+    const colDoms = new Array(COLS);
+    for(let v = 0; v < COLS; v++){
+      const c = COLS - 1 - v;
+      const col = document.createElement('div');
+      col.className = 'column';
+      colDoms[c] = col;
+    }
+    for(let v = 0; v < COLS; v++){
+      const c = COLS - 1 - v;
+      gridBody.appendChild(colDoms[c]);
+    }
+
+    const pageCells = [];
+    for(let c = 0; c < COLS; c++){
+      const col = colDoms[c];
+      for(let r = 0; r < ROWS; r++){
+        const inp = document.createElement('input');
+        inp.type = 'text';
+        inp.maxLength = 2;
+        inp.className = 'cell';
+        inp.autocomplete = 'off';
+        col.appendChild(inp);
+        pageCells.push(inp);
+      }
+    }
+
+    pagesEl.appendChild(paper);
+    return pageCells;
+  }
+
+  function addPage(){
+    pageCount += 1;
+    const pageCells = buildPage(pageCount);
+    const startIdx = cells.length;
+    pageCells.forEach((inp, i)=>{
+      const idx = startIdx + i;
+      inp.dataset.i = idx;
+      attachHandlers(inp, idx);
       cells.push(inp);
-    }
-    for(let r=0;r<rows;r++){
-      const cellH = 100/rows;
-      const d = document.createElement('div');
-      d.className = 'rownum';
-      d.style.height = 'auto';
-      rownumsEl.appendChild(d);
-    }
-    colsLabel.textContent = cols;
-    rowsLabel.textContent = rows;
-    attachHandlers();
-    updateCount();
-    // 讓列號跟格子同高
-    requestAnimationFrame(()=>{
-      const h = cells[0].getBoundingClientRect().height;
-      [...rownumsEl.children].forEach(d=> d.style.height = h+'px');
     });
+    updateGlobalCount();
+    return startIdx;
   }
 
   function focusCell(idx){
-    if(idx>=0 && idx<cells.length){
-      cells[idx].focus();
-      cells[idx].select();
+    if(idx < 0) return;
+    while(idx >= cells.length){
+      addPage();
     }
+    cells[idx].focus();
+    cells[idx].select();
   }
 
-  function updateCount(){
+  function updateGlobalCount(){
     const filled = cells.filter(c=>c.value.trim().length>0).length;
-    countEl.textContent = `已填字數：${filled} / ${cells.length}`;
+    globalCountEl.textContent = `總計已填字數：${filled} / ${cells.length}（共 ${pageCount} 頁）`;
   }
 
-  function attachHandlers(){
-    cells.forEach((inp, idx)=>{
-      inp.addEventListener('input', (e)=>{
-        // 只保留最後輸入的一個字元（相容注音/手寫等輸入法組字行為）
-        if(inp.value.length > 1){
-          inp.value = inp.value.slice(-1);
-        }
-        if(inp.value.length === 1){
-          updateCount();
-          focusCell(idx+1);
-        } else {
-          updateCount();
-        }
-      });
-
-      inp.addEventListener('keydown', (e)=>{
-        if(e.key === ' '){
-          e.preventDefault();
-          inp.value = '';
-          updateCount();
-          focusCell(idx+1);
-        } else if(e.key === 'Backspace' && inp.value === ''){
-          e.preventDefault();
-          focusCell(idx-1);
-          if(idx-1>=0){ cells[idx-1].value=''; updateCount(); }
-        } else if(e.key === 'Enter'){
-          e.preventDefault();
-          const nextRowStart = (Math.floor(idx/COLS)+1)*COLS;
-          focusCell(nextRowStart);
-        } else if(e.key === 'ArrowRight'){
-          e.preventDefault(); focusCell(idx+1);
-        } else if(e.key === 'ArrowLeft'){
-          e.preventDefault(); focusCell(idx-1);
-        } else if(e.key === 'ArrowDown'){
-          e.preventDefault(); focusCell(idx+COLS);
-        } else if(e.key === 'ArrowUp'){
-          e.preventDefault(); focusCell(idx-COLS);
-        }
-      });
-
-      inp.addEventListener('click', ()=> focusCell(idx));
+  function attachHandlers(inp, idx){
+    inp.addEventListener('input', ()=>{
+      if(inp.value.length > 1){
+        inp.value = inp.value.slice(-1);
+      }
+      updateGlobalCount();
+      if(inp.value.length === 1){
+        focusCell(idx+1);
+      }
     });
+
+    inp.addEventListener('keydown', (e)=>{
+      if(e.key === ' '){
+        e.preventDefault();
+        inp.value = '';
+        updateGlobalCount();
+        focusCell(idx+1);
+      } else if(e.key === 'Backspace' && inp.value === ''){
+        e.preventDefault();
+        if(idx-1 >= 0){
+          cells[idx-1].value = '';
+          updateGlobalCount();
+          focusCell(idx-1);
+        }
+      } else if(e.key === 'Enter'){
+        e.preventDefault();
+        const nextColStart = (Math.floor(idx/ROWS)+1)*ROWS;
+        focusCell(nextColStart);
+      } else if(e.key === 'ArrowDown'){
+        e.preventDefault(); if(idx+1 < cells.length || (idx+1)%ROWS!==0) focusCell(idx+1);
+      } else if(e.key === 'ArrowUp'){
+        e.preventDefault(); if(idx>0) focusCell(idx-1);
+      } else if(e.key === 'ArrowLeft'){
+        e.preventDefault(); focusCell(idx+ROWS);   // 往左＝往下一欄（閱讀方向前進）
+      } else if(e.key === 'ArrowRight'){
+        e.preventDefault(); if(idx-ROWS>=0) focusCell(idx-ROWS); // 往右＝往前一欄
+      }
+    });
+
+    inp.addEventListener('click', ()=> focusCell(idx));
+  }
+
+  function resetAll(){
+    pagesEl.innerHTML = '';
+    cells = [];
+    pageCount = 0;
+    addPage();
+    focusCell(0);
   }
 
   document.getElementById('rebuild').addEventListener('click', ()=>{
-    const c = Math.max(5, Math.min(40, parseInt(colsInput.value,10) || 28));
-    const r = Math.max(5, Math.min(30, parseInt(rowsInput.value,10) || 14));
+    const r = Math.max(5, Math.min(35, parseInt(rowsInput.value,10) || 20));
+    const c = Math.max(5, Math.min(45, parseInt(colsInput.value,10) || 28));
     const m = Math.max(5, Math.min(15, parseFloat(cellsizeInput.value) || 8));
-    const hasContent = cells.some(c=>c.value.trim().length>0);
-    if(hasContent && !confirm('重新建立格線會清除目前已填寫的內容，確定要繼續嗎？')) return;
-    COLS = c; ROWS = r; CELLMM = m;
-    buildGrid(ROWS, COLS, CELLMM);
+    const hasContent = cells.some(cell=>cell.value.trim().length>0);
+    if(hasContent && !confirm('重新建立格線會清除目前所有頁面的內容，確定要繼續嗎？')) return;
+    ROWS = r; COLS = c; CELLMM = m;
+    setCellMM(CELLMM);
+    resetAll();
+  });
+
+  document.getElementById('addPageBtn').addEventListener('click', ()=>{
+    const startIdx = addPage();
+    focusCell(startIdx);
   });
 
   document.getElementById('clearAll').addEventListener('click', ()=>{
-    if(!confirm('確定要清空所有已填寫的文字嗎？')) return;
+    if(!confirm('確定要清空所有頁面已填寫的文字嗎？')) return;
     cells.forEach(c=>c.value='');
-    updateCount();
+    updateGlobalCount();
     focusCell(0);
   });
 
@@ -309,8 +365,8 @@
     window.print();
   });
 
-  buildGrid(ROWS, COLS, CELLMM);
-  focusCell(0);
+  setCellMM(CELLMM);
+  resetAll();
 })();
 </script>
 </body>
