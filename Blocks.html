@@ -230,7 +230,7 @@
       cells[idx].select();
     }
   }
-
+  
   function updateCount(){
     const filled = cells.filter(c=>c.value.trim().length>0).length;
     countEl.textContent = `已填字數：${filled} / ${cells.length}`;
