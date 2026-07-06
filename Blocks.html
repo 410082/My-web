@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>作文稿紙</title>
+<style>
+  :root{
+    --red: #c0392b;
+    --red-faint: #e8b4ac;
+    --paper: #fffdf8;
+    --ink: #2b2b2b;
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0;
+    background:#d8d2c4;
+    font-family: "PMingLiU","DFKai-SB","標楷體","Kaiti TC","Noto Serif TC",serif;
+    color:var(--ink);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:24px 12px 60px;
+  }
+
+  /* ---------- 工具列（不列印） ---------- */
+  .toolbar{
+    width:100%;
+    max-width:900px;
+    background:#2b2b2b;
+    color:#f4f1ea;
+    border-radius:10px;
+    padding:14px 18px;
+    margin-bottom:20px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px 16px;
+    align-items:flex-end;
+    font-family: system-ui, -apple-system, sans-serif;
+    box-shadow:0 4px 14px rgba(0,0,0,.25);
+  }
+  .toolbar .field{ display:flex; flex-direction:column; gap:4px; font-size:12px; color:#c9c4b8;}
+  .toolbar input[type=number]{
+    width:64px; padding:6px 8px; border-radius:6px; border:1px solid #555;
+    background:#3a3a3a; color:#f4f1ea; font-size:14px;
+  }
+  .toolbar button{
+    padding:8px 16px; border-radius:6px; border:none; cursor:pointer;
+    font-size:13px; font-weight:600; font-family:inherit;
+  }
+  .btn-primary{ background:var(--red); color:#fff; }
+  .btn-primary:hover{ background:#a5301f; }
+  .btn-secondary{ background:#4a4a4a; color:#f4f1ea; }
+  .btn-secondary:hover{ background:#5c5c5c; }
+  .toolbar .hint{
+    flex-basis:100%; font-size:11.5px; color:#9c9789; line-height:1.6; margin-top:4px;
+  }
+
+  /* ---------- 紙張 ---------- */
+  .paper{
+    background:var(--paper);
+    width:210mm;
+    max-width:100%;
+    padding:14mm 12mm;
+    box-shadow:0 6px 24px rgba(0,0,0,.3);
+  }
+  .head{
+    display:flex;
+    align-items:flex-end;
+    gap:14px;
+    border-bottom:2px solid var(--red);
+    padding-bottom:10px;
+    margin-bottom:14px;
+  }
+  .head .title-box{ flex:1; display:flex; align-items:center; gap:8px; }
+  .head .title-box label{ font-size:13px; color:var(--red); white-space:nowrap; letter-spacing:2px;}
+  .head .title-box input{
+    flex:1; font-size:20px; border:none; border-bottom:1px dashed var(--red-faint);
+    background:transparent; padding:4px 6px; font-family:inherit; color:var(--ink);
+    text-align:center; letter-spacing:4px;
+  }
+  .head .meta{ display:flex; gap:10px; }
+  .head .meta .field{ display:flex; align-items:center; gap:4px; }
+  .head .meta label{ font-size:11px; color:#888; }
+  .head .meta input{
+    width:64px; border:none; border-bottom:1px solid #ccc; background:transparent;
+    font-family:inherit; font-size:13px; text-align:center; padding:2px 0;
+  }
+
+  /* ---------- 格線 ---------- */
+  .gridwrap{ display:flex; }
+  .rownums{
+    display:flex; flex-direction:column; padding-right:4px;
+  }
+  .rownum{
+    display:flex; align-items:center; justify-content:flex-end;
+    font-size:10px; color:#b98; color:#c9a58f;
+  }
+  .grid{
+    flex:1;
+    display:grid;
+    border-top:1px solid var(--red);
+    border-left:1px solid var(--red);
+  }
+  .cell{
+    border-right:1px solid var(--red);
+    border-bottom:1px solid var(--red);
+    text-align:center;
+    font-size:18px;
+    font-family:inherit;
+    color:var(--ink);
+    background:transparent;
+    padding:0;
+    outline:none;
+    caret-color:var(--red);
+  }
+  .cell:focus{ background:#fdf0d5; }
+  .cell.col-mark{ border-right:1px solid var(--red-faint); }
+
+  .footer{
+    margin-top:10px;
+    display:flex;
+    justify-content:space-between;
+    font-size:11px;
+    color:#999;
+  }
+
+  @media print{
+    body{ background:#fff; padding:0; }
+    .toolbar{ display:none !important; }
+    .paper{ box-shadow:none; width:auto; padding:10mm 10mm; }
+    @page{ size:A4; margin:8mm; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="toolbar no-print">
+    <div class="field">
+      <label>每行格數（欄）</label>
+      <input type="number" id="cols" value="20" min="5" max="30">
+    </div>
+    <div class="field">
+      <label>總行數（列）</label>
+      <input type="number" id="rows" value="20" min="5" max="40">
+    </div>
+    <button class="btn-secondary" id="rebuild">重新建立格線</button>
+    <button class="btn-secondary" id="clearAll">清空作答</button>
+    <button class="btn-primary" id="printBtn">列印 / 輸出 PDF</button>
+    <div class="hint">
+      操作方式：點一格即可選取該格，用手寫輸入法（或任何輸入法）輸入一個字後會自動跳到下一格；按「空白鍵」會跳過一格並留白；空格為空時按「Backspace」會退回上一格。輸入完成後按上方「列印 / 輸出 PDF」，在列印視窗的「印表機」選單選擇「另存為 PDF」即可。
+    </div>
+  </div>
+
+  <div class="paper" id="paper">
+    <div class="head">
+      <div class="title-box">
+        <label>題目</label>
+        <input type="text" id="topic" placeholder="請輸入作文題目">
+      </div>
+      <div class="meta">
+        <div class="field"><label>班級</label><input type="text"></div>
+        <div class="field"><label>座號</label><input type="text"></div>
+        <div class="field"><label>姓名</label><input type="text"></div>
+      </div>
+    </div>
+
+    <div class="gridwrap">
+      <div class="rownums" id="rownums"></div>
+      <div class="grid" id="grid"></div>
+    </div>
+
+    <div class="footer">
+      <span id="count">已填字數：0 / 0</span>
+      <span>每行 <span id="colsLabel">20</span> 字 × <span id="rowsLabel">20</span> 行</span>
+    </div>
+  </div>
+
+<script>
+(function(){
+  const gridEl = document.getElementById('grid');
+  const rownumsEl = document.getElementById('rownums');
+  const colsInput = document.getElementById('cols');
+  const rowsInput = document.getElementById('rows');
+  const countEl = document.getElementById('count');
+  const colsLabel = document.getElementById('colsLabel');
+  const rowsLabel = document.getElementById('rowsLabel');
+
+  let COLS = parseInt(colsInput.value, 10);
+  let ROWS = parseInt(rowsInput.value, 10);
+  let cells = [];
+
+  function buildGrid(rows, cols){
+    gridEl.innerHTML = '';
+    rownumsEl.innerHTML = '';
+    gridEl.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+    cells = [];
+    const total = rows * cols;
+    for(let i=0;i<total;i++){
+      const inp = document.createElement('input');
+      inp.type = 'text';
+      inp.maxLength = 2; // 保留 2 是為了容納組字過程，實際只留最後一個字
+      inp.className = 'cell';
+      inp.dataset.i = i;
+      inp.autocomplete = 'off';
+      inp.style.aspectRatio = '1 / 1';
+      gridEl.appendChild(inp);
+      cells.push(inp);
+    }
+    for(let r=0;r<rows;r++){
+      const cellH = 100/rows;
+      const d = document.createElement('div');
+      d.className = 'rownum';
+      d.style.height = 'auto';
+      rownumsEl.appendChild(d);
+    }
+    colsLabel.textContent = cols;
+    rowsLabel.textContent = rows;
+    attachHandlers();
+    updateCount();
+    // 讓列號跟格子同高
+    requestAnimationFrame(()=>{
+      const h = cells[0].getBoundingClientRect().height;
+      [...rownumsEl.children].forEach(d=> d.style.height = h+'px');
+    });
+  }
+
+  function focusCell(idx){
+    if(idx>=0 && idx<cells.length){
+      cells[idx].focus();
+      cells[idx].select();
+    }
+  }
+
+  function updateCount(){
+    const filled = cells.filter(c=>c.value.trim().length>0).length;
+    countEl.textContent = `已填字數：${filled} / ${cells.length}`;
+  }
+
+  function attachHandlers(){
+    cells.forEach((inp, idx)=>{
+      inp.addEventListener('input', (e)=>{
+        // 只保留最後輸入的一個字元（相容注音/手寫等輸入法組字行為）
+        if(inp.value.length > 1){
+          inp.value = inp.value.slice(-1);
+        }
+        if(inp.value.length === 1){
+          updateCount();
+          focusCell(idx+1);
+        } else {
+          updateCount();
+        }
+      });
+
+      inp.addEventListener('keydown', (e)=>{
+        if(e.key === ' '){
+          e.preventDefault();
+          inp.value = '';
+          updateCount();
+          focusCell(idx+1);
+        } else if(e.key === 'Backspace' && inp.value === ''){
+          e.preventDefault();
+          focusCell(idx-1);
+          if(idx-1>=0){ cells[idx-1].value=''; updateCount(); }
+        } else if(e.key === 'Enter'){
+          e.preventDefault();
+          const nextRowStart = (Math.floor(idx/COLS)+1)*COLS;
+          focusCell(nextRowStart);
+        } else if(e.key === 'ArrowRight'){
+          e.preventDefault(); focusCell(idx+1);
+        } else if(e.key === 'ArrowLeft'){
+          e.preventDefault(); focusCell(idx-1);
+        } else if(e.key === 'ArrowDown'){
+          e.preventDefault(); focusCell(idx+COLS);
+        } else if(e.key === 'ArrowUp'){
+          e.preventDefault(); focusCell(idx-COLS);
+        }
+      });
+
+      inp.addEventListener('click', ()=> focusCell(idx));
+    });
+  }
+
+  document.getElementById('rebuild').addEventListener('click', ()=>{
+    const c = Math.max(5, Math.min(30, parseInt(colsInput.value,10) || 20));
+    const r = Math.max(5, Math.min(40, parseInt(rowsInput.value,10) || 20));
+    const hasContent = cells.some(c=>c.value.trim().length>0);
+    if(hasContent && !confirm('重新建立格線會清除目前已填寫的內容，確定要繼續嗎？')) return;
+    COLS = c; ROWS = r;
+    buildGrid(ROWS, COLS);
+  });
+
+  document.getElementById('clearAll').addEventListener('click', ()=>{
+    if(!confirm('確定要清空所有已填寫的文字嗎？')) return;
+    cells.forEach(c=>c.value='');
+    updateCount();
+    focusCell(0);
+  });
+
+  document.getElementById('printBtn').addEventListener('click', ()=>{
+    window.print();
+  });
+
+  buildGrid(ROWS, COLS);
+  focusCell(0);
+})();
+</script>
+</body>
+</html>
